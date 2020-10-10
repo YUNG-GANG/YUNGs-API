@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[34,)"
+license="GPLv3"
+#issueTrackerURL="http://my.issue.tracker/"
+#displayURL="cuseforge URL"
+#logoFile="logo.png"
+
+[[mods]]
+	modId="${modId}"
+	version="${version}"
+	displayName="${modName}"
+	credits="${modCredits}"
+	authors="${modAuthor}"
+	description="${modDescription}"
+
+[[dependencies.customportalblocks]]
+    modId="forge"
+    mandatory=true
+    versionRange="[34,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.customportalblocks]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.16.3]"
+    ordering="NONE"
+    side="BOTH"
