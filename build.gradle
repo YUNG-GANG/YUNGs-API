@@ -11,7 +11,8 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
 // Maven info
 version = "${modVersion}-${modBuildNum}"
@@ -22,14 +23,8 @@ sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = co
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
-    // The mappings can be changed at any time, and must be in the following format.
-    // snapshot_YYYYMMDD   Snapshot are built nightly.
-    // stable_#            Stables are built at the discretion of the MCP team.
-    // Use non-default mappings at your own risk. they may not always work.
-    // Simply re-run your setup task after changing the mappings to update your workspace.
     mappings channel: modMcpMappingsChannel, version: modMcpMappingsVersion
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
-    
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     // Default run configurations.
@@ -88,9 +83,6 @@ minecraft {
 }
 
 dependencies {
-    // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
-    // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
-    // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft "net.minecraftforge:forge:" + modMinecraftVersion + "-" + modForgeVersion
 
     // You may put jars on which you depend on in ./libs or you may define them like so..
@@ -159,21 +151,72 @@ jar {
     }
 }
 
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
 // Example configuration to allow publishing using the maven-publish task
 // This is the preferred method to reobfuscate your jar file
 jar.finalizedBy('reobfJar') 
 // However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
 //publish.dependsOn('reobfJar')
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact jar
-        }
-    }
+// Note that the ossrhUsername and ossrhPassword, as well as the
+// signing.keyId, signing.password, and signing.secretKeyRingFile variables are defined separately
+// in my global gradle.properties for protection
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
     repositories {
-        maven {
-            url "file:///${project.projectDir}/mcmodsrepo"
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name modName
+                packaging 'jar'
+                // optionally artifactId can be defined here
+                description modDescription
+                url 'https://github.com/yungnickyoung/YUNGs-Api'
+
+                scm {
+                    url 'https://github.com/yungnickyoung/YUNGs-Api'
+                    connection 'scm:git:git://github.com/yungnickyoung/YUNGs-Api.git'
+                    developerConnection 'scm:git:ssh://git@github.com:yungnickyoung/YUNGs-Api.git'
+                }
+                licenses {
+                    license {
+                        name 'GNU GPLv3'
+                        url 'https://github.com/yungnickyoung/YUNGs-Api/blob/forge-1.16.3/LICENSE'
+                        distribution 'repo'
+                    }
+                }
+                developers {
+                    developer {
+                        name 'YUNGNICKYOUNG'
+                        email 'yungnickyoung@gmail.com'
+                    }
+                }
+            }
         }
     }
 }
