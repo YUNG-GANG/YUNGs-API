@@ -5,7 +5,7 @@
     <option name="VM_PARAMETERS" value="-Dforge.logging.console.level=debug -Dforge.logging.markers=SCAN,REGISTRIES,REGISTRYDUMP -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump &quot;-Dos.name=Windows 10&quot; -Dos.version=10.0"/>
     <option name="PROGRAM_PARAMETERS" value=""/>
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$\run"/>
-    <module name="structure-api.main"/>
+    <module name="yungsapi.main"/>
     <envs>
       <env name="MOD_CLASSES" value="yungsapi%%$PROJECT_DIR$\build\resources\main;yungsapi%%$PROJECT_DIR$\build\classes\java\main"/>
       <env name="MCP_MAPPINGS" value="snapshot_20200813-1.16.1"/>

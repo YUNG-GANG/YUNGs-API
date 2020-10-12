@@ -15,7 +15,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 // Maven info
-version = "${modVersion}-${modBuildNum}"
+version = "${modMinecraftVersion}-${modBuildNum}"
 group = modGroup
 archivesBaseName = modFileName
 
@@ -84,6 +84,7 @@ minecraft {
 
 dependencies {
     minecraft "net.minecraftforge:forge:" + modMinecraftVersion + "-" + modForgeVersion
+    implementation 'com.google.code.gson:gson:2.8.6'
 
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"

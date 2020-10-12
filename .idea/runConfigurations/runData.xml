@@ -3,9 +3,9 @@
   <configuration default="false" factoryName="Application" name="runData" singleton="false" type="Application">
     <option name="MAIN_CLASS_NAME" value="net.minecraftforge.userdev.LaunchTesting"/>
     <option name="VM_PARAMETERS" value="-Dforge.logging.console.level=debug -Dforge.logging.markers=SCAN,REGISTRIES,REGISTRYDUMP"/>
-    <option name="PROGRAM_PARAMETERS" value="--mod examplemod --all --output C:\Users\nickl\Desktop\Gaming\Minecraft\Modding\structure-api\src\generated\resources"/>
+    <option name="PROGRAM_PARAMETERS" value="--mod examplemod --all --output C:\Users\nickl\Desktop\Gaming\Minecraft\Modding\yungsapi\src\generated\resources"/>
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$\run"/>
-    <module name="structure-api.main"/>
+    <module name="yungsapi.main"/>
     <envs>
       <env name="MOD_CLASSES" value="yungsapi%%$PROJECT_DIR$\build\resources\main;yungsapi%%$PROJECT_DIR$\build\classes\java\main"/>
       <env name="MCP_MAPPINGS" value="snapshot_20200813-1.16.1"/>
