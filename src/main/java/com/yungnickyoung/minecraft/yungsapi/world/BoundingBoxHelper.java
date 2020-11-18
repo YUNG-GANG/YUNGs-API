@@ -1,7 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.world;
 
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.MutableBoundingBox;
+import net.minecraft.util.math.BlockBox;
+import net.minecraft.util.math.Direction;
 
 public class BoundingBoxHelper {
     /**
@@ -9,8 +9,8 @@ public class BoundingBoxHelper {
      * The main axis is the primary of the x and z axes, in the direction
      * the structure should generate from the starting point.
      */
-    public static MutableBoundingBox boxFromCoordsWithRotation(int x, int y, int z, int secondaryAxisLen, int yLen, int mainAxisLen, Direction mainAxis) {
-        MutableBoundingBox blockBox = new MutableBoundingBox(x, y, z, x, y + yLen - 1, z);
+    public static BlockBox boxFromCoordsWithRotation(int x, int y, int z, int secondaryAxisLen, int yLen, int mainAxisLen, Direction mainAxis) {
+        BlockBox blockBox = new BlockBox(x, y, z, x, y + yLen - 1, z);
         switch (mainAxis) {
             case NORTH:
             default:

@@ -2,10 +2,10 @@ package com.yungnickyoung.minecraft.yungsapi.world;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ColumnPos;
-import net.minecraft.world.chunk.IChunk;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.chunk.Chunk;
 
 public class SurfaceHelper {
     private SurfaceHelper() {} // Private constructor prevents instantiation
@@ -14,7 +14,7 @@ public class SurfaceHelper {
      * Returns the y-coordinate of the topmost non-air block at the given column position in the world.
      * Returns 1 if somehow no non-air block is found.
      */
-    public static int getSurfaceHeight(IChunk chunkIn, ColumnPos pos) {
+    public static int getSurfaceHeight(Chunk chunkIn, ColumnPos pos) {
         BlockPos.Mutable blockPos = new BlockPos.Mutable(pos.x, 255, pos.z);
 
         // Edge case: blocks go all the way up to build height

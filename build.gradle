@@ -1,155 +1,41 @@
-buildscript {
-    repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
-        jcenter()
-        mavenCentral()
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
-    }
+plugins {
+    id 'fabric-loom' version '0.5-SNAPSHOT'
+    id 'maven-publish'
 }
-apply plugin: 'net.minecraftforge.gradle'
-// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
-apply plugin: 'eclipse'
+
 apply plugin: 'maven'
 apply plugin: 'signing'
 
-// Maven info
-version = "${modMinecraftVersion}-${modBuildNum}"
-group = modGroup
-archivesBaseName = modFileName
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
-
-println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
-minecraft {
-    mappings channel: modMcpMappingsChannel, version: modMcpMappingsVersion
-    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
-    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-
-    // Default run configurations.
-    // These can be tweaked, removed, or duplicated as needed.
-    runs {
-        client {
-            workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-
-            // Recommended logging level for the console
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                yungsapi {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        server {
-            workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-
-            // Recommended logging level for the console
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                yungsapi {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        data {
-            workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-
-            // Recommended logging level for the console
-            property 'forge.logging.console.level', 'debug'
-
-            args '--mod', 'yungsapi', '--all', '--output', file('src/generated/resources/')
-
-            mods {
-                yungsapi {
-                    source sourceSets.main
-                }
-            }
-        }
-    }
-}
+archivesBaseName = project.archives_base_name
+version = "${project.minecraft_version}-${project.mod_build_num}"
+group = project.maven_group
 
 dependencies {
-    minecraft "net.minecraftforge:forge:" + modMinecraftVersion + "-" + modForgeVersion
+    //to change the versions see the gradle.properties file
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     implementation 'com.google.code.gson:gson:2.8.6'
-
-    // You may put jars on which you depend on in ./libs or you may define them like so..
-    // compile "some.group:artifact:version:classifier"
-    // compile "some.group:artifact:version"
-
-    // Real examples
-    // compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
-    // compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
-
-    // The 'provided' configuration is for optional dependencies that exist at compile-time but might not at runtime.
-    // provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-
-    // These dependencies get remapped to your current MCP mappings
-    // deobf 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-
-    // For more info...
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
-
 }
 
 processResources {
-    // this will ensure that this task is redone when any variables change
-    inputs.property "modId", modId
     inputs.property "version", project.version
-    inputs.property "modName", modName
-    inputs.property "modCredits", modCredits
-    inputs.property "modAuthor", modAuthor
-    inputs.property "modDescription", modDescription
-    inputs.property "modMinecraftVersion", modMinecraftVersion
 
-    // Replace stuff in mods.toml, nothing else
     from(sourceSets.main.resources.srcDirs) {
-        include 'META-INF/mods.toml'
-
-        // Replace vars in mods.toml
-        expand 'modId':modId,
-                'version': project.version,
-                'modName':modName,
-                'modCredits':modCredits,
-                'modAuthor':modAuthor,
-                'modDescription':modDescription,
-                'modMinecraftVersion': modMinecraftVersion
+        include "fabric.mod.json"
+        expand "version": project.version
     }
 
-    // Copy everything else except the mods.toml
     from(sourceSets.main.resources.srcDirs) {
-        exclude 'META-INF/mods.toml'
+        exclude "fabric.mod.json"
     }
 }
 
-// Example for how to get properties into the manifest for reading by the runtime..
-jar {
-    manifest {
-        attributes([
-                "Specification-Title"     : modId,
-                "Specification-Vendor"    : modGroup,
-                "Specification-Version"   : "1.0", // We are version 1 of ourselves
-                "Implementation-Title"    : project.name,
-                "Implementation-Version"  : "${version}",
-                "Implementation-Vendor"   : modGroup,
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                "Signing-Fingerprint"     : project.hasProperty('signSHA1') ? project.findProperty('signSHA1') : "unsigned"
-        ],)
-    }
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
 }
 
 task javadocJar(type: Jar) {
@@ -162,15 +48,13 @@ task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
+jar {
+    from "LICENSE"
+}
+
 artifacts {
     archives javadocJar, sourcesJar
 }
-
-// Example configuration to allow publishing using the maven-publish task
-// This is the preferred method to reobfuscate your jar file
-jar.finalizedBy('reobfJar') 
-// However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
-//publish.dependsOn('reobfJar')
 
 // Note that the ossrhUsername and ossrhPassword, as well as the
 // signing.keyId, signing.password, and signing.secretKeyRingFile variables are defined separately
@@ -193,10 +77,10 @@ uploadArchives {
             }
 
             pom.project {
-                name modName
+                name "YUNG's API"
                 packaging 'jar'
                 // optionally artifactId can be defined here
-                description modDescription
+                description "A common API for YUNG's Minecraft mods"
                 url 'https://github.com/yungnickyoung/YUNGs-Api'
 
                 scm {
@@ -207,7 +91,7 @@ uploadArchives {
                 licenses {
                     license {
                         name 'GNU GPLv3'
-                        url 'https://github.com/yungnickyoung/YUNGs-Api/blob/forge-1.16.3/LICENSE'
+                        url 'https://github.com/yungnickyoung/YUNGs-Api/blob/fabric-1.16/LICENSE'
                         distribution 'repo'
                     }
                 }

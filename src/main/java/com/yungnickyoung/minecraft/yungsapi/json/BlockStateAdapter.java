@@ -6,9 +6,9 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.yungnickyoung.minecraft.yungsapi.YungsApi;
 import net.minecraft.block.*;
-import net.minecraft.state.Property;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.state.property.Property;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -81,7 +81,7 @@ public class BlockStateAdapter extends TypeAdapter<BlockState> {
         }
 
         try {
-            blockState = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(blockString)).getDefaultState();
+            blockState = Registry.BLOCK.get(new Identifier(blockString)).getDefaultState();
         } catch (Exception e) {
             YungsApi.LOGGER.error("JSON: Unable to read block '{}': {}", blockString, e.toString());
             YungsApi.LOGGER.error("Using air instead...");
@@ -97,14 +97,14 @@ public class BlockStateAdapter extends TypeAdapter<BlockState> {
 
     /**
      * Attempts to parse the properties from the provided properties map and apply them to the provided blockstate
-     * @param blockState
+     * @param blockState Blockstate to apply properties to
      * @param properties Map of property names to property values
      * @param <T> The type of the property enum, usually resides within the Block's class
      * @return The configured blockstate
      */
     @SuppressWarnings("unchecked")
     private static <T extends Comparable<T>> BlockState getConfiguredBlockState(BlockState blockState, Map<String, String> properties) {
-        // Convert string property name/val into actual stuff that I can somehow apply to the blockstate
+        // Convert string property name/val into actual properties I can apply to the blockstate
         Block block = blockState.getBlock();
 
         for (Map.Entry<String, String> entry : properties.entrySet()) {
@@ -115,9 +115,9 @@ public class BlockStateAdapter extends TypeAdapter<BlockState> {
             for (Property<?> p : blockState.getProperties()) {
                 Property<T> property = (Property<T>) p;
                 if (property.getName().equals(key)) {
-                    T val = property.parseValue(value).orElse(null);
+                    T val = property.parse(value).orElse(null);
                     if (val == null) {
-                        YungsApi.LOGGER.error("JSON: Found null for property {} for block {}", property, block.getRegistryName());
+                        YungsApi.LOGGER.error("JSON: Found null for property {} for block {}", property, Registry.BLOCK.getId(block));
                         continue;
                     }
                     blockState = blockState.with(property, val);
@@ -127,7 +127,7 @@ public class BlockStateAdapter extends TypeAdapter<BlockState> {
             }
 
             if (!found) {
-                YungsApi.LOGGER.error("JSON: Unable to find property {} for block {}", key, block.getRegistryName());
+                YungsApi.LOGGER.error("JSON: Unable to find property {} for block {}", key, Registry.BLOCK.getId(block));
             }
         }
 

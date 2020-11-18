@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "yungsapi",
+  "version": "${version}",
+  "name": "YUNG's API",
+  "description": "A common API for YUNG's Minecraft mods",
+  "authors": [
+    "YUNGNICKYOUNG"
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/yungs-api-fabric",
+    "sources": "https://github.com/yungnickyoung/YUNGs-Api"
+  },
+  "license": "GPLv3",
+  "icon": "assets/logo.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.yungnickyoung.minecraft.yungsapi.YungsApi"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.10.6",
+    "fabric": ">=0.25.0",
+    "minecraft": ">=1.16.2"
+  }
+}
