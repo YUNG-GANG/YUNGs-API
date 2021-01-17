@@ -10,7 +10,7 @@ import java.util.Random;
 
 /**
  * Describes a set of BlockStates and the probability of each BlockState in the set being chosen.
- * This is very useful to easily adding random variation to your structures and features.
+ * This is very useful for easily adding random variation to your structures and features.
  */
 public class BlockSetSelector {
     /**
@@ -24,7 +24,7 @@ public class BlockSetSelector {
      * For example, if the total sum of all the probabilities of the entries is 0.6, then
      * there is a 0.4 chance of the defaultBlockState being selected.
      */
-    private BlockState defaultBlockState = Blocks.AIR.getDefaultState();
+    private BlockState defaultBlockState = Blocks.CAVE_AIR.getDefaultState();
 
     public BlockSetSelector(BlockState defaultBlockState) {
         this.defaultBlockState = defaultBlockState;
@@ -54,11 +54,9 @@ public class BlockSetSelector {
      */
     public BlockSetSelector addBlock(BlockState blockState, float chance) {
         // Abort if BlockState already a part of this selector
-        for (Map.Entry<BlockState, Float> entry : entries.entrySet()) {
-            if (entry.getKey() == blockState) {
-                YungsApi.LOGGER.warn(String.format("WARNING: duplicate block %s added to BlockSelector!", blockState.toString()));
-                return this;
-            }
+        if (entries.containsKey(blockState)) {
+            YungsApi.LOGGER.warn(String.format("WARNING: duplicate block %s added to BlockSelector!", blockState.toString()));
+            return this;
         }
 
         // Attempt to add BlockState to entries
