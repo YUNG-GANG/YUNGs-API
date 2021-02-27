@@ -33,8 +33,6 @@ public class BlockStateAdapter extends TypeAdapter<BlockState> {
             return;
         }
 
-        YungsApi.LOGGER.info("TEST123 {} {}", blockState, blockState.getClass());
-
         String blockString = String.valueOf(blockState);
         if (blockString.startsWith("Block")) blockString = blockString.replace("Block", "");
         blockString = blockString.replace("{", "");
