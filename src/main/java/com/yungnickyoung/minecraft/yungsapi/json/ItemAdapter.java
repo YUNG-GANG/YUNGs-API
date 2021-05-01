@@ -1,5 +1,6 @@
 package com.yungnickyoung.minecraft.yungsapi.json;
 
+import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
@@ -12,9 +13,9 @@ import net.minecraft.util.registry.Registry;
 import java.io.IOException;
 
 /**
- * GSON TypeAdapter to serialize/deserialize {@link net.minecraft.item.Item}.
+ * GSON TypeAdapter to serialize/deserialize {@link Item}.
  */
-public class ItemAdapter {
+public class ItemAdapter extends TypeAdapter<Item> {
     public Item read(JsonReader reader) throws IOException {
         if (reader.peek() == JsonToken.NULL) {
             reader.nextNull();
