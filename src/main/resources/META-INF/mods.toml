@@ -2,8 +2,6 @@ modLoader="javafml"
 loaderVersion="[35,)"
 license="GPLv3"
 issueTrackerURL="https://github.com/yungnickyoung/YUNGs-Api/issues"
-#displayURL="cuseforge URL"
-#logoFile="logo.png"
 
 [[mods]]
 	modId="${modId}"
@@ -12,3 +10,4 @@ issueTrackerURL="https://github.com/yungnickyoung/YUNGs-Api/issues"
 	credits="${modCredits}"
 	authors="${modAuthor}"
 	description="${modDescription}"
+	displayURL="https://www.curseforge.com/minecraft/mc-mods/yungs-api"
