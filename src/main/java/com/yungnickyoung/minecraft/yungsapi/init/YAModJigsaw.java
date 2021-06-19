@@ -9,11 +9,10 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 public class YAModJigsaw {
-    public static IJigsawDeserializer<YungMaxCountJigsawPiece> YUNG_MAX_COUNT_ELEMENT;
-    public static IJigsawDeserializer<YungSingleJigsawPiece> YUNG_SINGLE_ELEMENT;
-    public static IJigsawDeserializer<YungLegacySingleJigsawPiece> YUNG_LEGACY_SINGLE_ELEMENT;
-    public static IJigsawDeserializer<YungFeatureJigsawPiece> YUNG_FEATURE_ELEMENT;
-    public static IJigsawDeserializer<YungListJigsawPiece> YUNG_LIST_ELEMENT;
+    public static IJigsawDeserializer<MaxCountSingleJigsawPiece> MAX_COUNT_SINGLE_ELEMENT;
+    public static IJigsawDeserializer<MaxCountLegacySingleJigsawPiece> MAX_COUNT_LEGACY_SINGLE_ELEMENT;
+    public static IJigsawDeserializer<MaxCountFeatureJigsawPiece> MAX_COUNT_FEATURE_ELEMENT;
+    public static IJigsawDeserializer<MaxCountListJigsawPiece> MAX_COUNT_LIST_ELEMENT;
 
     public static void init() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(YAModJigsaw::commonSetup);
@@ -21,30 +20,25 @@ public class YAModJigsaw {
 
     private static void commonSetup(FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            YUNG_MAX_COUNT_ELEMENT = Registry.register(
+            MAX_COUNT_SINGLE_ELEMENT = Registry.register(
                 Registry.STRUCTURE_POOL_ELEMENT,
-                new ResourceLocation(YungsApi.MOD_ID, "yung_max_count_single_element"),
-                () -> YungMaxCountJigsawPiece.CODEC);
+                new ResourceLocation(YungsApi.MOD_ID, "max_count_single_element"),
+                () -> MaxCountSingleJigsawPiece.CODEC);
 
-            YUNG_SINGLE_ELEMENT = Registry.register(
+            MAX_COUNT_LEGACY_SINGLE_ELEMENT = Registry.register(
                 Registry.STRUCTURE_POOL_ELEMENT,
-                new ResourceLocation(YungsApi.MOD_ID, "yung_single_element"),
-                () -> YungSingleJigsawPiece.CODEC);
+                new ResourceLocation(YungsApi.MOD_ID, "max_count_legacy_single_element"),
+                () -> MaxCountLegacySingleJigsawPiece.CODEC);
 
-            YUNG_LEGACY_SINGLE_ELEMENT = Registry.register(
+            MAX_COUNT_FEATURE_ELEMENT = Registry.register(
                 Registry.STRUCTURE_POOL_ELEMENT,
-                new ResourceLocation(YungsApi.MOD_ID, "yung_legacy_single_element"),
-                () -> YungLegacySingleJigsawPiece.CODEC);
+                new ResourceLocation(YungsApi.MOD_ID, "max_count_feature_element"),
+                () -> MaxCountFeatureJigsawPiece.CODEC);
 
-            YUNG_FEATURE_ELEMENT = Registry.register(
+            MAX_COUNT_LIST_ELEMENT = Registry.register(
                 Registry.STRUCTURE_POOL_ELEMENT,
-                new ResourceLocation(YungsApi.MOD_ID, "yung_feature_element"),
-                () -> YungFeatureJigsawPiece.CODEC);
-
-            YUNG_LIST_ELEMENT = Registry.register(
-                Registry.STRUCTURE_POOL_ELEMENT,
-                new ResourceLocation(YungsApi.MOD_ID, "yung_list_element"),
-                () -> YungListJigsawPiece.CODEC);
+                new ResourceLocation(YungsApi.MOD_ID, "max_count_list_element"),
+                () -> MaxCountListJigsawPiece.CODEC);
         });
     }
 }

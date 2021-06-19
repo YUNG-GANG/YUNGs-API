@@ -15,20 +15,28 @@ import net.minecraft.world.gen.feature.template.Template;
 import java.util.function.Supplier;
 
 @MethodsReturnNonnullByDefault
-public class YungLegacySingleJigsawPiece extends LegacySingleJigsawPiece implements IYungJigsawPiece {
-    public static final Codec<YungLegacySingleJigsawPiece> CODEC = RecordCodecBuilder.create((builder) -> builder
+public class MaxCountLegacySingleJigsawPiece extends LegacySingleJigsawPiece implements IMaxCountJigsawPiece {
+    public static final Codec<MaxCountLegacySingleJigsawPiece> CODEC = RecordCodecBuilder.create((builder) -> builder
         .group(
             func_236846_c_(),
             func_236844_b_(),
             func_236848_d_(),
-            Codec.STRING.fieldOf("name").forGetter(YungLegacySingleJigsawPiece::getName))
-        .apply(builder, YungLegacySingleJigsawPiece::new));
+            Codec.STRING.fieldOf("name").forGetter(MaxCountLegacySingleJigsawPiece::getName),
+            Codec.INT.fieldOf("max_count").forGetter(MaxCountLegacySingleJigsawPiece::getMaxCount))
+        .apply(builder, MaxCountLegacySingleJigsawPiece::new));
 
+    protected final int maxCount;
     protected String name;
 
-    public YungLegacySingleJigsawPiece(Either<ResourceLocation, Template> resourceLocation, Supplier<StructureProcessorList> processors, JigsawPattern.PlacementBehaviour projection, String name) {
+    public MaxCountLegacySingleJigsawPiece(Either<ResourceLocation, Template> resourceLocation, Supplier<StructureProcessorList> processors, JigsawPattern.PlacementBehaviour projection, String name, int maxCount) {
         super(resourceLocation, processors, projection);
+        this.maxCount = maxCount;
         this.name = name;
+    }
+
+    @Override
+    public int getMaxCount() {
+        return this.maxCount;
     }
 
     @Override
@@ -37,10 +45,10 @@ public class YungLegacySingleJigsawPiece extends LegacySingleJigsawPiece impleme
     }
 
     public IJigsawDeserializer<?> getType() {
-        return YAModJigsaw.YUNG_LEGACY_SINGLE_ELEMENT;
+        return YAModJigsaw.MAX_COUNT_LEGACY_SINGLE_ELEMENT;
     }
 
     public String toString() {
-        return "YungLegacySingle[" + this.name + "][" + this.field_236839_c_ + "]";
+        return "MaxCountLegacySingle[" + this.name + "][" + this.field_236839_c_ + "][" + this.maxCount + "]";
     }
 }

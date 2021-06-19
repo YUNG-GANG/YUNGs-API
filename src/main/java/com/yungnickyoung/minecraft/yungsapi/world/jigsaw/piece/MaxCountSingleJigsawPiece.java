@@ -15,20 +15,28 @@ import net.minecraft.world.gen.feature.template.Template;
 import java.util.function.Supplier;
 
 @MethodsReturnNonnullByDefault
-public class YungSingleJigsawPiece extends SingleJigsawPiece implements IYungJigsawPiece {
-    public static final Codec<YungSingleJigsawPiece> CODEC = RecordCodecBuilder.create((builder) -> builder
+public class MaxCountSingleJigsawPiece extends SingleJigsawPiece implements IMaxCountJigsawPiece {
+    public static final Codec<MaxCountSingleJigsawPiece> CODEC = RecordCodecBuilder.create((builder) -> builder
         .group(
             func_236846_c_(),
             func_236844_b_(),
             func_236848_d_(),
-            Codec.STRING.fieldOf("name").forGetter(YungSingleJigsawPiece::getName))
-        .apply(builder, YungSingleJigsawPiece::new));
+            Codec.STRING.fieldOf("name").forGetter(MaxCountSingleJigsawPiece::getName),
+            Codec.INT.fieldOf("max_count").forGetter(MaxCountSingleJigsawPiece::getMaxCount))
+        .apply(builder, MaxCountSingleJigsawPiece::new));
 
-    protected String name;
+    protected final int maxCount;
+    protected final String name;
 
-    public YungSingleJigsawPiece(Either<ResourceLocation, Template> resourceLocation, Supplier<StructureProcessorList> processors, JigsawPattern.PlacementBehaviour projection, String name) {
+    public MaxCountSingleJigsawPiece(Either<ResourceLocation, Template> resourceLocation, Supplier<StructureProcessorList> processors, JigsawPattern.PlacementBehaviour projection, String name, int maxCount) {
         super(resourceLocation, processors, projection);
+        this.maxCount = maxCount;
         this.name = name;
+    }
+
+    @Override
+    public int getMaxCount() {
+        return this.maxCount;
     }
 
     @Override
@@ -37,10 +45,11 @@ public class YungSingleJigsawPiece extends SingleJigsawPiece implements IYungJig
     }
 
     public IJigsawDeserializer<?> getType() {
-        return YAModJigsaw.YUNG_SINGLE_ELEMENT;
+        return YAModJigsaw.MAX_COUNT_SINGLE_ELEMENT;
     }
 
     public String toString() {
-        return "YungSingle[" + this.name + "][" + this.field_236839_c_ + "]";
+        return "MaxCountSingle[" + this.name + "][" + this.field_236839_c_ + "][" + this.maxCount + "]";
     }
 }
+

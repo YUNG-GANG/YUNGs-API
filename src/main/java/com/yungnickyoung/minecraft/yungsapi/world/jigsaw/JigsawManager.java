@@ -5,8 +5,7 @@ import com.google.common.collect.Queues;
 import com.mojang.datafixers.util.Pair;
 import com.yungnickyoung.minecraft.yungsapi.YungsApi;
 import com.yungnickyoung.minecraft.yungsapi.api.YungJigsawConfig;
-import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.IYungJigsawPiece;
-import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.YungMaxCountJigsawPiece;
+import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.IMaxCountJigsawPiece;
 import net.minecraft.block.JigsawBlock;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
@@ -200,7 +199,7 @@ public class JigsawManager {
         /**
          * Helper function. Searches candidatePieces for a suitable piece to spawn.
          * All other params are intended to be passed directly from {@link Assembler#processPiece}
-         * @return The piece genereated, or null if no suitable pieces were found.
+         * @return The piece generated, or null if no suitable pieces were found.
          */
         private JigsawPiece processList(
             List<Pair<JigsawPiece, Integer>> candidatePieces,
@@ -244,21 +243,11 @@ public class JigsawManager {
                     return null;
                 }
 
-                // Abort if piece is not a YUNG piece.
-                // YUNG pieces are required since they all have "name" entries, allowing for
-                // piece selection optimization performed in this algorithm.
-                if (!(candidatePiece instanceof IYungJigsawPiece)) {
-                    YungsApi.LOGGER.error("Invalid jigsaw piece {}. When using the YUNG Jigsaw Manager, all pieces must be YUNG types!", candidatePiece.toString());
-                    return null;
-                }
-
-                // Get the piece's name
-                String pieceName = ((IYungJigsawPiece) candidatePiece).getName();
-
                 // Before performing any logic, check to ensure we haven't reached the max number of instances of this piece.
                 // This is my own additional feature - vanilla does not offer this behavior.
-                if (candidatePiece instanceof YungMaxCountJigsawPiece) {
-                    int maxCount = ((YungMaxCountJigsawPiece) candidatePiece).getMaxCount();
+                if (candidatePiece instanceof IMaxCountJigsawPiece) {
+                    String pieceName = ((IMaxCountJigsawPiece) candidatePiece).getName();
+                    int maxCount = ((IMaxCountJigsawPiece) candidatePiece).getMaxCount();
 
                     // Check if max count of this piece does not match stored max count for this name.
                     // This can happen when the same name is reused across pools, but the max count values are different.
@@ -430,7 +419,8 @@ public class JigsawManager {
                                 }
 
                                 // Update piece count, if piece is of max count type
-                                if (candidatePiece instanceof YungMaxCountJigsawPiece) {
+                                if (candidatePiece instanceof IMaxCountJigsawPiece) {
+                                    String pieceName = ((IMaxCountJigsawPiece) candidatePiece).getName();
                                     this.pieceCounts.put(pieceName, this.pieceCounts.getOrDefault(pieceName, 0) + 1);
                                 }
                                 return candidatePiece;

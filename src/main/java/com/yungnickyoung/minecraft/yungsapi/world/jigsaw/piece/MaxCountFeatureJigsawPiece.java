@@ -13,19 +13,27 @@ import net.minecraftforge.registries.ForgeRegistries;
 import java.util.function.Supplier;
 
 @MethodsReturnNonnullByDefault
-public class YungFeatureJigsawPiece extends FeatureJigsawPiece implements IYungJigsawPiece {
-    public static final Codec<YungFeatureJigsawPiece> CODEC = RecordCodecBuilder.create((builder) -> builder
+public class MaxCountFeatureJigsawPiece extends FeatureJigsawPiece implements IMaxCountJigsawPiece {
+    public static final Codec<MaxCountFeatureJigsawPiece> CODEC = RecordCodecBuilder.create((builder) -> builder
         .group(
             ConfiguredFeature.field_236264_b_.fieldOf("feature").forGetter((featurePiece) -> featurePiece.configuredFeature),
             func_236848_d_(),
-            Codec.STRING.fieldOf("name").forGetter(YungFeatureJigsawPiece::getName))
-        .apply(builder, YungFeatureJigsawPiece::new));
+            Codec.STRING.fieldOf("name").forGetter(MaxCountFeatureJigsawPiece::getName),
+            Codec.INT.fieldOf("max_count").forGetter(MaxCountFeatureJigsawPiece::getMaxCount))
+        .apply(builder, MaxCountFeatureJigsawPiece::new));
 
+    protected final int maxCount;
     protected String name;
 
-    public YungFeatureJigsawPiece(Supplier<ConfiguredFeature<?, ?>> configuredFeatureSupplier, JigsawPattern.PlacementBehaviour projection, String name) {
+    public MaxCountFeatureJigsawPiece(Supplier<ConfiguredFeature<?, ?>> configuredFeatureSupplier, JigsawPattern.PlacementBehaviour projection, String name, int maxCount) {
         super(configuredFeatureSupplier, projection);
         this.name = name;
+        this.maxCount = maxCount;
+    }
+
+    @Override
+    public int getMaxCount() {
+        return this.maxCount;
     }
 
     @Override
@@ -34,10 +42,10 @@ public class YungFeatureJigsawPiece extends FeatureJigsawPiece implements IYungJ
     }
 
     public IJigsawDeserializer<?> getType() {
-        return YAModJigsaw.YUNG_FEATURE_ELEMENT;
+        return YAModJigsaw.MAX_COUNT_FEATURE_ELEMENT;
     }
 
     public String toString() {
-        return "YungFeature[" + this.name + "][" + ForgeRegistries.FEATURES.getKey(this.configuredFeature.get().getFeature()) + "]";
+        return "MaxCountFeature[" + this.name + "][" + ForgeRegistries.FEATURES.getKey(this.configuredFeature.get().getFeature()) + "][" + this.maxCount + "]";
     }
 }
