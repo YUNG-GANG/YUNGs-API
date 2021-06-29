@@ -221,12 +221,13 @@ public class JigsawManager {
             // Sum of weights of all pieces in the pool
             int totalWeightSum = candidatePieces.stream().mapToInt(Pair::getSecond).reduce(0, Integer::sum);
 
-            while (candidatePieces.size() > 0) {
+            while (candidatePieces.size() > 0 && totalWeightSum > 0) {
                 Pair<JigsawPiece, Integer> chosenPiecePair = null;
 
-                // Choose piece if portal room wasn't selected
+                // Random weight used to choose random piece from the pool of candidates
                 int chosenWeight = rand.nextInt(totalWeightSum) + 1;
 
+                // Randomly choose a candidate piece
                 for (Pair<JigsawPiece, Integer> candidate : candidatePieces) {
                     chosenWeight -= candidate.getSecond();
                     if (chosenWeight <= 0) {
