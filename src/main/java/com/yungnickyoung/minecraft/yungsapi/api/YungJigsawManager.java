@@ -17,24 +17,18 @@ import java.util.Random;
  * Uses an optimized piece selection algorithm, allowing arbitrarily large pool element weights without a performance cost.
  * Includes additional pool element types to choose from for maximum flexibility when creating structures.
  *
- * Note that any structures using YUNG's Jigsaw Manager must ONLY use YUNG element_type's in the Jigsaw pool JSON files.
- * Vanilla element_type's are NOT supported. However, there are YUNG analogues for every vanilla element_type.
+ * The following additional element types are available for use in template pools.
+ * - yungsapi:max_count_single_element
+ * - yungsapi:max_count_legacy_single_element
+ * - yungsapi:max_count_feature_element
+ * - yungsapi:max_count_list_element
  *
- * The following element_type's are identical in functionality to their vanilla counterparts, with the exception of
- * additionally requiring a "name" string field.
- * - yungsapi:yung_single_element -------- analogous to vanilla single_pool_element
- * - yungsapi:yung_legacy_single_element - analogous to vanilla legacy_single_pool_element
- * - yungsapi:yung_feature_element ------- analogous to vanilla feature_pool_element
- * - yungsapi:yung_list_element ---------- analogous to vanilla list_pool_element
- *
- * The following element_type's are new types introduced in YUNG's Jigsaw Manager.
- * - yungsapi:yung_max_count_single_element - Same as a yung_single_element, but additionally requires a
- *   max_count integer field, which defines the maximum number of times an element with this element's name
- *   can be used in a single instance of the entire structure.
- *
- * No matter the element_type chosen, be aware that a 'name' string field is always require.
- * This serves as an element identifier necessary for the optimized piece selection algorithm.
- * If you aren't using any yung_max_count_single_element's, then the names won't matter, but they are required nonetheless.
+ * Each of these are identical to their vanilla counterparts, but with the following differences:
+ * - A "name" field is required. This can be any string. It is used as an identifier for keeping track of the
+ *   max count of a given entry.
+ * - A "max_count" field is required. This defines the maximum number of times an element with this entry's name
+ *   can be used in a single instance of the entire structure. If multiple entries share the same name, they
+ *   should have matching max_count's as well. A warning will be logged if they do not match, and behavior may be unexpected.
  */
 public class YungJigsawManager {
     /**
@@ -47,8 +41,8 @@ public class YungJigsawManager {
      * @param startPos Position from which generation of this structure will start
      * @param components List of pieces in this structure, usually should be the calling structure start's components field
      * @param random The calling structure start's Random
-     * @param doBoundaryAdjustments Whether or not boundary adjustments should be performed on this structure. In vanilla, only
-     *                              villages and pillager outposts have this enabled.
+     * @param doBoundaryAdjustments Whether or not boundary adjustments should be performed on this structure.
+     *                              In vanilla, only villages and pillager outposts have this enabled.
      * @param useHeightmap Whether or not the heightmap should be used to correct piece placement.
      *                     In vanilla, only villages and pillager outposts have this enabled.
      */
