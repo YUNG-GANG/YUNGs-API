@@ -21,9 +21,11 @@
       "com.yungnickyoung.minecraft.yungsapi.YungsApi"
     ]
   },
+  "mixins": [
+    "yungsapi.mixins.json"
+  ],
   "depends": {
     "fabricloader": ">=0.10.6",
-    "fabric": ">=0.25.0",
     "minecraft": ">=1.16.2"
   }
 }

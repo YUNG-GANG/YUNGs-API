@@ -1,10 +1,8 @@
 plugins {
-    id 'fabric-loom' version '0.5-SNAPSHOT'
+    id 'fabric-loom' version '0.8-SNAPSHOT'
     id 'maven-publish'
+    id 'signing'
 }
-
-apply plugin: 'maven'
-apply plugin: 'signing'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -14,94 +12,103 @@ version = "${project.minecraft_version}-${project.mod_build_num}"
 group = project.maven_group
 
 dependencies {
-    //to change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+//    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     implementation 'com.google.code.gson:gson:2.8.6'
 }
 
 processResources {
     inputs.property "version", project.version
 
-    from(sourceSets.main.resources.srcDirs) {
-        include "fabric.mod.json"
+    filesMatching("fabric.mod.json") {
         expand "version": project.version
     }
-
-    from(sourceSets.main.resources.srcDirs) {
-        exclude "fabric.mod.json"
-    }
 }
 
-tasks.withType(JavaCompile) {
-    options.encoding = "UTF-8"
+tasks.withType(JavaCompile).configureEach {
+    // ensure that the encoding is set to UTF-8, no matter what the system default is
+    // this fixes some edge cases with special characters not displaying correctly
+    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+    // If Javadoc is generated, this must be specified in that task too.
+    it.options.encoding = "UTF-8"
+
+    it.options.release = 8
 }
 
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
-    from javadoc
-}
-
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = "sources"
     from sourceSets.main.allSource
 }
 
+java {
+    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task if it is present.=
+    withSourcesJar() // If you remove this line, sources will not be generated.
+    withJavadocJar() // Javadoc jar is needed for Maven Central
+}
+
 jar {
-    from "LICENSE"
+    from("LICENSE") {
+        rename { "${it}_${project.archivesBaseName}"}
+    }
 }
 
-artifacts {
-    archives javadocJar, sourcesJar
-}
-
-// Note that the ossrhUsername and ossrhPassword, as well as the
-// signing.keyId, signing.password, and signing.secretKeyRingFile variables are defined separately
-// in my global gradle.properties for protection
-signing {
-    sign configurations.archives
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-            pom.project {
-                name "YUNG's API"
-                packaging 'jar'
-                // optionally artifactId can be defined here
-                description "A common API for YUNG's Minecraft mods"
-                url 'https://github.com/yungnickyoung/YUNGs-Api'
-
+publishing {
+    publications  {
+        mavenJava(MavenPublication) {
+            artifactId = "YungsApi"
+            // We avoid using 'from components.java', and instead specify artifacts individually,
+            // Since we want to use the output of remapJar rather than the regular jar
+            artifact(remapJar) { builtBy remapJar }
+            artifact(sourcesJar) { builtBy remapSourcesJar }
+            artifact(javadocJar) { builtBy javadocJar }
+            pom {
+                name = "YUNG's API"
+                description = "A common API for YUNG's Minecraft mods"
+                url = 'https://github.com/yungnickyoung/YUNGs-Api'
                 scm {
-                    url 'https://github.com/yungnickyoung/YUNGs-Api'
-                    connection 'scm:git:git://github.com/yungnickyoung/YUNGs-Api.git'
-                    developerConnection 'scm:git:ssh://git@github.com:yungnickyoung/YUNGs-Api.git'
+                    url = 'https://github.com/yungnickyoung/YUNGs-Api'
+                    connection = 'scm:git:git://github.com/yungnickyoung/YUNGs-Api.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:yungnickyoung/YUNGs-Api.git'
                 }
                 licenses {
                     license {
-                        name 'GNU GPLv3'
-                        url 'https://github.com/yungnickyoung/YUNGs-Api/blob/fabric-1.16/LICENSE'
-                        distribution 'repo'
+                        name = 'GNU GPLv3'
+                        url = 'https://github.com/yungnickyoung/YUNGs-Api/blob/fabric-1.17/LICENSE'
+                        distribution = 'repo'
                     }
                 }
                 developers {
                     developer {
-                        name 'YUNGNICKYOUNG'
-                        email 'yungnickyoung@gmail.com'
+                        name = 'YUNGNICKYOUNG'
+                        email = 'yungnickyoung@gmail.com'
                     }
                 }
             }
         }
+    }
+    repositories {
+        maven {
+            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            credentials {
+                username ossrhUsername
+                password ossrhPassword
+            }
+        }
+    }
+}
+
+// signing.keyId, signing.password, and signing.secretKeyRingFile are defined separately
+// in my global gradle.properties for protection
+signing {
+    sign publishing.publications.mavenJava
+}
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
     }
 }

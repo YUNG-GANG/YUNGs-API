@@ -1,5 +1,6 @@
 package com.yungnickyoung.minecraft.yungsapi;
 
+import com.yungnickyoung.minecraft.yungsapi.init.YAModCriteria;
 import net.fabricmc.api.ModInitializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,5 +15,7 @@ public class YungsApi implements ModInitializer {
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 
     @Override
-    public void onInitialize() {}
+    public void onInitialize() {
+        YAModCriteria.init();
+    }
 }
