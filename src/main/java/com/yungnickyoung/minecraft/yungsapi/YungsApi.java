@@ -1,5 +1,6 @@
 package com.yungnickyoung.minecraft.yungsapi;
 
+import com.yungnickyoung.minecraft.yungsapi.init.YAModCriteria;
 import com.yungnickyoung.minecraft.yungsapi.init.YAModJigsaw;
 import net.minecraftforge.fml.common.Mod;
 import org.apache.logging.log4j.LogManager;
@@ -17,5 +18,6 @@ public class YungsApi {
 
     public YungsApi() {
         YAModJigsaw.init();
+        YAModCriteria.init();
     }
 }

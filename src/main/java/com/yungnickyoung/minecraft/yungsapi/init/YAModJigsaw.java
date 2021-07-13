@@ -8,6 +8,10 @@ import net.minecraft.world.gen.feature.jigsaw.IJigsawDeserializer;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
+/**
+ * Registration of custom Jigsaw pieces.
+ * For more information, read about {@link com.yungnickyoung.minecraft.yungsapi.api.YungJigsawManager}
+ */
 public class YAModJigsaw {
     public static IJigsawDeserializer<MaxCountSingleJigsawPiece> MAX_COUNT_SINGLE_ELEMENT;
     public static IJigsawDeserializer<MaxCountLegacySingleJigsawPiece> MAX_COUNT_LEGACY_SINGLE_ELEMENT;
