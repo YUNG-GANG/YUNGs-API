@@ -58,7 +58,8 @@ public class JSON {
         Reader reader = Files.newBufferedReader(path);
         T jsonObject = gson.fromJson(reader, objectClass);
         reader.close();
-        return jsonObject;    }
+        return jsonObject;
+    }
 
     public static GsonBuilder newGsonBuilder() {
         return new GsonBuilder();
