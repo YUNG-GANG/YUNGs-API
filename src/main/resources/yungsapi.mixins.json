@@ -6,7 +6,8 @@
   "mixins": [
     "CriteriaAccessor",
     "ServerPlayerEntityTickMixin",
-    "StructuresConfigMixin"
+    "StructuresConfigMixin",
+    "ChunkGeneratorMixin"
   ],
   "injectors": {
     "defaultRequire": 1
