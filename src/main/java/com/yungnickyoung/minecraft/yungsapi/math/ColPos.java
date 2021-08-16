@@ -1,8 +1,8 @@
 package com.yungnickyoung.minecraft.yungsapi.math;
 
-import net.minecraft.util.Direction;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.*;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Rotation;
 
 /**
  * Similar to the BlockPos class, but only provides two axes (x and z).
@@ -104,7 +104,7 @@ public class ColPos {
     }
 
     public ColPos offset(Direction facing, int n) {
-        return n == 0 ? this : new ColPos(this.getX() + facing.getXOffset() * n, this.getZ() + facing.getZOffset() * n);
+        return n == 0 ? this : new ColPos(this.getX() + facing.getStepX() * n, this.getZ() + facing.getStepZ() * n);
     }
 
     public ColPos rotate(Rotation rotationIn) {
@@ -163,7 +163,7 @@ public class ColPos {
         }
 
         public Mutable move(Direction facing, int n) {
-            return this.setPos(this.x + facing.getXOffset() * n, this.z + facing.getZOffset() * n);
+            return this.setPos(this.x + facing.getStepX() * n, this.z + facing.getStepZ() * n);
         }
 
         public Mutable move(Direction facing) {

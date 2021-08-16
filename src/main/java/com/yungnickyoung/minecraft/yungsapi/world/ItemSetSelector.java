@@ -1,8 +1,8 @@
 package com.yungnickyoung.minecraft.yungsapi.world;
 
 import com.yungnickyoung.minecraft.yungsapi.YungsApi;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 
 import java.util.HashMap;
 import java.util.Map;

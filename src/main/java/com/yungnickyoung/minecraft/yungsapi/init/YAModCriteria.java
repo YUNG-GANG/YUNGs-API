@@ -3,7 +3,7 @@ package com.yungnickyoung.minecraft.yungsapi.init;
 import com.yungnickyoung.minecraft.yungsapi.YungsApi;
 import com.yungnickyoung.minecraft.yungsapi.criteria.SafeStructurePositionTrigger;
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;

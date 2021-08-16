@@ -1,8 +1,8 @@
 package com.yungnickyoung.minecraft.yungsapi.world;
 
 import com.yungnickyoung.minecraft.yungsapi.YungsApi;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +24,7 @@ public class BlockSetSelector {
      * For example, if the total sum of all the probabilities of the entries is 0.6, then
      * there is a 0.4 chance of the defaultBlockState being selected.
      */
-    private BlockState defaultBlockState = Blocks.CAVE_AIR.getDefaultState();
+    private BlockState defaultBlockState = Blocks.CAVE_AIR.defaultBlockState();
 
     public BlockSetSelector(BlockState defaultBlockState) {
         this.defaultBlockState = defaultBlockState;

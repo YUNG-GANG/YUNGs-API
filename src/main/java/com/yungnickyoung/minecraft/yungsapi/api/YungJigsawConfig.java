@@ -2,28 +2,28 @@ package com.yungnickyoung.minecraft.yungsapi.api;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.world.gen.feature.IFeatureConfig;
-import net.minecraft.world.gen.feature.jigsaw.JigsawPattern;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.structures.StructureTemplatePool;
 
 import java.util.function.Supplier;
 
 /**
  * Config for using {@link YungJigsawManager}.
- * Identical in function to vanilla's {@link net.minecraft.world.gen.feature.structure.VillageConfig}.
+ * Identical in function to vanilla's {@link net.minecraft.world.level.levelgen.feature.configurations.JigsawConfiguration}.
  */
-public class YungJigsawConfig implements IFeatureConfig {
+public class YungJigsawConfig implements FeatureConfiguration {
     public static final Codec<YungJigsawConfig> CODEC = RecordCodecBuilder.create((codecBuilder) -> codecBuilder
         .group(
-            JigsawPattern.field_244392_b_.fieldOf("start_pool").forGetter(YungJigsawConfig::getStartPoolSupplier),
+            StructureTemplatePool.CODEC.fieldOf("start_pool").forGetter(YungJigsawConfig::getStartPoolSupplier),
             Codec.intRange(0, 7).fieldOf("size").forGetter(YungJigsawConfig::getMaxChainPieceLength))
         .apply(codecBuilder, YungJigsawConfig::new));
 
     /**
-     * Supplies the start pool JigsawPattern.
+     * Supplies the start pool StructureTemplatePool.
      * Often retrieved in the following manner during structure start generation:
-     * {@code () -> dynamicRegistryManager.getRegistry(Registry.JIGSAW_POOL_KEY).getOrDefault(startPoolResourceLocation)}
+     * {@code () -> dynamicRegistryManager.getRegistry(Registry.TEMPLATE_POOL_REGISTRY).getOrDefault(startPoolResourceLocation)}
      */
-    private final Supplier<JigsawPattern> startPoolSupplier;
+    private final Supplier<StructureTemplatePool> startPoolSupplier;
 
     /**
      * The size of the structure.
@@ -32,7 +32,7 @@ public class YungJigsawConfig implements IFeatureConfig {
      */
     private final int size;
 
-    public YungJigsawConfig(Supplier<JigsawPattern> startPoolSupplier, int size) {
+    public YungJigsawConfig(Supplier<StructureTemplatePool> startPoolSupplier, int size) {
         this.startPoolSupplier = startPoolSupplier;
         this.size = size;
     }
@@ -41,7 +41,7 @@ public class YungJigsawConfig implements IFeatureConfig {
         return this.size;
     }
 
-    public Supplier<JigsawPattern> getStartPoolSupplier() {
+    public Supplier<StructureTemplatePool> getStartPoolSupplier() {
         return this.startPoolSupplier;
     }
 }

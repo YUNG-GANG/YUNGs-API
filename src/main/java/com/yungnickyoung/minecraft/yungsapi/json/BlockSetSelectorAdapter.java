@@ -5,7 +5,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.yungnickyoung.minecraft.yungsapi.world.BlockSetSelector;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.io.IOException;
 import java.util.Map;
@@ -24,8 +24,8 @@ public class BlockSetSelectorAdapter extends TypeAdapter<BlockSetSelector> {
 
         reader.beginObject();
         while (reader.hasNext()) {
-            switch(reader.nextName()) {
-                case "entries":
+            switch (reader.nextName()) {
+                case "entries" -> {
                     reader.beginObject();
                     while (reader.hasNext()) {
                         BlockState blockState = BlockStateAdapter.resolveBlockState(reader.nextName());
@@ -33,11 +33,11 @@ public class BlockSetSelectorAdapter extends TypeAdapter<BlockSetSelector> {
                         selector.addBlock(blockState, (float) probability);
                     }
                     reader.endObject();
-                    break;
-                case "defaultBlock":
+                }
+                case "defaultBlock" -> {
                     BlockState blockState = BlockStateAdapter.resolveBlockState(reader.nextString());
                     selector.setDefaultBlockState(blockState);
-                    break;
+                }
             }
         }
         reader.endObject();

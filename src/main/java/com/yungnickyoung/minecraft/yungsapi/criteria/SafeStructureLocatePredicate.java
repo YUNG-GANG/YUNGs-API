@@ -2,11 +2,11 @@ package com.yungnickyoung.minecraft.yungsapi.criteria;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.gen.feature.structure.Structure;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -20,33 +20,33 @@ import javax.annotation.Nullable;
  */
 public class SafeStructureLocatePredicate {
     @Nullable
-    private final Structure<?> structure;
+    private final StructureFeature<?> structure;
 
-    public SafeStructureLocatePredicate(@Nullable Structure<?> structure) {
+    public SafeStructureLocatePredicate(@Nullable StructureFeature<?> structure) {
         this.structure = structure;
     }
 
-    public boolean test(ServerWorld world, double x, double y, double z) {
+    public boolean test(ServerLevel world, double x, double y, double z) {
         return this.test(world, (float)x, (float)y, (float)z);
     }
 
-    public boolean test(ServerWorld world, float x, float y, float z) {
+    public boolean test(ServerLevel world, float x, float y, float z) {
         BlockPos blockpos = new BlockPos(x, y, z);
-        return this.structure != null && world.isBlockPresent(blockpos) && world.func_241112_a_().getStructureStart(blockpos, true, this.structure).isValid();
+        return this.structure != null && world.isLoaded(blockpos) && world.structureFeatureManager().getStructureAt(blockpos, true, this.structure).isValid();
     }
 
     public JsonElement serialize() {
         JsonObject jsonobject = new JsonObject();
         if (this.structure != null) {
-            jsonobject.addProperty("feature", this.structure.getStructureName());
+            jsonobject.addProperty("feature", this.structure.getFeatureName());
         }
         return jsonobject;
     }
 
     public static SafeStructureLocatePredicate deserialize(@Nullable JsonElement element) {
         if (element != null && !element.isJsonNull()) {
-            JsonObject jsonobject = JSONUtils.getJsonObject(element, "location");
-            Structure<?> structure = jsonobject.has("feature") ? ForgeRegistries.STRUCTURE_FEATURES.getValue(new ResourceLocation(JSONUtils.getString(jsonobject, "feature"))) : null;
+            JsonObject jsonobject = GsonHelper.convertToJsonObject(element, "location");
+            StructureFeature<?> structure = jsonobject.has("feature") ? ForgeRegistries.STRUCTURE_FEATURES.getValue(new ResourceLocation(GsonHelper.getAsString(jsonobject, "feature"))) : null;
 
             return new SafeStructureLocatePredicate(structure);
         } else {

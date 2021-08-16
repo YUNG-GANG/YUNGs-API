@@ -1,8 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi;
 
 import com.yungnickyoung.minecraft.yungsapi.init.YAModCriteria;
-import com.yungnickyoung.minecraft.yungsapi.init.YAModJigsaw;
-import com.yungnickyoung.minecraft.yungsapi.init.YAModWorldgen;
+//import com.yungnickyoung.minecraft.yungsapi.init.YAModWorldgen;
 import net.minecraftforge.fml.common.Mod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,8 +17,8 @@ public class YungsApi {
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 
     public YungsApi() {
-        YAModJigsaw.init();
+//        YAModJigsaw.init();
         YAModCriteria.init();
-        YAModWorldgen.init();
+//        YAModWorldgen.init();
     }
 }

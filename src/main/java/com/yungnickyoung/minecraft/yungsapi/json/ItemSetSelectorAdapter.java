@@ -5,7 +5,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.yungnickyoung.minecraft.yungsapi.world.ItemSetSelector;
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
 
 import java.io.IOException;
 import java.util.Map;
@@ -24,8 +24,8 @@ public class ItemSetSelectorAdapter extends TypeAdapter<ItemSetSelector> {
 
         reader.beginObject();
         while (reader.hasNext()) {
-            switch(reader.nextName()) {
-                case "entries":
+            switch (reader.nextName()) {
+                case "entries" -> {
                     reader.beginObject();
                     while (reader.hasNext()) {
                         Item item = ItemAdapter.resolveItem(reader.nextName());
@@ -33,11 +33,11 @@ public class ItemSetSelectorAdapter extends TypeAdapter<ItemSetSelector> {
                         selector.addItem(item, (float) probability);
                     }
                     reader.endObject();
-                    break;
-                case "defaultItem":
+                }
+                case "defaultItem" -> {
                     Item item = ItemAdapter.resolveItem(reader.nextString());
                     selector.setDefaultItem(item);
-                    break;
+                }
             }
         }
         reader.endObject();

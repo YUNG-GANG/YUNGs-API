@@ -5,15 +5,15 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.yungnickyoung.minecraft.yungsapi.YungsApi;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.io.IOException;
 
 /**
- * GSON TypeAdapter to serialize/deserialize {@link net.minecraft.item.Item}.
+ * GSON TypeAdapter to serialize/deserialize {@link Item}.
  */
 public class ItemAdapter extends TypeAdapter<Item> {
     public Item read(JsonReader reader) throws IOException {

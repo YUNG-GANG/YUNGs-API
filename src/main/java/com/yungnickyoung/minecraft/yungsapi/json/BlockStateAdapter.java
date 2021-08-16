@@ -5,9 +5,11 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.yungnickyoung.minecraft.yungsapi.YungsApi;
-import net.minecraft.block.*;
-import net.minecraft.state.Property;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.io.IOException;
@@ -54,7 +56,7 @@ public class BlockStateAdapter extends TypeAdapter<BlockState> {
             if (stopIndex < startIndex) {
                 YungsApi.LOGGER.error("JSON: Malformed property {}. Missing a bracket?", fullString);
                 YungsApi.LOGGER.error("Using air instead...");
-                return Blocks.AIR.getDefaultState();
+                return Blocks.AIR.defaultBlockState();
             }
 
             int index = startIndex + 1;
@@ -79,11 +81,11 @@ public class BlockStateAdapter extends TypeAdapter<BlockState> {
         }
 
         try {
-            blockState = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(blockString)).getDefaultState();
+            blockState = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(blockString)).defaultBlockState();
         } catch (Exception e) {
             YungsApi.LOGGER.error("JSON: Unable to read block '{}': {}", blockString, e.toString());
             YungsApi.LOGGER.error("Using air instead...");
-            return Blocks.AIR.getDefaultState();
+            return Blocks.AIR.defaultBlockState();
         }
 
         if (properties.size() > 0) {
@@ -113,12 +115,12 @@ public class BlockStateAdapter extends TypeAdapter<BlockState> {
             for (Property<?> p : blockState.getProperties()) {
                 Property<T> property = (Property<T>) p;
                 if (property.getName().equals(key)) {
-                    T val = property.parseValue(value).orElse(null);
+                    T val = property.getValue(value).orElse(null);
                     if (val == null) {
                         YungsApi.LOGGER.error("JSON: Found null for property {} for block {}", property, block.getRegistryName());
                         continue;
                     }
-                    blockState = blockState.with(property, val);
+                    blockState = blockState.setValue(property, val);
                     found = true;
                     break;
                 }

@@ -1,10 +1,11 @@
 {
   "required": true,
   "package": "com.yungnickyoung.minecraft.yungsapi.mixin",
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "JAVA_16",
   "refmap": "yungsapi.refmap.json",
   "mixins": [
-    "ChunkGeneratorAccessor"
+    "ChunkGeneratorAccessor",
+    "BoundingBoxAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
