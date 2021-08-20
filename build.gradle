@@ -11,6 +11,10 @@ archivesBaseName = project.archives_base_name
 version = "${project.minecraft_version}-${project.mod_build_num}"
 group = project.maven_group
 
+minecraft {
+    accessWidener "src/main/resources/yungsapi.aw"
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
