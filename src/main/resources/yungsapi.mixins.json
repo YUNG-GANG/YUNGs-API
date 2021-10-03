@@ -4,10 +4,12 @@
   "package": "com.yungnickyoung.minecraft.yungsapi.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "ChunkGeneratorMixin",
     "CriteriaAccessor",
+    "EntityProcessorMixin",
     "ServerPlayerEntityTickMixin",
-    "StructuresConfigMixin",
-    "ChunkGeneratorMixin"
+    "StructurePoolMixin",
+    "StructuresConfigMixin"
   ],
   "injectors": {
     "defaultRequire": 1

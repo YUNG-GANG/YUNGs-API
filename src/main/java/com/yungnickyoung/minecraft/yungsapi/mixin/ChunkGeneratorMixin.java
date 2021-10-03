@@ -24,7 +24,8 @@ public class ChunkGeneratorMixin {
     @Shadow
     private StructuresConfig structuresConfig;
 
-    @Inject(method = "<init>(Lnet/minecraft/world/biome/source/BiomeSource;Lnet/minecraft/world/biome/source/BiomeSource;Lnet/minecraft/world/gen/chunk/StructuresConfig;J)V",
+    @Inject(
+        method = "<init>(Lnet/minecraft/world/biome/source/BiomeSource;Lnet/minecraft/world/biome/source/BiomeSource;Lnet/minecraft/world/gen/chunk/StructuresConfig;J)V",
         at = @At(value = "RETURN"))
     private void yungsapi_deepCopyNoiseSettings(BiomeSource populationSource, BiomeSource biomeSource, StructuresConfig structuresConfig, long worldSeed, CallbackInfo ci) {
         // Grab old copy of stronghold spacing settings
