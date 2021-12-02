@@ -1,10 +1,10 @@
 package com.yungnickyoung.minecraft.yungsapi.world.processor;
 
-import net.minecraft.structure.Structure;
-import net.minecraft.structure.StructurePlacementData;
-import net.minecraft.structure.processor.StructureProcessor;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.WorldView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -15,7 +15,7 @@ public abstract class StructureEntityProcessor extends StructureProcessor {
 
     /**
      * Applies a processor to an entity in a structure component or Jigsaw piece.
-     * @param worldView The WorldView
+     * @param serverLevelAccessor The WorldView
      * @param structurePiecePos The global block position of the current structure component or Jigsaw piece.
      *                          Usually this is a corner of the piece, often lowest in x-z value.
      * @param structurePieceBottomCenterPos The global block position of the bottom-center of the
@@ -29,17 +29,17 @@ public abstract class StructureEntityProcessor extends StructureProcessor {
      *                         This object is set to the return value of this function, so be careful when overwriting
      *                         existing NBT.
      *                         DO NOT modify its {@code pos} or {@code blockpos} fields!
-     * @param structurePlacementData The structure's placement data
+     * @param structurePlaceSettings The structure's placement data
      * @return The processed StructureEntityInfo. Note that the globalEntityInfo parameter will be set to this object,
      *         so if you want to combine the effects of multiple processors on a single entity, do NOT overwrite
      *         or discard existing NBT from the globalEntityInfo.
      *         If a null value is returned, the entity being processed will be discarded.
      */
     @Nullable
-    public abstract Structure.StructureEntityInfo processEntity(WorldView worldView,
+    public abstract StructureTemplate.StructureEntityInfo processEntity(ServerLevelAccessor serverLevelAccessor,
                                                                 BlockPos structurePiecePos,
                                                                 BlockPos structurePieceBottomCenterPos,
-                                                                Structure.StructureEntityInfo localEntityInfo,
-                                                                Structure.StructureEntityInfo globalEntityInfo,
-                                                                StructurePlacementData structurePlacementData);
+                                                                StructureTemplate.StructureEntityInfo localEntityInfo,
+                                                                StructureTemplate.StructureEntityInfo globalEntityInfo,
+                                                                StructurePlaceSettings structurePlaceSettings);
 }

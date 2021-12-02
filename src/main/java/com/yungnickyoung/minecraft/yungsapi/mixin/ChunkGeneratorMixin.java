@@ -1,9 +1,9 @@
 package com.yungnickyoung.minecraft.yungsapi.mixin;
 
-import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.chunk.StrongholdConfig;
-import net.minecraft.world.gen.chunk.StructuresConfig;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.StructureSettings;
+import net.minecraft.world.level.levelgen.feature.configurations.StrongholdConfiguration;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -22,26 +22,26 @@ public class ChunkGeneratorMixin {
     @Mutable
     @Final
     @Shadow
-    private StructuresConfig structuresConfig;
+    private StructureSettings settings;
 
     @Inject(
-        method = "<init>(Lnet/minecraft/world/biome/source/BiomeSource;Lnet/minecraft/world/biome/source/BiomeSource;Lnet/minecraft/world/gen/chunk/StructuresConfig;J)V",
+        method = "<init>(Lnet/minecraft/world/level/biome/BiomeSource;Lnet/minecraft/world/level/biome/BiomeSource;Lnet/minecraft/world/level/levelgen/StructureSettings;J)V",
         at = @At(value = "RETURN"))
-    private void yungsapi_deepCopyNoiseSettings(BiomeSource populationSource, BiomeSource biomeSource, StructuresConfig structuresConfig, long worldSeed, CallbackInfo ci) {
+    private void yungsapi_deepCopyNoiseSettings(BiomeSource populationSource, BiomeSource biomeSource, StructureSettings structureSettings, long worldSeed, CallbackInfo ci) {
         // Grab old copy of stronghold spacing settings
-        StrongholdConfig oldStrongholdSettings = structuresConfig.getStronghold();
+        StrongholdConfiguration oldStrongholdSettings = structureSettings.stronghold();
 
         // Make a deep copy and wrap it in an optional as DimensionStructuresSettings requires an optional
-        Optional<StrongholdConfig> newStrongholdSettings = oldStrongholdSettings == null ?
+        Optional<StrongholdConfiguration> newStrongholdSettings = oldStrongholdSettings == null ?
             Optional.empty() :
-            Optional.of(new StrongholdConfig(
-                oldStrongholdSettings.getDistance(),
-                oldStrongholdSettings.getSpread(),
-                oldStrongholdSettings.getCount()));
+            Optional.of(new StrongholdConfiguration(
+                oldStrongholdSettings.distance(),
+                oldStrongholdSettings.spread(),
+                oldStrongholdSettings.count()));
 
         // Create new deep copied DimensionStructuresSettings
         // We do not need to create a new structure spacing map instance here as our patch into
         // DimensionStructuresSettings will already create the new map instance for us.
-        this.structuresConfig = new StructuresConfig(newStrongholdSettings, structuresConfig.getStructures());
+        this.settings = new StructureSettings(newStrongholdSettings, structureSettings.structureConfig());
     }
 }

@@ -1,14 +1,17 @@
 package com.yungnickyoung.minecraft.yungsapi.api;
 
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.JigsawManager;
-import net.minecraft.structure.StructureManager;
-import net.minecraft.structure.StructurePiecesHolder;
-import net.minecraft.structure.pool.StructurePoolBasedGenerator;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.world.HeightLimitView;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.feature.configurations.JigsawConfiguration;
+import net.minecraft.world.level.levelgen.feature.structures.JigsawPlacement;
+import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
+import net.minecraft.world.level.levelgen.structure.pieces.PieceGeneratorSupplier;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -33,44 +36,26 @@ import java.util.Random;
 public class YungJigsawManager {
     /**
      * Entrypoint for assembling Jigsaw structures with YUNG's Jigsaw Manager.
-     * You can call this method in the exact same manner as vanilla's {@link StructurePoolBasedGenerator}
+     * You can call this method in the exact same manner as vanilla's {@link net.minecraft.world.level.levelgen.feature.structures.JigsawPlacement#addPieces(RegistryAccess, PoolElementStructurePiece, int, JigsawPlacement.PieceFactory, ChunkGenerator, StructureManager, List, Random, LevelHeightAccessor)}
      *
-     * @param dynamicRegistryManager DynamicRegistries object passed in during structure start generation
-     * @param jigsawConfig           A JigsawConfig describing this jigsaw structure. Analogous to vanilla's {@link net.minecraft.structure.pool.StructurePoolBasedGenerator#method_30419}
-     * @param chunkGenerator         ChunkGenerator object passed in during structure start generation
-     * @param structureManager       TemplateManager object passed in during structure start generation
-     * @param startPos               Position from which generation of this structure will start
-     * @param structurePiecesHolder  StructurePiecesHolder for this structure
-     * @param random                 The calling structure start's Random
-     * @param doBoundaryAdjustments  Whether or not boundary adjustments should be performed on this structure.
-     *                               In vanilla, only villages and pillager outposts have this enabled.
-     * @param useHeightmap           Whether or not the heightmap should be used to correct piece placement.
-     *                               In vanilla, only villages and pillager outposts have this enabled.
+     * @param jigsawContext
+     * @param pieceFactory
+     * @param startPos                   Position from which generation of this structure will start
+     * @param doBoundaryAdjustments      Whether or not boundary adjustments should be performed on this structure.
+     *                                   In vanilla, only villages and pillager outposts have this enabled.
+     * @param useHeightmap               Whether or not the heightmap should be used to correct piece placement.
+     *                                   In vanilla, only villages and pillager outposts have this enabled.
+     * @param structureBoundingBoxRadius (Optional) The radius of the bounding box for the structure. Defaults to 80.
+     *                                   May need to be increased if your structure is particularly large.
      */
     public static void assembleJigsawStructure(
-        DynamicRegistryManager dynamicRegistryManager,
-        YungJigsawConfig jigsawConfig,
-        StructurePoolBasedGenerator.PieceFactory pieceFactory,
-        ChunkGenerator chunkGenerator,
-        StructureManager structureManager,
-        BlockPos startPos,
-        StructurePiecesHolder structurePiecesHolder,
-        Random random,
-        boolean doBoundaryAdjustments,
-        boolean useHeightmap,
-        HeightLimitView heightLimitView
+            PieceGeneratorSupplier.Context<JigsawConfiguration> jigsawContext,
+            JigsawPlacement.PieceFactory pieceFactory,
+            BlockPos startPos,
+            boolean doBoundaryAdjustments,
+            boolean useHeightmap,
+            int structureBoundingBoxRadius
     ) {
-        JigsawManager.assembleJigsawStructure(
-            dynamicRegistryManager,
-            jigsawConfig,
-            pieceFactory,
-            chunkGenerator,
-            structureManager,
-            startPos,
-            structurePiecesHolder,
-            random,
-            doBoundaryAdjustments,
-            useHeightmap,
-            heightLimitView);
+        JigsawManager.assembleJigsawStructure(jigsawContext, pieceFactory, startPos, doBoundaryAdjustments, useHeightmap, structureBoundingBoxRadius);
     }
 }

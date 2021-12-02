@@ -1,11 +1,11 @@
 package com.yungnickyoung.minecraft.yungsapi.mixin;
 
-import net.minecraft.structure.pool.StructurePool;
+import net.minecraft.world.level.levelgen.feature.structures.StructureTemplatePool;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
-@Mixin(StructurePool.class)
+@Mixin(StructureTemplatePool.class)
 public class StructurePoolMixin {
     /**
      * Increases the weight limit that mojang slapped on that was a workaround for https://bugs.mojang.com/browse/MC-203131

@@ -5,7 +5,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.yungnickyoung.minecraft.yungsapi.world.ItemSetSelector;
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
 
 import java.io.IOException;
 import java.util.Map;

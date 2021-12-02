@@ -1,11 +1,11 @@
 package com.yungnickyoung.minecraft.yungsapi.world.banner;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.WallBannerBlock;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.WallBannerBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,17 +19,17 @@ import java.util.List;
 public class Banner {
     private List<BannerPattern> patterns;
     private BlockState state;
-    private NbtCompound nbt;
+    private CompoundTag nbt;
     private boolean isWallBanner;
 
-    public Banner(List<BannerPattern> patterns, BlockState state, NbtCompound nbt) {
+    public Banner(List<BannerPattern> patterns, BlockState state, CompoundTag nbt) {
         this.patterns = patterns;
         this.state = state;
         this.nbt = nbt;
         this.isWallBanner = this.state.getBlock() instanceof WallBannerBlock;
     }
 
-    public Banner(List<BannerPattern> patterns, BlockState state, NbtCompound nbt, boolean isWallBanner) {
+    public Banner(List<BannerPattern> patterns, BlockState state, CompoundTag nbt, boolean isWallBanner) {
         this.patterns = patterns;
         this.state = state;
         this.nbt = nbt;
@@ -52,11 +52,11 @@ public class Banner {
         this.state = state;
     }
 
-    public NbtCompound getNbt() {
+    public CompoundTag getNbt() {
         return nbt;
     }
 
-    public void setNbt(NbtCompound nbt) {
+    public void setNbt(CompoundTag nbt) {
         this.nbt = nbt;
     }
 
@@ -76,9 +76,9 @@ public class Banner {
      */
     public static class Builder {
         private final List<BannerPattern> patterns = new ArrayList<>();
-        private TranslatableText customNameTranslate;
+        private TranslatableComponent customNameTranslate;
         private String customColor;
-        private BlockState state = Blocks.BLACK_WALL_BANNER.getDefaultState();
+        private BlockState state = Blocks.BLACK_WALL_BANNER.defaultBlockState();
 
         public Builder() {
         }
@@ -99,7 +99,7 @@ public class Banner {
         }
 
         public Builder customName(String translatableNamePath) {
-            this.customNameTranslate = new TranslatableText(translatableNamePath);
+            this.customNameTranslate = new TranslatableComponent(translatableNamePath);
             return this;
         }
 
@@ -109,7 +109,7 @@ public class Banner {
         }
 
         public Banner build() {
-            NbtCompound nbt = createBannerNBT(patterns);
+            CompoundTag nbt = createBannerNBT(patterns);
             return new Banner(patterns, state, nbt);
         }
 
@@ -117,13 +117,13 @@ public class Banner {
          * Helper function that creates a complete CompoundNBT for a banner BlockState
          * with the provided patterns.
          */
-        private NbtCompound createBannerNBT(List<BannerPattern> patterns) {
-            NbtCompound nbt = new NbtCompound();
-            NbtList patternList = new NbtList();
+        private CompoundTag createBannerNBT(List<BannerPattern> patterns) {
+            CompoundTag nbt = new CompoundTag();
+            ListTag patternList = new ListTag();
 
             // Construct list of patterns from args
             for (BannerPattern pattern : patterns) {
-                NbtCompound patternNBT = new NbtCompound();
+                CompoundTag patternNBT = new CompoundTag();
                 patternNBT.putString("Pattern", pattern.getPattern());
                 patternNBT.putInt("Color", pattern.getColor());
                 patternList.add(patternNBT);

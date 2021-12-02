@@ -8,8 +8,8 @@ import com.yungnickyoung.minecraft.yungsapi.json.ItemAdapter;
 import com.yungnickyoung.minecraft.yungsapi.json.ItemSetSelectorAdapter;
 import com.yungnickyoung.minecraft.yungsapi.world.BlockSetSelector;
 import com.yungnickyoung.minecraft.yungsapi.world.ItemSetSelector;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.io.IOException;
 import java.io.Reader;

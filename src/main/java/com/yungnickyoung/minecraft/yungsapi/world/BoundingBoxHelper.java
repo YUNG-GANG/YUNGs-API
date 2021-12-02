@@ -1,7 +1,8 @@
 package com.yungnickyoung.minecraft.yungsapi.world;
 
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.Direction;
+import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.BoundingBoxAccessor;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class BoundingBoxHelper {
     /**
@@ -9,26 +10,26 @@ public class BoundingBoxHelper {
      * The main axis is the primary of the x and z axes, in the direction
      * the structure should generate from the starting point.
      */
-    public static BlockBox boxFromCoordsWithRotation(int x, int y, int z, int secondaryAxisLen, int yLen, int mainAxisLen, Direction mainAxis) {
-        BlockBox blockBox = new BlockBox(x, y, z, x, y + yLen - 1, z);
+    public static BoundingBox boxFromCoordsWithRotation(int x, int y, int z, int secondaryAxisLen, int yLen, int mainAxisLen, Direction mainAxis) {
+        BoundingBox boundingBox = new BoundingBox(x, y, z, x, y + yLen - 1, z);
         switch (mainAxis) {
             case NORTH:
             default:
-                blockBox.maxX = x + (secondaryAxisLen - 1);
-                blockBox.minZ = z - (mainAxisLen - 1);
+                ((BoundingBoxAccessor)boundingBox).setMaxX(x + (secondaryAxisLen - 1));
+                ((BoundingBoxAccessor)boundingBox).setMinZ(z - (mainAxisLen - 1));
                 break;
             case SOUTH:
-                blockBox.minX = x - (secondaryAxisLen - 1);
-                blockBox.maxZ = z + (mainAxisLen - 1);
+                ((BoundingBoxAccessor)boundingBox).setMinX(x - (secondaryAxisLen - 1));
+                ((BoundingBoxAccessor)boundingBox).setMaxZ(z + (mainAxisLen - 1));
                 break;
             case WEST:
-                blockBox.minX = x - (mainAxisLen - 1);
-                blockBox.minZ = z - (secondaryAxisLen - 1);
+                ((BoundingBoxAccessor)boundingBox).setMinX(x - (mainAxisLen - 1));
+                ((BoundingBoxAccessor)boundingBox).setMinZ(z - (secondaryAxisLen - 1));
                 break;
             case EAST:
-                blockBox.maxX = x + (mainAxisLen - 1);
-                blockBox.maxZ = z + (secondaryAxisLen - 1);
+                ((BoundingBoxAccessor)boundingBox).setMaxX(x + (mainAxisLen - 1));
+                ((BoundingBoxAccessor)boundingBox).setMaxZ(z + (secondaryAxisLen - 1));
         }
-        return blockBox;
+        return boundingBox;
     }
 }

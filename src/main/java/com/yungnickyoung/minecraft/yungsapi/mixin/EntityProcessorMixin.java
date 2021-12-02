@@ -1,22 +1,22 @@
 package com.yungnickyoung.minecraft.yungsapi.mixin;
 
 import com.yungnickyoung.minecraft.yungsapi.world.processor.StructureEntityProcessor;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtDouble;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.structure.Structure;
-import net.minecraft.structure.StructurePlacementData;
-import net.minecraft.structure.processor.StructureProcessor;
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.ServerWorldAccess;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -34,40 +34,40 @@ import java.util.Random;
 /**
  * Allows for processing entities in Jigsaw structures.
  */
-@Mixin(Structure.class)
+@Mixin(StructureTemplate.class)
 public class EntityProcessorMixin {
     @Shadow
     @Final
-    private List<Structure.StructureEntityInfo> entities;
+    private List<StructureTemplate.StructureEntityInfo> entityInfoList;
 
     /**
      * Reimplements vanilla behavior for spawning entities,
      * but with additional behavior allowing for the use of entity processing ({@link StructureEntityProcessor})
      */
     @Inject(
-        method = "place(Lnet/minecraft/world/ServerWorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/structure/StructurePlacementData;Ljava/util/Random;I)Z",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/structure/Structure;spawnEntities(Lnet/minecraft/world/ServerWorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/BlockMirror;Lnet/minecraft/util/BlockRotation;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockBox;Z)V"))
-    private void processEntities(ServerWorldAccess serverWorldAccess, BlockPos structurePiecePos, BlockPos structurePieceBottomCenterPos, StructurePlacementData placementData, Random random, int i, CallbackInfoReturnable<Boolean> cir) {
-        for (Structure.StructureEntityInfo entityInfo : processEntityInfos(serverWorldAccess, structurePiecePos, structurePieceBottomCenterPos, placementData, this.entities)) {
+        method = "placeInWorld",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplate;placeEntities(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Mirror;Lnet/minecraft/world/level/block/Rotation;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/levelgen/structure/BoundingBox;Z)V"))
+    private void processEntities(ServerLevelAccessor serverLevelAccessor, BlockPos structurePiecePos, BlockPos structurePieceBottomCenterPos, StructurePlaceSettings structurePlaceSettings, Random random, int i, CallbackInfoReturnable<Boolean> cir) {
+        for (StructureTemplate.StructureEntityInfo entityInfo : processEntityInfos(serverLevelAccessor, structurePiecePos, structurePieceBottomCenterPos, structurePlaceSettings, this.entityInfoList)) {
             BlockPos blockPos = entityInfo.blockPos;
-            if (placementData.getBoundingBox() == null || placementData.getBoundingBox().contains(blockPos)) {
-                NbtCompound compoundTag = entityInfo.nbt.copy();
-                Vec3d vec3d = entityInfo.pos;
-                NbtList listTag = new NbtList();
-                listTag.add(NbtDouble.of(vec3d.x));
-                listTag.add(NbtDouble.of(vec3d.y));
-                listTag.add(NbtDouble.of(vec3d.z));
+            if (structurePlaceSettings.getBoundingBox() == null || structurePlaceSettings.getBoundingBox().isInside(blockPos)) {
+                CompoundTag compoundTag = entityInfo.nbt.copy();
+                Vec3 vec3d = entityInfo.pos;
+                ListTag listTag = new ListTag();
+                listTag.add(DoubleTag.valueOf(vec3d.x));
+                listTag.add(DoubleTag.valueOf(vec3d.y));
+                listTag.add(DoubleTag.valueOf(vec3d.z));
                 compoundTag.put("Pos", listTag);
                 compoundTag.remove("UUID");
-                getEntity(serverWorldAccess, compoundTag).ifPresent((entity) -> {
-                    float f = entity.applyMirror(placementData.getMirror());
-                    f += entity.getYaw() - entity.applyRotation(placementData.getRotation());
-                    entity.refreshPositionAndAngles(vec3d.x, vec3d.y, vec3d.z, f, entity.getPitch());
-                    if (placementData.method_27265() && entity instanceof MobEntity) {
-                        ((MobEntity)entity).initialize(serverWorldAccess, serverWorldAccess.getLocalDifficulty(new BlockPos(vec3d)), SpawnReason.STRUCTURE, null, compoundTag);
+                getEntity(serverLevelAccessor, compoundTag).ifPresent((entity) -> {
+                    float f = entity.mirror(structurePlaceSettings.getMirror());
+                    f += entity.getYRot() - entity.rotate(structurePlaceSettings.getRotation());
+                    entity.moveTo(vec3d.x, vec3d.y, vec3d.z, f, entity.getXRot());
+                    if (structurePlaceSettings.shouldFinalizeEntities() && entity instanceof Mob) {
+                        ((Mob)entity).finalizeSpawn(serverLevelAccessor, serverLevelAccessor.getCurrentDifficultyAt(new BlockPos(vec3d)), MobSpawnType.STRUCTURE, null, compoundTag);
                     }
 
-                    serverWorldAccess.spawnEntityAndPassengers(entity);
+                    serverLevelAccessor.addFreshEntityWithPassengers(entity);
                 });
             }
         }
@@ -79,36 +79,36 @@ public class EntityProcessorMixin {
      * This behavior is recreated in {@link #processEntities}
      */
     @Inject(
-        method = "spawnEntities(Lnet/minecraft/world/ServerWorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/BlockMirror;Lnet/minecraft/util/BlockRotation;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockBox;Z)V",
+        method = "placeEntities",
         at = @At(value = "HEAD"),
         cancellable = true)
-    private void cancelSpawnEntities(ServerWorldAccess serverWorldAccess, BlockPos structurePiecePos, BlockMirror blockMirror, BlockRotation blockRotation, BlockPos pivot, @Nullable BlockBox area, boolean bl, CallbackInfo ci) {
+    private void cancelPlaceEntities(ServerLevelAccessor serverLevelAccessor, BlockPos blockPos, Mirror mirror, Rotation rotation, BlockPos blockPos2, @Nullable BoundingBox boundingBox, boolean bl, CallbackInfo ci) {
         ci.cancel();
     }
 
     /**
      * Applies placement data and {@link StructureEntityProcessor}s to entities in a structure.
      */
-    private List<Structure.StructureEntityInfo> processEntityInfos(ServerWorldAccess serverWorldAccess,
+    private List<StructureTemplate.StructureEntityInfo> processEntityInfos(ServerLevelAccessor serverLevelAccessor,
                                                                    BlockPos structurePiecePos,
                                                                    BlockPos structurePieceBottomCenterPos,
-                                                                   StructurePlacementData structurePlacementData,
-                                                                   List<Structure.StructureEntityInfo> rawEntityInfos) {
-        List<Structure.StructureEntityInfo> processedEntities = new ArrayList<>();
-        for (Structure.StructureEntityInfo rawEntityInfo : rawEntityInfos) {
+                                                                   StructurePlaceSettings structurePlaceSettings,
+                                                                   List<StructureTemplate.StructureEntityInfo> rawEntityInfos) {
+        List<StructureTemplate.StructureEntityInfo> processedEntities = new ArrayList<>();
+        for (StructureTemplate.StructureEntityInfo rawEntityInfo : rawEntityInfos) {
             // Calculate transformed position so processors have access to the actual global world coordinates of the entity
-            Vec3d globalPos = Structure
-                .transformAround(rawEntityInfo.pos, structurePlacementData.getMirror(), structurePlacementData.getRotation(), structurePlacementData.getPosition())
-                .add(Vec3d.of(structurePiecePos));
-            BlockPos globalBlockPos = Structure
-                .transformAround(rawEntityInfo.blockPos, structurePlacementData.getMirror(), structurePlacementData.getRotation(), structurePlacementData.getPosition())
-                .add((structurePiecePos));
-            Structure.StructureEntityInfo globalEntityInfo = new Structure.StructureEntityInfo(globalPos, globalBlockPos, rawEntityInfo.nbt);
+            Vec3 globalPos = StructureTemplate
+                .transform(rawEntityInfo.pos, structurePlaceSettings.getMirror(), structurePlaceSettings.getRotation(), structurePlaceSettings.getRotationPivot())
+                .add(Vec3.atLowerCornerOf(structurePiecePos));
+            BlockPos globalBlockPos = StructureTemplate
+                .transform(rawEntityInfo.blockPos, structurePlaceSettings.getMirror(), structurePlaceSettings.getRotation(), structurePlaceSettings.getRotationPivot())
+                .offset(structurePiecePos);
+            StructureTemplate.StructureEntityInfo globalEntityInfo = new StructureTemplate.StructureEntityInfo(globalPos, globalBlockPos, rawEntityInfo.nbt);
 
             // Apply processors
-            for (StructureProcessor processor : structurePlacementData.getProcessors()) {
+            for (StructureProcessor processor : structurePlaceSettings.getProcessors()) {
                 if (processor instanceof StructureEntityProcessor) {
-                    globalEntityInfo = ((StructureEntityProcessor) processor).processEntity(serverWorldAccess, structurePiecePos, structurePieceBottomCenterPos, rawEntityInfo, globalEntityInfo, structurePlacementData);
+                    globalEntityInfo = ((StructureEntityProcessor) processor).processEntity(serverLevelAccessor, structurePiecePos, structurePieceBottomCenterPos, rawEntityInfo, globalEntityInfo, structurePlaceSettings);
                     if (globalEntityInfo == null) break;
                 }
             }
@@ -121,10 +121,10 @@ public class EntityProcessorMixin {
         return processedEntities;
     }
 
-    private static Optional<Entity> getEntity(ServerWorldAccess serverWorldAccess, NbtCompound compoundTag) {
+    private static Optional<Entity> getEntity(ServerLevelAccessor serverLevelAccessor, CompoundTag compoundTag) {
         try {
-            return EntityType.getEntityFromNbt(compoundTag, serverWorldAccess.toServerWorld());
-        } catch (Exception var3) {
+            return EntityType.create(compoundTag, serverLevelAccessor.getLevel());
+        } catch (Exception exception) {
             return Optional.empty();
         }
     }
