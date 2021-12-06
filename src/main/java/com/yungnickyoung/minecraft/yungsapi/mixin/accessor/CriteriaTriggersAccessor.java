@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.yungsapi.mixin;
+package com.yungnickyoung.minecraft.yungsapi.mixin.accessor;
 
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.CriterionTrigger;
@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import java.util.Map;
 
 @Mixin(CriteriaTriggers.class)
-public interface CriteriaAccessor {
+public interface CriteriaTriggersAccessor {
     @Accessor("CRITERIA")
     static Map<ResourceLocation, CriterionTrigger<?>> getValues() {
         throw new AssertionError();

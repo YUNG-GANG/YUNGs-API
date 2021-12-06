@@ -17,6 +17,9 @@ public abstract class ServerPlayerEntityTickMixin extends Player {
         super(level, blockPos, f, gameProfile);
     }
 
+    /**
+     * Triggers custom criteria.
+     */
     @Inject(method = "tick", at = @At("HEAD"))
     private void injectMethod(CallbackInfo info) {
         if (this.tickCount % 20 == 0) {

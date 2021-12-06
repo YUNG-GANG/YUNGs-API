@@ -4,17 +4,18 @@
   "package": "com.yungnickyoung.minecraft.yungsapi.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "DeepCopyStructureConfigMixin",
+    "DeepCopyStructureSettingsMixin",
+    "EntityProcessorMixin",
+    "IncreaseStructureWeightLimitMixin",
+    "ServerPlayerEntityTickMixin",
     "accessor.BoundingBoxAccessor",
+    "accessor.CriteriaTriggersAccessor",
     "accessor.FeaturePoolElementAccessor",
     "accessor.ListPoolElementAccessor",
     "accessor.PlacedFeatureAccessor",
-    "accessor.StructureTemplatePoolAccessor",
-    "ChunkGeneratorMixin",
-    "CriteriaAccessor",
-    "EntityProcessorMixin",
-    "ServerPlayerEntityTickMixin",
-    "StructurePoolMixin",
-    "StructuresConfigMixin"
+    "accessor.StructureSettingsAccessor",
+    "accessor.StructureTemplatePoolAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

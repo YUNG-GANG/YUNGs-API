@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 @Mixin(StructureTemplatePool.class)
-public class StructurePoolMixin {
+public class IncreaseStructureWeightLimitMixin {
     /**
      * Increases the weight limit that mojang slapped on that was a workaround for https://bugs.mojang.com/browse/MC-203131
      * @author - TelepathicGrunt

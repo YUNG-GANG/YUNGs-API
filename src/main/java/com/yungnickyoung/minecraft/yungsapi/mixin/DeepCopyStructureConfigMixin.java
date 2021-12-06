@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Mixin(StructureSettings.class)
-public class StructuresConfigMixin {
+public class DeepCopyStructureConfigMixin {
     @Mutable
     @Final
     @Shadow

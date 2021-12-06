@@ -1,5 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.mixin;
 
+import com.google.common.collect.ImmutableMap;
+import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.StructureSettingsAccessor;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.StructureSettings;
@@ -15,10 +17,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Optional;
 
 /**
+ * Deep copies dimension structure settings.
+ * This is necessary to allow for dimension whitelisting/blacklisting, since each dimension
+ * is not normally guaranteed to have its own settings object.
  * @author TelepathicGrunt
  */
 @Mixin(ChunkGenerator.class)
-public class ChunkGeneratorMixin {
+public class DeepCopyStructureSettingsMixin {
     @Mutable
     @Final
     @Shadow
@@ -42,6 +47,8 @@ public class ChunkGeneratorMixin {
         // Create new deep copied DimensionStructuresSettings
         // We do not need to create a new structure spacing map instance here as our patch into
         // DimensionStructuresSettings will already create the new map instance for us.
+        StructureSettings newStructureSettings = new StructureSettings(newStrongholdSettings, settings.structureConfig());
+        ((StructureSettingsAccessor)newStructureSettings).setConfiguredStructures(ImmutableMap.copyOf(((StructureSettingsAccessor)settings).getConfiguredStructures()));
         this.settings = new StructureSettings(newStrongholdSettings, structureSettings.structureConfig());
     }
 }
