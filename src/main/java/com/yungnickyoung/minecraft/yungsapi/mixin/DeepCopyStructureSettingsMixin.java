@@ -46,9 +46,9 @@ public class DeepCopyStructureSettingsMixin {
 
         // Create new deep copied DimensionStructuresSettings
         // We do not need to create a new structure spacing map instance here as our patch into
-        // DimensionStructuresSettings will already create the new map instance for us.
-        StructureSettings newStructureSettings = new StructureSettings(newStrongholdSettings, settings.structureConfig());
-        ((StructureSettingsAccessor)newStructureSettings).setConfiguredStructures(ImmutableMap.copyOf(((StructureSettingsAccessor)settings).getConfiguredStructures()));
-        this.settings = new StructureSettings(newStrongholdSettings, structureSettings.structureConfig());
+        // StructureSettings will already create the new map instance for us.
+        StructureSettings newStructureSettings = new StructureSettings(newStrongholdSettings, structureSettings.structureConfig());
+        ((StructureSettingsAccessor)newStructureSettings).setConfiguredStructures(ImmutableMap.copyOf(((StructureSettingsAccessor)structureSettings).getConfiguredStructures()));
+        this.settings = newStructureSettings;
     }
 }
