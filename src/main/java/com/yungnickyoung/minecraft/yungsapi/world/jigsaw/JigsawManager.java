@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.mojang.datafixers.util.Pair;
 import com.yungnickyoung.minecraft.yungsapi.YungsApi;
+import com.yungnickyoung.minecraft.yungsapi.api.YungJigsawConfig;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.BoundingBoxAccessor;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.StructureTemplatePoolAccessor;
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.IMaxCountJigsawPiece;
@@ -19,7 +20,6 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
-import net.minecraft.world.level.levelgen.feature.configurations.JigsawConfiguration;
 import net.minecraft.world.level.levelgen.feature.structures.*;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
@@ -37,8 +37,8 @@ import java.util.*;
 import java.util.function.Predicate;
 
 public class JigsawManager {
-    public static Optional<PieceGenerator<JigsawConfiguration>> assembleJigsawStructure(
-        PieceGeneratorSupplier.Context<JigsawConfiguration> jigsawContext,
+    public static Optional<PieceGenerator<YungJigsawConfig>> assembleJigsawStructure(
+        PieceGeneratorSupplier.Context<YungJigsawConfig> jigsawContext,
         JigsawPlacement.PieceFactory pieceFactory,
         BlockPos startPos,
         boolean doBoundaryAdjustments,
@@ -49,7 +49,7 @@ public class JigsawManager {
         WorldgenRandom worldgenRandom = new WorldgenRandom(new LegacyRandomSource(0L));
         worldgenRandom.setLargeFeatureSeed(jigsawContext.seed(), jigsawContext.chunkPos().x, jigsawContext.chunkPos().z);
         RegistryAccess registryAccess = jigsawContext.registryAccess();
-        JigsawConfiguration jigsawConfiguration = jigsawContext.config();
+        YungJigsawConfig config = jigsawContext.config();
         ChunkGenerator chunkGenerator = jigsawContext.chunkGenerator();
         StructureManager structureManager = jigsawContext.structureManager();
         LevelHeightAccessor levelHeightAccessor = jigsawContext.heightAccessor();
@@ -64,7 +64,7 @@ public class JigsawManager {
         Rotation rotation = Rotation.getRandom(worldgenRandom);
 
         // Get starting pool
-        StructureTemplatePool structureTemplatePool = jigsawConfiguration.startPool().get();
+        StructureTemplatePool structureTemplatePool = registry.get(config.getStartPool());
 
         // Grab a random starting piece from the start pool. This is just the piece design itself, without rotation or position information.
         // Think of it as a blueprint.
@@ -99,7 +99,7 @@ public class JigsawManager {
         return Optional.of((structurePiecesBuilder, context) -> {
             ArrayList<PoolElementStructurePiece> pieces = Lists.newArrayList();
             pieces.add(startPiece);
-            if (jigsawConfiguration.maxDepth() <= 0) { // Realistically this should never be true. Why make a jigsaw config with a non-positive size?
+            if (config.getMaxDepth() <= 0) { // Realistically this should never be true. Why make a jigsaw config with a non-positive size?
                 return;
             }
 
@@ -108,7 +108,7 @@ public class JigsawManager {
             AABB aABB = new AABB(
                     pieceCenterX - structureBoundingBoxRadius, pieceCenterY - structureBoundingBoxRadius, pieceCenterZ - structureBoundingBoxRadius,
                     pieceCenterX + structureBoundingBoxRadius + 1, pieceCenterY + structureBoundingBoxRadius + 1, pieceCenterZ + structureBoundingBoxRadius + 1);
-            Placer placer = new Placer(registry, jigsawConfiguration.maxDepth(), pieceFactory, chunkGenerator, structureManager, pieces, worldgenRandom);
+            Placer placer = new Placer(registry, config.getMaxDepth(), pieceFactory, chunkGenerator, structureManager, pieces, worldgenRandom);
             PieceState startPieceEntry = new PieceState(
                     startPiece,
                     new MutableObject<>(
@@ -133,8 +133,8 @@ public class JigsawManager {
         });
     }
 
-    public static Optional<PieceGenerator<JigsawConfiguration>> assembleJigsawStructure(
-            PieceGeneratorSupplier.Context<JigsawConfiguration> jigsawContext,
+    public static Optional<PieceGenerator<YungJigsawConfig>> assembleJigsawStructure(
+            PieceGeneratorSupplier.Context<YungJigsawConfig> jigsawContext,
             JigsawPlacement.PieceFactory pieceFactory,
             BlockPos startPos,
             boolean doBoundaryAdjustments,

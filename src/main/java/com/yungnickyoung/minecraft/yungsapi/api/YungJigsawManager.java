@@ -2,17 +2,11 @@ package com.yungnickyoung.minecraft.yungsapi.api;
 
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.JigsawManager;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.world.level.LevelHeightAccessor;
-import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.feature.configurations.JigsawConfiguration;
 import net.minecraft.world.level.levelgen.feature.structures.JigsawPlacement;
-import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
+import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGeneratorSupplier;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 
-import java.util.List;
-import java.util.Random;
+import java.util.Optional;
 
 /**
  * YUNG's Jigsaw Manager.
@@ -36,7 +30,7 @@ import java.util.Random;
 public class YungJigsawManager {
     /**
      * Entrypoint for assembling Jigsaw structures with YUNG's Jigsaw Manager.
-     * You can call this method in the exact same manner as vanilla's {@link net.minecraft.world.level.levelgen.feature.structures.JigsawPlacement#addPieces(RegistryAccess, PoolElementStructurePiece, int, JigsawPlacement.PieceFactory, ChunkGenerator, StructureManager, List, Random, LevelHeightAccessor)}
+     * You can call this method in the exact same manner as vanilla's {@link net.minecraft.world.level.levelgen.feature.structures.JigsawPlacement#addPieces(PieceGeneratorSupplier.Context, JigsawPlacement.PieceFactory, BlockPos, boolean, boolean)}
      *
      * @param jigsawContext
      * @param pieceFactory
@@ -48,14 +42,14 @@ public class YungJigsawManager {
      * @param structureBoundingBoxRadius (Optional) The radius of the bounding box for the structure. Defaults to 80.
      *                                   May need to be increased if your structure is particularly large.
      */
-    public static void assembleJigsawStructure(
-            PieceGeneratorSupplier.Context<JigsawConfiguration> jigsawContext,
+    public static Optional<PieceGenerator<YungJigsawConfig>> assembleJigsawStructure(
+            PieceGeneratorSupplier.Context<YungJigsawConfig> jigsawContext,
             JigsawPlacement.PieceFactory pieceFactory,
             BlockPos startPos,
             boolean doBoundaryAdjustments,
             boolean useHeightmap,
             int structureBoundingBoxRadius
     ) {
-        JigsawManager.assembleJigsawStructure(jigsawContext, pieceFactory, startPos, doBoundaryAdjustments, useHeightmap, structureBoundingBoxRadius);
+        return JigsawManager.assembleJigsawStructure(jigsawContext, pieceFactory, startPos, doBoundaryAdjustments, useHeightmap, structureBoundingBoxRadius);
     }
 }

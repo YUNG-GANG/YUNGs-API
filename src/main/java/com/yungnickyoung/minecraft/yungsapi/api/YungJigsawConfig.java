@@ -2,27 +2,23 @@ package com.yungnickyoung.minecraft.yungsapi.api;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.world.level.levelgen.feature.structures.StructureTemplatePool;
-
-import java.util.function.Supplier;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 
 /**
  * Config for using {@link YungJigsawManager}.
- * Identical in function to vanilla's {@link net.minecraft.world.level.levelgen.feature.configurations.JigsawConfiguration}.
+ * Nearly identical in function to vanilla's {@link net.minecraft.world.level.levelgen.feature.configurations.JigsawConfiguration},
+ * with the one difference being that the start pool variable is a resource location pointing to the initial template pool,
+ * rather than a supplier.
  */
-public class YungJigsawConfig {
+public class YungJigsawConfig implements FeatureConfiguration {
     public static final Codec<YungJigsawConfig> CODEC = RecordCodecBuilder.create((codecBuilder) -> codecBuilder
         .group(
-            StructureTemplatePool.CODEC.fieldOf("start_pool").forGetter(YungJigsawConfig::getStartPoolSupplier),
-            Codec.intRange(0, 7).fieldOf("size").forGetter(YungJigsawConfig::getMaxDepth))
+            ResourceLocation.CODEC.fieldOf("start_pool").forGetter(YungJigsawConfig::getStartPool),
+            Codec.INT.fieldOf("size").forGetter(YungJigsawConfig::getMaxDepth))
         .apply(codecBuilder, YungJigsawConfig::new));
 
-    /**
-     * Supplies the start pool StructurePool.
-     * Often retrieved in the following manner during structure start generation:
-     * {@code () -> dynamicRegistryManager.get(Registry.TEMPLATE_POOL_WORLDGEN).get(startPoolResourceLocation)}
-     */
-    private final Supplier<StructureTemplatePool> startPoolSupplier;
+    private final ResourceLocation startPool;
 
     /**
      * The size of the structure.
@@ -31,8 +27,8 @@ public class YungJigsawConfig {
      */
     private final int maxDepth;
 
-    public YungJigsawConfig(Supplier<StructureTemplatePool> startPoolSupplier, int maxDepth) {
-        this.startPoolSupplier = startPoolSupplier;
+    public YungJigsawConfig(ResourceLocation startPool, int maxDepth) {
+        this.startPool = startPool;
         this.maxDepth = maxDepth;
     }
 
@@ -40,7 +36,7 @@ public class YungJigsawConfig {
         return this.maxDepth;
     }
 
-    public Supplier<StructureTemplatePool> getStartPoolSupplier() {
-        return this.startPoolSupplier;
+    public ResourceLocation getStartPool() {
+        return this.startPool;
     }
 }
