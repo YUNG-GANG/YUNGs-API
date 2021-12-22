@@ -85,25 +85,15 @@ jar {
     }
 }
 
-//task javadocJar(type: Jar) {
-//    classifier = 'javadoc'
-//    from javadoc
-//}
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
 
-//task sourcesJar(type: Jar) {
-//    classifier = 'sources'
-//    from sourceSets.main.allSource
-//}
-
-//java {
-//    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task if it is present.=
-//    withSourcesJar() // If you remove this line, sources will not be generated.
-//    withJavadocJar() // Javadoc jar is needed for Maven Central
-//}
-
-//artifacts {
-//    archives javadocJar, sourcesJar
-//}
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
 
 // Example configuration to allow publishing using the maven-publish task
 // This is the preferred method to reobfuscate your jar file
@@ -111,16 +101,19 @@ jar.finalizedBy('reobfJar')
 // However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
 //publish.dependsOn('reobfJar')
 
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
+
 publishing {
     publications  {
         mavenJava(MavenPublication) {
             artifactId = "YungsApi"
             artifact jar
-            // We avoid using 'from components.java', and instead specify artifacts individually,
-            // Since we want to use the output of remapJar rather than the regular jar
-//            artifact(remapJar) { builtBy remapJar }
-//            artifact(sourcesJar) { builtBy remapSourcesJar }
-//            artifact(javadocJar) { builtBy javadocJar }
+            artifact(sourcesJar) { builtBy sourcesJar }
+            artifact(javadocJar) { builtBy javadocJar }
             pom {
                 name = "YUNG's API"
                 description = "A common API for YUNG's Minecraft mods"
@@ -162,12 +155,6 @@ publishing {
 signing {
     sign publishing.publications.mavenJava
 }
-
-//javadoc {
-//    if(JavaVersion.current().isJava9Compatible()) {
-//        options.addBooleanOption('html5', true)
-//    }
-//}
 
 apply plugin: 'org.spongepowered.mixin'
 
