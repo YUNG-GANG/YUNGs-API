@@ -55,7 +55,7 @@ public class ItemSetSelector {
     public ItemSetSelector addItem(Item item, float chance) {
         // Abort if Item already a part of this selector
         if (entries.containsKey(item)) {
-            YungsApi.LOGGER.warn(String.format("WARNING: duplicate item %s added to ItemSetSelector!", item.toString()));
+            YungsApi.LOGGER.warn("WARNING: duplicate item {} added to ItemSetSelector!", item.toString());
             return this;
         }
 
@@ -63,7 +63,7 @@ public class ItemSetSelector {
         float currTotal = entries.values().stream().reduce(Float::sum).orElse(0f);
         float newTotal = currTotal + chance;
         if (newTotal > 1) { // Total probability cannot exceed 1
-            YungsApi.LOGGER.warn(String.format("WARNING: item %s added to ItemSetSelector exceeds max probabiltiy of 1!", item.toString()));
+            YungsApi.LOGGER.warn("WARNING: item {} added to ItemSetSelector exceeds max probabiltiy of 1!", item.toString());
             return this;
         }
         entries.put(item, chance);

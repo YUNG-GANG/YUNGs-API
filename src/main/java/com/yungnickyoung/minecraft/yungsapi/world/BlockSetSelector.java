@@ -54,18 +54,16 @@ public class BlockSetSelector {
      */
     public BlockSetSelector addBlock(BlockState blockState, float chance) {
         // Abort if BlockState already a part of this selector
-        for (Map.Entry<BlockState, Float> entry : entries.entrySet()) {
-            if (entry.getKey() == blockState) {
-                YungsApi.LOGGER.warn(String.format("WARNING: duplicate block %s added to BlockSelector!", blockState.toString()));
-                return this;
-            }
+        if (entries.containsKey(blockState)) {
+            YungsApi.LOGGER.warn("WARNING: duplicate block {} added to BlockSelector!", blockState.toString());
+            return this;
         }
 
         // Attempt to add BlockState to entries
         float currTotal = entries.values().stream().reduce(Float::sum).orElse(0f);
         float newTotal = currTotal + chance;
         if (newTotal > 1) { // Total probability cannot exceed 1
-            YungsApi.LOGGER.warn(String.format("WARNING: block %s added to BlockSelector exceeds max probabiltiy of 1!", blockState.toString()));
+            YungsApi.LOGGER.warn("WARNING: block {} added to BlockSelector exceeds max probabiltiy of 1!", blockState.toString());
             return this;
         }
         entries.put(blockState, chance);

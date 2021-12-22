@@ -1,0 +1,24 @@
+modLoader="javafml"
+loaderVersion="[39,)"
+license="GPLv3"
+issueTrackerURL="https://github.com/yungnickyoung/YUNGs-Api/issues"
+
+[[mods]]
+	modId="yungsapi"
+	logoFile="logo.png"
+	version="${file.jarVersion}"
+	displayName="YUNG's API"
+	credits="Thanks so much to all my patrons!"
+	authors="YUNGNICKYOUNG"
+	description="API Library for YUNG's minecraft mods."
+	displayURL="https://www.curseforge.com/minecraft/mc-mods/yungs-api"
+
+[[dependencies.yungsapi]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.18.1,1.19)"
+
+[[dependencies.yungsapi]]
+    modId="forge"
+    mandatory=true
+    versionRange="[39.0.0,)"

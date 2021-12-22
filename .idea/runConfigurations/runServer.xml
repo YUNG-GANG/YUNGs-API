@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component>
   <configuration default="false" factoryName="Application" name="runServer" singleton="false" type="Application">
-    <option name="MAIN_CLASS_NAME" value="net.minecraftforge.userdev.LaunchTesting"/>
-    <option name="VM_PARAMETERS" value="-Dforge.logging.console.level=debug -Dforge.logging.markers=SCAN,REGISTRIES,REGISTRYDUMP"/>
-    <option name="PROGRAM_PARAMETERS" value=""/>
+    <option name="MAIN_CLASS_NAME" value="cpw.mods.bootstraplauncher.BootstrapLauncher"/>
+    <option name="VM_PARAMETERS" value="-DlegacyClassPath.file=C:\Users\nickl\Desktop\Modding\Minecraft\YUNGs-API\build\classpath\runServer_minecraftClasspath.txt -Dmixin.env.remapRefMap=true -Dmixin.env.refMapRemappingFile=C:\Users\nickl\Desktop\Modding\Minecraft\YUNGs-API/build/createSrgToMcp/output.srg -Dnet.minecraftforge.gradle.GradleStart.srg.srg-mcp=C:\Users\nickl\Desktop\Modding\Minecraft\YUNGs-API\build\createSrgToMcp\output.srg -DignoreList=bootstraplauncher,securejarhandler,asm-commons,asm-util,asm-analysis,asm-tree,asm,client-extra,fmlcore,javafmllanguage,mclanguage,forge- -DmergeModules=jna-5.8.0.jar,jna-platform-58.0.jar,java-objc-bridge-1.0.0.jar -p C:\Users\nickl\.gradle\caches\modules-2\files-2.1\cpw.mods\bootstraplauncher\0.1.17\899fb8e3912bb7d14a6f9611de117f77db710ec3\bootstraplauncher-0.1.17.jar;C:\Users\nickl\.gradle\caches\modules-2\files-2.1\cpw.mods\securejarhandler\0.9.54\24b670f2c026ec9777e64a2c2126ebc8635dbe8d\securejarhandler-0.9.54.jar;C:\Users\nickl\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm-commons\9.1\8b971b182eb5cf100b9e8d4119152d83e00e0fdd\asm-commons-9.1.jar;C:\Users\nickl\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm-util\9.1\36464a45d871779f3383a8a9aba2b26562a86729\asm-util-9.1.jar;C:\Users\nickl\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm-analysis\9.1\4f61b83b81d8b659958f4bcc48907e93ecea55a0\asm-analysis-9.1.jar;C:\Users\nickl\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm-tree\9.1\c333f2a855069cb8eb17a40a3eb8b1b67755d0eb\asm-tree-9.1.jar;C:\Users\nickl\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm\9.1\a99500cf6eea30535eeac6be73899d048f8d12a8\asm-9.1.jar --add-modules ALL-MODULE-PATH --add-opens java.base/java.util.jar=cpw.mods.securejarhandler --add-exports java.base/sun.security.util=cpw.mods.securejarhandler --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming"/>
+    <option name="PROGRAM_PARAMETERS" value="--launchTarget forgeserveruserdev --gameDir . --fml.forgeVersion 39.0.7 --fml.mcVersion 1.18.1 --fml.forgeGroup net.minecraftforge --fml.mcpVersion 20211210.034407 -mixin.config=yungsapi.mixins.json"/>
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$\run"/>
-    <module name="yungsapi.main"/>
+    <module name="YUNGs-API.main"/>
     <envs>
       <env name="MOD_CLASSES" value="yungsapi%%$PROJECT_DIR$\build\resources\main;yungsapi%%$PROJECT_DIR$\build\classes\java\main"/>
-      <env name="MCP_MAPPINGS" value="snapshot_20200813-1.16.1"/>
-      <env name="MCP_VERSION" value="20200911.084530"/>
-      <env name="FORGE_VERSION" value="34.1.0"/>
-      <env name="FORGE_GROUP" value="net.minecraftforge"/>
-      <env name="target" value="fmluserdevserver"/>
-      <env name="MC_VERSION" value="1.16.3"/>
+      <env name="MCP_MAPPINGS" value="official_1.18.1"/>
     </envs>
     <method v="2">
       <option enabled="true" name="Make"/>

@@ -1,68 +1,126 @@
-plugins {
-    id 'fabric-loom' version '0.10-SNAPSHOT'
-    id 'maven-publish'
-    id 'signing'
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net' }
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+    }
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 archivesBaseName = project.archives_base_name
-version = "${project.minecraft_version}-${project.mod_build_num}"
+version = "${minecraft_version}-${mod_build_num}"
 group = project.maven_group
 
-loom {
-//    accessWidenerPath = file("src/main/resources/yungsapi.aw")
+minecraft {
+    mappings channel: "official", version: "${minecraft_version}"
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            arg "-mixin.config=" + mod_id + ".mixins.json"
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+//            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+//            property 'forge.logging.console.level', 'debug'
+
+            mods { yungsapi { source sourceSets.main } }
+        }
+
+        server {
+            workingDirectory project.file('run')
+            arg "-mixin.config=" + mod_id + ".mixins.json"
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+//            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+//            property 'forge.logging.console.level', 'debug'
+
+            mods { yungsapi { source sourceSets.main } }
+        }
+
+        data {
+            workingDirectory project.file('run')
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+//            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+//            property 'forge.logging.console.level', 'debug'
+
+            args '--mod', project.getProperty('mod_id'), '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+
+            mods { yungsapi { source sourceSets.main } }
+        }
+    }
 }
 
 dependencies {
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings minecraft.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     implementation 'com.google.code.gson:gson:2.8.6'
-}
-
-processResources {
-    inputs.property "version", project.version
-
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version
+    if (System.getProperty("idea.sync.active") != "true") {
+        annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     }
-}
-
-tasks.withType(JavaCompile).configureEach {
-    // Minecraft 1.18 (1.18-pre2) upwards uses Java 17.
-    it.options.release = 17
-    it.options.encoding = "UTF-8"
-
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = "sources"
-    from sourceSets.main.allSource
-}
-
-java {
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task if it is present.=
-    withSourcesJar() // If you remove this line, sources will not be generated.
-    withJavadocJar() // Javadoc jar is needed for Maven Central
 }
 
 jar {
-    from("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}"}
+    manifest {
+        attributes([
+                "Specification-Title"     : mod_id,
+                "Specification-Vendor"    : "YUNGNICKYOUNG",
+                "Specification-Version"   : "1", // We are version 1 of ourselves
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : "${version}",
+                "Implementation-Vendor"   : "YUNGNICKYOUNG",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "Signing-Fingerprint"     : project.hasProperty('signSHA1') ? project.findProperty('signSHA1') : "unsigned",
+                "MixinConfigs": "${mod_id}.mixins.json"
+        ])
     }
 }
+
+//task javadocJar(type: Jar) {
+//    classifier = 'javadoc'
+//    from javadoc
+//}
+
+//task sourcesJar(type: Jar) {
+//    classifier = 'sources'
+//    from sourceSets.main.allSource
+//}
+
+//java {
+//    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task if it is present.=
+//    withSourcesJar() // If you remove this line, sources will not be generated.
+//    withJavadocJar() // Javadoc jar is needed for Maven Central
+//}
+
+//artifacts {
+//    archives javadocJar, sourcesJar
+//}
+
+// Example configuration to allow publishing using the maven-publish task
+// This is the preferred method to reobfuscate your jar file
+jar.finalizedBy('reobfJar')
+// However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
+//publish.dependsOn('reobfJar')
 
 publishing {
     publications  {
         mavenJava(MavenPublication) {
             artifactId = "YungsApi"
+            artifact jar
             // We avoid using 'from components.java', and instead specify artifacts individually,
             // Since we want to use the output of remapJar rather than the regular jar
-            artifact(remapJar) { builtBy remapJar }
-            artifact(sourcesJar) { builtBy remapSourcesJar }
-            artifact(javadocJar) { builtBy javadocJar }
+//            artifact(remapJar) { builtBy remapJar }
+//            artifact(sourcesJar) { builtBy remapSourcesJar }
+//            artifact(javadocJar) { builtBy javadocJar }
             pom {
                 name = "YUNG's API"
                 description = "A common API for YUNG's Minecraft mods"
@@ -90,9 +148,7 @@ publishing {
     }
     repositories {
         maven {
-            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
-            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
             credentials {
                 username ossrhUsername
                 password ossrhPassword
@@ -107,8 +163,14 @@ signing {
     sign publishing.publications.mavenJava
 }
 
-javadoc {
-    if(JavaVersion.current().isJava9Compatible()) {
-        options.addBooleanOption('html5', true)
-    }
+//javadoc {
+//    if(JavaVersion.current().isJava9Compatible()) {
+//        options.addBooleanOption('html5', true)
+//    }
+//}
+
+apply plugin: 'org.spongepowered.mixin'
+
+mixin {
+    add sourceSets.main, "${mod_id}.refmap.json"
 }
