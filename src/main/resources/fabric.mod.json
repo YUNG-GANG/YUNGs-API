@@ -13,7 +13,7 @@
     "sources": "https://github.com/yungnickyoung/YUNGs-Api",
     "issues": "https://github.com/yungnickyoung/YUNGs-Api/issues"
   },
-  "license": "GPLv3",
+  "license": "LGPLv3",
   "icon": "logo.png",
   "environment": "*",
   "entrypoints": {
