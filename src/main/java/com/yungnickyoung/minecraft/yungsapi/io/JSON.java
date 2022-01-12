@@ -2,14 +2,12 @@ package com.yungnickyoung.minecraft.yungsapi.io;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.yungnickyoung.minecraft.yungsapi.json.BlockSetSelectorAdapter;
-import com.yungnickyoung.minecraft.yungsapi.json.BlockStateAdapter;
-import com.yungnickyoung.minecraft.yungsapi.json.ItemAdapter;
-import com.yungnickyoung.minecraft.yungsapi.json.ItemSetSelectorAdapter;
+import com.yungnickyoung.minecraft.yungsapi.json.*;
 import com.yungnickyoung.minecraft.yungsapi.world.BlockSetSelector;
 import com.yungnickyoung.minecraft.yungsapi.world.ItemSetSelector;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.BiomeDictionary;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -28,6 +26,7 @@ public class JSON {
         gsonBuilder.registerTypeHierarchyAdapter(BlockSetSelector.class, new BlockSetSelectorAdapter());
         gsonBuilder.registerTypeHierarchyAdapter(Item.class, new ItemAdapter());
         gsonBuilder.registerTypeHierarchyAdapter(ItemSetSelector.class, new ItemSetSelectorAdapter());
+        gsonBuilder.registerTypeHierarchyAdapter(BiomeDictionary.Type.class, new BiomeDictionaryTypeAdapter());
         gsonBuilder.setPrettyPrinting();
         gsonBuilder.disableHtmlEscaping();
         gson = gsonBuilder.create();
