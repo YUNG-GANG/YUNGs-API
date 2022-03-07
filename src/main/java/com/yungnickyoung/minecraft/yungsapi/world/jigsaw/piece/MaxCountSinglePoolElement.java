@@ -4,14 +4,14 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.init.YAModJigsaw;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.levelgen.feature.structures.SinglePoolElement;
-import net.minecraft.world.level.levelgen.feature.structures.StructurePoolElementType;
-import net.minecraft.world.level.levelgen.feature.structures.StructureTemplatePool;
+import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
+import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType;
+import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
-
-import java.util.function.Supplier;
+import org.jetbrains.annotations.NotNull;
 
 public class MaxCountSinglePoolElement extends SinglePoolElement implements IMaxCountJigsawPiece {
     public static final Codec<MaxCountSinglePoolElement> CODEC = RecordCodecBuilder.create((builder) -> builder
@@ -26,7 +26,7 @@ public class MaxCountSinglePoolElement extends SinglePoolElement implements IMax
     protected final int maxCount;
     protected final String name;
 
-    public MaxCountSinglePoolElement(Either<ResourceLocation, StructureTemplate> resourceLocation, Supplier<StructureProcessorList> processors, StructureTemplatePool.Projection projection, String name, int maxCount) {
+    public MaxCountSinglePoolElement(Either<ResourceLocation, StructureTemplate> resourceLocation, Holder<StructureProcessorList> processors, StructureTemplatePool.Projection projection, String name, int maxCount) {
         super(resourceLocation, processors, projection);
         this.maxCount = maxCount;
         this.name = name;
@@ -42,11 +42,11 @@ public class MaxCountSinglePoolElement extends SinglePoolElement implements IMax
         return this.name;
     }
 
-    public StructurePoolElementType<?> getType() {
+    public @NotNull StructurePoolElementType<?> getType() {
         return YAModJigsaw.MAX_COUNT_SINGLE_ELEMENT;
     }
 
-    public String toString() {
+    public @NotNull String toString() {
         return "MaxCountSingle[" + this.name + "][" + this.template + "][" + this.maxCount + "]";
     }
 }

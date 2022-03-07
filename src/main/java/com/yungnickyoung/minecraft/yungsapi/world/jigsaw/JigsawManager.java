@@ -20,11 +20,11 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
-import net.minecraft.world.level.levelgen.feature.structures.*;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGeneratorSupplier;
+import net.minecraft.world.level.levelgen.structure.pools.*;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.AABB;
@@ -53,7 +53,7 @@ public class JigsawManager {
         ChunkGenerator chunkGenerator = jigsawContext.chunkGenerator();
         StructureManager structureManager = jigsawContext.structureManager();
         LevelHeightAccessor levelHeightAccessor = jigsawContext.heightAccessor();
-        Predicate<Biome> predicate = jigsawContext.validBiome();
+        Predicate<Holder<Biome>> validBiomePredicate = jigsawContext.validBiome();
 
         StructureFeature.bootstrap(); // Ensures static members are all loaded
 
@@ -90,7 +90,7 @@ public class JigsawManager {
         int pieceCenterY = useHeightmap
             ? startPos.getY() + chunkGenerator.getFirstFreeHeight(pieceCenterX, pieceCenterZ, Heightmap.Types.WORLD_SURFACE_WG, levelHeightAccessor)
             : startPos.getY();
-        if (!predicate.test(chunkGenerator.getNoiseBiome(QuartPos.fromBlock(pieceCenterX), QuartPos.fromBlock(pieceCenterY), QuartPos.fromBlock(pieceCenterZ)))) {
+        if (!validBiomePredicate.test(chunkGenerator.getNoiseBiome(QuartPos.fromBlock(pieceCenterX), QuartPos.fromBlock(pieceCenterY), QuartPos.fromBlock(pieceCenterZ)))) {
             return Optional.empty();
         }
         int yAdjustment = pieceBoundingBox.minY() + startPiece.getGroundLevelDelta(); // groundLevelDelta seems to always be 1. Not sure what the point of this is.

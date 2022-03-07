@@ -2,12 +2,15 @@ package com.yungnickyoung.minecraft.yungsapi.criteria;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
+import com.yungnickyoung.minecraft.yungsapi.YungsApi;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -18,10 +21,10 @@ import org.jetbrains.annotations.Nullable;
  * @author TelepathicGrunt
  */
 public class SafeStructureLocationPredicate {
-    private final StructureFeature<?> structure;
+    private final ResourceKey<ConfiguredStructureFeature<?, ?>> configuredStructureFeature;
 
-    public SafeStructureLocationPredicate(StructureFeature<?> structure) {
-        this.structure = structure;
+    public SafeStructureLocationPredicate(ResourceKey<ConfiguredStructureFeature<?, ?>> configuredStructureFeature) {
+        this.configuredStructureFeature = configuredStructureFeature;
     }
 
     public boolean matches(ServerLevel serverLevel, double x, double y, double z) {
@@ -30,15 +33,15 @@ public class SafeStructureLocationPredicate {
 
     public boolean matches(ServerLevel serverLevel, float x, float y, float z) {
         BlockPos blockpos = new BlockPos(x, y, z);
-        return this.structure != null &&
+        return this.configuredStructureFeature != null &&
                 serverLevel.isLoaded(blockpos) &&
-                serverLevel.structureFeatureManager().getStructureWithPieceAt(blockpos, this.structure).isValid();
+                serverLevel.structureFeatureManager().getStructureWithPieceAt(blockpos, this.configuredStructureFeature).isValid();
     }
 
     public JsonElement serializeToJson() {
         JsonObject jsonObject = new JsonObject();
-        if (this.structure != null) {
-            jsonObject.addProperty("feature", this.structure.getFeatureName());
+        if (this.configuredStructureFeature != null) {
+            jsonObject.addProperty("feature", this.configuredStructureFeature.location().toString());
         }
         return jsonObject;
     }
@@ -46,9 +49,15 @@ public class SafeStructureLocationPredicate {
     public static SafeStructureLocationPredicate fromJson(@Nullable JsonElement jsonElement) {
         if (jsonElement != null && !jsonElement.isJsonNull()) {
             JsonObject jsonObject = GsonHelper.convertToJsonObject(jsonElement, "location");
-            StructureFeature<?> structure = jsonObject.has("feature") ? Registry.STRUCTURE_FEATURE.get(new ResourceLocation(GsonHelper.getAsString(jsonObject, "feature"))) : null;
+            ResourceKey<ConfiguredStructureFeature<?, ?>> featureResourceKey = jsonObject.has("feature")
+                    ? ResourceLocation.CODEC
+                        .parse(JsonOps.INSTANCE, jsonObject.get("feature"))
+                        .resultOrPartial(YungsApi.LOGGER::error)
+                        .map((resourceLocation) -> ResourceKey.create(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY, resourceLocation))
+                        .orElse(null)
+                    : null;
 
-            return new SafeStructureLocationPredicate(structure);
+            return new SafeStructureLocationPredicate(featureResourceKey);
         } else {
             return new SafeStructureLocationPredicate(null);
         }

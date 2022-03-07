@@ -1,14 +1,13 @@
 package com.yungnickyoung.minecraft.yungsapi.mixin.accessor;
 
-import net.minecraft.world.level.levelgen.feature.structures.FeaturePoolElement;
+import net.minecraft.core.Holder;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
+import net.minecraft.world.level.levelgen.structure.pools.FeaturePoolElement;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
-
-import java.util.function.Supplier;
 
 @Mixin(FeaturePoolElement.class)
 public interface FeaturePoolElementAccessor {
     @Accessor
-    Supplier<PlacedFeature> getFeature();
+    Holder<PlacedFeature> getFeature();
 }

@@ -8,12 +8,9 @@
     "IncreaseStructureWeightLimitMixin",
     "ServerPlayerEntityTickMixin",
     "accessor.BoundingBoxAccessor",
-    "accessor.ChunkGeneratorAccessor",
     "accessor.CriteriaTriggersAccessor",
     "accessor.FeaturePoolElementAccessor",
     "accessor.ListPoolElementAccessor",
-    "accessor.PlacedFeatureAccessor",
-    "accessor.StructureSettingsAccessor",
     "accessor.StructureTemplatePoolAccessor"
   ],
   "injectors": {

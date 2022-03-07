@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.criteria;
 
 import com.google.gson.JsonObject;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.resources.ResourceLocation;
@@ -9,6 +10,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
 /**
  * Custom trigger for safely locating a structure.
  * Unlike vanilla, if the structure does not exist, then the trigger will simply fail
@@ -16,6 +19,8 @@ import net.minecraft.world.entity.player.Player;
  *
  * @author TelepathicGrunt
  */
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SafeStructureLocationTrigger extends SimpleCriterionTrigger<SafeStructureLocationTrigger.TriggerInstance> {
     private final ResourceLocation id;
 
