@@ -4,15 +4,12 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.init.YAModJigsaw;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.FeaturePoolElementAccessor;
-import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.PlacedFeatureAccessor;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.structures.FeaturePoolElement;
-import net.minecraft.world.level.levelgen.feature.structures.StructurePoolElementType;
-import net.minecraft.world.level.levelgen.feature.structures.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
-
-import java.util.function.Supplier;
+import net.minecraft.world.level.levelgen.structure.pools.FeaturePoolElement;
+import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType;
+import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 
 public class MaxCountFeaturePoolElement extends FeaturePoolElement implements IMaxCountJigsawPiece {
     public static final Codec<MaxCountFeaturePoolElement> CODEC = RecordCodecBuilder.create((builder) -> builder
@@ -26,7 +23,7 @@ public class MaxCountFeaturePoolElement extends FeaturePoolElement implements IM
     protected final int maxCount;
     protected final String name;
 
-    public MaxCountFeaturePoolElement(Supplier<PlacedFeature> feature, StructureTemplatePool.Projection projection, String name, int maxCount) {
+    public MaxCountFeaturePoolElement(Holder<PlacedFeature> feature, StructureTemplatePool.Projection projection, String name, int maxCount) {
         super(feature, projection);
         this.maxCount = maxCount;
         this.name = name;
@@ -47,6 +44,6 @@ public class MaxCountFeaturePoolElement extends FeaturePoolElement implements IM
     }
 
     public String toString() {
-        return "MaxCountFeature[" + this.name + "][" + Registry.FEATURE.getKey((Feature<?>) ((PlacedFeatureAccessor)(((FeaturePoolElementAccessor)this).getFeature().get())).getFeature()) + "][" + this.maxCount + "]";
+        return "MaxCountFeature[" + this.name + "][" + Registry.FEATURE.getKey((((FeaturePoolElementAccessor)this).getFeature().value()).feature().value().feature()) + "][" + this.maxCount + "]";
     }
 }

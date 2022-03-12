@@ -4,14 +4,13 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.init.YAModJigsaw;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.levelgen.feature.structures.LegacySinglePoolElement;
-import net.minecraft.world.level.levelgen.feature.structures.StructurePoolElementType;
-import net.minecraft.world.level.levelgen.feature.structures.StructureTemplatePool;
+import net.minecraft.world.level.levelgen.structure.pools.LegacySinglePoolElement;
+import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType;
+import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
-
-import java.util.function.Supplier;
 
 public class MaxCountLegacySinglePoolElement extends LegacySinglePoolElement implements IMaxCountJigsawPiece {
     public static final Codec<MaxCountLegacySinglePoolElement> CODEC = RecordCodecBuilder.create((builder) -> builder
@@ -26,7 +25,7 @@ public class MaxCountLegacySinglePoolElement extends LegacySinglePoolElement imp
     protected final int maxCount;
     protected final String name;
 
-    public MaxCountLegacySinglePoolElement(Either<ResourceLocation, StructureTemplate> resourceLocation, Supplier<StructureProcessorList> processors, StructureTemplatePool.Projection projection, String name, int maxCount) {
+    public MaxCountLegacySinglePoolElement(Either<ResourceLocation, StructureTemplate> resourceLocation, Holder<StructureProcessorList> processors, StructureTemplatePool.Projection projection, String name, int maxCount) {
         super(resourceLocation, processors, projection);
         this.maxCount = maxCount;
         this.name = name;

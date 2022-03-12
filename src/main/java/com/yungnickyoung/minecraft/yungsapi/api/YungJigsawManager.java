@@ -2,9 +2,9 @@ package com.yungnickyoung.minecraft.yungsapi.api;
 
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.JigsawManager;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.levelgen.feature.structures.JigsawPlacement;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGeneratorSupplier;
+import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
 
 import java.util.Optional;
 
@@ -30,10 +30,10 @@ import java.util.Optional;
 public class YungJigsawManager {
     /**
      * Entrypoint for assembling Jigsaw structures with YUNG's Jigsaw Manager.
-     * You can call this method in the exact same manner as vanilla's {@link net.minecraft.world.level.levelgen.feature.structures.JigsawPlacement#addPieces(PieceGeneratorSupplier.Context, JigsawPlacement.PieceFactory, BlockPos, boolean, boolean)}
+     * You can call this method in the exact same manner as vanilla's {@link JigsawPlacement#addPieces(PieceGeneratorSupplier.Context, JigsawPlacement.PieceFactory, BlockPos, boolean, boolean)}
      *
-     * @param jigsawContext
-     * @param pieceFactory
+     * @param jigsawContext              The PieceGeneratorSupplier.Context
+     * @param pieceFactory               The JigsawPlacement.PieceFactory
      * @param startPos                   Position from which generation of this structure will start
      * @param doBoundaryAdjustments      Whether or not boundary adjustments should be performed on this structure.
      *                                   In vanilla, only villages and pillager outposts have this enabled.

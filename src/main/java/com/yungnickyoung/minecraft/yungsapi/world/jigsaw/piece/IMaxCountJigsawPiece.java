@@ -1,7 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece;
 
 /**
- * Tagging interface for max count Jigsaw pieces.
+ * Interface for Jigsaw pieces w/ a maxCount setting.
  */
 public interface IMaxCountJigsawPiece {
     String getName();
