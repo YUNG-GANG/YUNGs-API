@@ -109,8 +109,11 @@ javadoc {
 publishing {
     publications  {
         mavenJava(MavenPublication) {
-            artifactId = mod_name
-            from components.java
+            artifactId project.archivesBaseName
+            artifact jar
+            artifact sourcesJar
+            artifact javadocJar
+//            from components.java
             pom {
                 name = "YUNG's API"
                 description = "A common API for YUNG's Minecraft mods"
