@@ -1,45 +1,27 @@
-# User-specific stuff
-.idea/**/workspace.xml
-.idea/**/tasks.xml
-.idea/**/usage.statistics.xml
-.idea/**/dictionaries
-.idea/**/shelf
+# gradle
+.gradle/
+build/
+out/
+classes/
 
-# Generated files
-.idea/**/contentModel.xml
+# eclipse
+*.launch
 
-# Sensitive or high-churn files
-.idea/**/dataSources/
-.idea/**/dataSources.ids
-.idea/**/dataSources.local.xml
-.idea/**/sqlDataSources.xml
-.idea/**/dynamic.xml
-.idea/**/uiDesigner.xml
-.idea/**/dbnavigator.xml
-
-# Gradle
-.idea/**/gradle.xml
-.idea/**/libraries
-build
-.gradle
-
-# Gradle and Maven with auto-import
-# When using Gradle or Maven with auto-import, you should exclude module files,
-# since they will be recreated, and may cause churn.  Uncomment if using
-# auto-import.
-.idea/modules.xml
-.idea/*.iml
-.idea/modules
+# idea
+.idea/*
+!.idea/scopes
 *.iml
 *.ipr
+*.iws
 
-# IntelliJ
-out/
+# vscode
+.settings/
+.vscode/
+bin/
+.classpath
+.project
 
-# Runtime
+# other
 run/
-
-# Mac
-.DS_Store
-
-logs
+logs/
+libs/

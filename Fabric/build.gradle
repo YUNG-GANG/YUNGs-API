@@ -1,0 +1,112 @@
+plugins {
+    id 'fabric-loom' version '0.10-SNAPSHOT'
+    id 'idea'
+}
+
+archivesBaseName = "${mod_name}"
+version = "${minecraft_version}-Fabric-${version}"
+group = maven_group
+
+repositories {
+    mavenCentral()
+    maven { url "https://maven.fabricmc.net" }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
+    implementation project(":Common")
+}
+
+loom {
+    runs {
+        client {
+            client()
+            setConfigName("Fabric Client")
+            ideConfigGenerated(true)
+            runDir("run")
+        }
+        server {
+            server()
+            setConfigName("Fabric Server")
+            ideConfigGenerated(true)
+            runDir("run")
+        }
+    }
+}
+
+
+processResources {
+    from project(":Common").sourceSets.main.resources
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+tasks.withType(JavaCompile) {
+    source(project(":Common").sourceSets.main.allSource)
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${mod_name}" }
+    }
+}
+
+javadoc {
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
+
+publishing {
+    publications  {
+        mavenJava(MavenPublication) {
+            artifactId = mod_name
+            from components.java
+            pom {
+                name = "YUNG's API"
+                description = "A common API for YUNG's Minecraft mods"
+                url = 'https://github.com/yungnickyoung/YUNGs-Api'
+                scm {
+                    url = 'https://github.com/yungnickyoung/YUNGs-Api'
+                    connection = 'scm:git:git://github.com/yungnickyoung/YUNGs-Api.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:yungnickyoung/YUNGs-Api.git'
+                }
+                licenses {
+                    license {
+                        name = 'GNU LGPLv3'
+                        url = 'https://github.com/yungnickyoung/YUNGs-Api/blob/forge/1.18/LICENSE'
+                        distribution = 'repo'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'YUNGNICKYOUNG'
+                        email = 'yungnickyoung@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username ossrhUsername
+                password ossrhPassword
+            }
+        }
+    }
+}
+
+// signing.keyId, signing.password, and signing.secretKeyRingFile are defined separately
+// in my global gradle.properties for protection
+signing {
+    sign publishing.publications.mavenJava
+}

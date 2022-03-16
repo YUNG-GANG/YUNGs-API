@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.yungnickyoung.minecraft.yungsapi.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "yungsapi.refmap.json",
+  "mixins": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

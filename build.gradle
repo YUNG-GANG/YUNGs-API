@@ -1,163 +1,45 @@
-buildscript {
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'signing'
+    apply plugin: 'maven-publish'
+    java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+    java.withSourcesJar()
+    java.withJavadocJar()
+    jar {
+        manifest {
+            attributes([
+                    "Specification-Title"     : mod_name,
+                    "Specification-Vendor"    : mod_author,
+                    'Specification-Version'   : project.jar.archiveVersion,
+                    'Implementation-Title'    : project.name,
+                    'Implementation-Version'  : project.jar.archiveVersion,
+                    'Implementation-Vendor'   : mod_author,
+                    'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                    'Timestampe'              : System.currentTimeMillis(),
+                    'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
+                    'Built-On-Minecraft'      : minecraft_version
+            ])
+        }
+    }
     repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
-        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
         mavenCentral()
-        maven { url "https://plugins.gradle.org/m2/" }
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
-    }
-}
-
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'maven-publish'
-apply plugin: 'signing'
-
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-
-archivesBaseName = project.archives_base_name
-version = "${minecraft_version}-${mod_build_num}"
-group = project.maven_group
-
-minecraft {
-    mappings channel: "official", version: "${minecraft_version}"
-
-    runs {
-        client {
-            workingDirectory project.file('run')
-            arg "-mixin.config=" + mod_id + ".mixins.json"
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-//            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-//            property 'forge.logging.console.level', 'debug'
-
-            mods { yungsapi { source sourceSets.main } }
-        }
-
-        server {
-            workingDirectory project.file('run')
-            arg "-mixin.config=" + mod_id + ".mixins.json"
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-//            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-//            property 'forge.logging.console.level', 'debug'
-
-            mods { yungsapi { source sourceSets.main } }
-        }
-
-        data {
-            workingDirectory project.file('run')
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-//            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-//            property 'forge.logging.console.level', 'debug'
-
-            args '--mod', project.getProperty('mod_id'), '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-
-            mods { yungsapi { source sourceSets.main } }
-        }
-    }
-}
-
-dependencies {
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    implementation 'com.google.code.gson:gson:2.8.9'
-    if (System.getProperty("idea.sync.active") != "true") {
-        annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-    }
-}
-
-jar {
-    manifest {
-        attributes([
-                "Specification-Title"     : mod_id,
-                "Specification-Vendor"    : "YUNGNICKYOUNG",
-                "Specification-Version"   : "1", // We are version 1 of ourselves
-                "Implementation-Title"    : project.name,
-                "Implementation-Version"  : "${version}",
-                "Implementation-Vendor"   : "YUNGNICKYOUNG",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                "Signing-Fingerprint"     : project.hasProperty('signSHA1') ? project.findProperty('signSHA1') : "unsigned",
-                "MixinConfigs": "${mod_id}.mixins.json"
-        ])
-    }
-}
-
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
-    from javadoc
-}
-
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-// Example configuration to allow publishing using the maven-publish task
-// This is the preferred method to reobfuscate your jar file
-jar.finalizedBy('reobfJar')
-// However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
-//publish.dependsOn('reobfJar')
-
-javadoc {
-    if(JavaVersion.current().isJava9Compatible()) {
-        options.addBooleanOption('html5', true)
-    }
-}
-
-publishing {
-    publications  {
-        mavenJava(MavenPublication) {
-            artifactId = "YungsApi"
-            artifact jar
-            artifact(sourcesJar) { builtBy sourcesJar }
-            artifact(javadocJar) { builtBy javadocJar }
-            pom {
-                name = "YUNG's API"
-                description = "A common API for YUNG's Minecraft mods"
-                url = 'https://github.com/yungnickyoung/YUNGs-Api'
-                scm {
-                    url = 'https://github.com/yungnickyoung/YUNGs-Api'
-                    connection = 'scm:git:git://github.com/yungnickyoung/YUNGs-Api.git'
-                    developerConnection = 'scm:git:ssh://git@github.com:yungnickyoung/YUNGs-Api.git'
-                }
-                licenses {
-                    license {
-                        name = 'GNU GPLv3'
-                        url = 'https://github.com/yungnickyoung/YUNGs-Api/blob/fabric-1.17/LICENSE'
-                        distribution = 'repo'
-                    }
-                }
-                developers {
-                    developer {
-                        name = 'YUNGNICKYOUNG'
-                        email = 'yungnickyoung@gmail.com'
-                    }
-                }
-            }
-        }
-    }
-    repositories {
         maven {
-            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            credentials {
-                username ossrhUsername
-                password ossrhPassword
-            }
+            name = 'Sponge / Mixin'
+            url = 'https://repo.spongepowered.org/repository/maven-public/'
+        }
+        maven {
+            name = 'BlameJared Maven (CrT / Bookshelf)'
+            url = 'https://maven.blamejared.com'
         }
     }
-}
-
-// signing.keyId, signing.password, and signing.secretKeyRingFile are defined separately
-// in my global gradle.properties for protection
-signing {
-    sign publishing.publications.mavenJava
-}
-
-apply plugin: 'org.spongepowered.mixin'
-
-mixin {
-    add sourceSets.main, "${mod_id}.refmap.json"
+    tasks.withType(JavaCompile).configureEach {
+        it.options.encoding = 'UTF-8'
+        it.options.release = 17
+    }
+    // Disables Gradle's custom module metadata from being published to maven. The
+    // metadata includes mapped dependencies which are not reasonably consumable by
+    // other mod developers.
+    tasks.withType(GenerateModuleMetadata) {
+        enabled = false
+    }
 }

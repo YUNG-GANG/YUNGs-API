@@ -1,0 +1,87 @@
+plugins {
+    id 'java'
+    id 'org.spongepowered.gradle.vanilla' version '0.2.1-SNAPSHOT'
+}
+
+archivesBaseName = "${mod_name}"
+version = "${minecraft_version}-Common-${version}"
+group = maven_group
+
+minecraft {
+    version(minecraft_version)
+    runs {
+        if (project.hasProperty('common_runs_enabled') ? project.findProperty('common_runs_enabled').toBoolean() : true) {
+            server(project.hasProperty('common_server_run_name') ? project.findProperty('common_server_run_name') : 'vanilla_server') {
+                workingDirectory(this.file("run"))
+            }
+            client(project.hasProperty('common_client_run_name') ? project.findProperty('common_client_run_name') : 'vanilla_client') {
+                workingDirectory(this.file("run"))
+            }
+        }
+    }
+}
+
+dependencies {
+    compileOnly group:'org.spongepowered', name:'mixin', version:'0.8.5'
+    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
+}
+
+processResources {
+    def buildProps = project.properties.clone()
+    filesMatching(['pack.mcmeta']) {
+        expand buildProps
+    }
+}
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
+
+publishing {
+    publications  {
+        mavenJava(MavenPublication) {
+            artifactId = mod_name
+            from components.java
+            pom {
+                name = "YUNG's API"
+                description = "A common API for YUNG's Minecraft mods"
+                url = 'https://github.com/yungnickyoung/YUNGs-Api'
+                scm {
+                    url = 'https://github.com/yungnickyoung/YUNGs-Api'
+                    connection = 'scm:git:git://github.com/yungnickyoung/YUNGs-Api.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:yungnickyoung/YUNGs-Api.git'
+                }
+                licenses {
+                    license {
+                        name = 'GNU LGPLv3'
+                        url = 'https://github.com/yungnickyoung/YUNGs-Api/blob/forge/1.18/LICENSE'
+                        distribution = 'repo'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'YUNGNICKYOUNG'
+                        email = 'yungnickyoung@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username ossrhUsername
+                password ossrhPassword
+            }
+        }
+    }
+}
+
+// signing.keyId, signing.password, and signing.secretKeyRingFile are defined separately
+// in my global gradle.properties for protection
+signing {
+    sign publishing.publications.mavenJava
+}
