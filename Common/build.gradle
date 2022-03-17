@@ -26,13 +26,6 @@ dependencies {
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
 }
 
-processResources {
-    def buildProps = project.properties.clone()
-    filesMatching(['pack.mcmeta']) {
-        expand buildProps
-    }
-}
-
 javadoc {
     if(JavaVersion.current().isJava9Compatible()) {
         options.addBooleanOption('html5', true)
