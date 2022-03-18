@@ -19,7 +19,6 @@ import java.util.Map;
 /**
  * GSON TypeAdapter to serialize/deserialize {@link BlockState}.
  */
-@Deprecated
 public class BlockStateAdapter extends TypeAdapter<BlockState> {
     public BlockState read(JsonReader reader) throws IOException {
         if (reader.peek() == JsonToken.NULL) {

@@ -15,7 +15,6 @@ import java.io.IOException;
 /**
  * GSON TypeAdapter to serialize/deserialize {@link Item}.
  */
-@Deprecated
 public class ItemAdapter extends TypeAdapter<Item> {
     public Item read(JsonReader reader) throws IOException {
         if (reader.peek() == JsonToken.NULL) {

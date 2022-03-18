@@ -13,8 +13,7 @@ import java.util.Map;
 /**
  * GSON TypeAdapter to serialize/deserialize {@link BlockStateRandomizer}.
  */
-@Deprecated
-public class BlockSetSelectorAdapter extends TypeAdapter<BlockStateRandomizer> {
+public class BlockStateRandomizerAdapter extends TypeAdapter<BlockStateRandomizer> {
     public BlockStateRandomizer read(JsonReader reader) throws IOException {
         if (reader.peek() == JsonToken.NULL) {
             reader.nextNull();

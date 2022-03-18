@@ -4,24 +4,23 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import com.yungnickyoung.minecraft.yungsapi.world.ItemSetSelector;
+import com.yungnickyoung.minecraft.yungsapi.world.ItemRandomizer;
 import net.minecraft.world.item.Item;
 
 import java.io.IOException;
 import java.util.Map;
 
 /**
- * GSON TypeAdapter to serialize/deserialize {@link ItemSetSelector}.
+ * GSON TypeAdapter to serialize/deserialize {@link ItemRandomizer}.
  */
-@Deprecated
-public class ItemSetSelectorAdapter extends TypeAdapter<ItemSetSelector> {
-    public ItemSetSelector read(JsonReader reader) throws IOException {
+public class ItemRandomizerAdapter extends TypeAdapter<ItemRandomizer> {
+    public ItemRandomizer read(JsonReader reader) throws IOException {
         if (reader.peek() == JsonToken.NULL) {
             reader.nextNull();
             return null;
         }
 
-        ItemSetSelector selector = new ItemSetSelector();
+        ItemRandomizer selector = new ItemRandomizer();
 
         reader.beginObject();
         while (reader.hasNext()) {
@@ -45,7 +44,7 @@ public class ItemSetSelectorAdapter extends TypeAdapter<ItemSetSelector> {
         return selector;
     }
 
-    public void write(JsonWriter writer, ItemSetSelector selector) throws IOException {
+    public void write(JsonWriter writer, ItemRandomizer selector) throws IOException {
         if (selector == null) {
             writer.nullValue();
             return;
@@ -55,7 +54,7 @@ public class ItemSetSelectorAdapter extends TypeAdapter<ItemSetSelector> {
 
         // Entries map
         writer.name("entries").beginObject();
-        for (Map.Entry<Item, Float> entry : selector.getEntries().entrySet()) {
+        for (Map.Entry<Item, Float> entry : selector.getEntriesAsMap().entrySet()) {
             writer.name(String.valueOf(entry.getKey())).value(entry.getValue());
         }
         writer.endObject();

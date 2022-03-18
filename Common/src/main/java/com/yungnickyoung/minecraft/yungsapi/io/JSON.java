@@ -2,9 +2,12 @@ package com.yungnickyoung.minecraft.yungsapi.io;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.yungnickyoung.minecraft.yungsapi.json.*;
+import com.yungnickyoung.minecraft.yungsapi.json.BlockStateRandomizerAdapter;
+import com.yungnickyoung.minecraft.yungsapi.json.BlockStateAdapter;
+import com.yungnickyoung.minecraft.yungsapi.json.ItemAdapter;
+import com.yungnickyoung.minecraft.yungsapi.json.ItemRandomizerAdapter;
 import com.yungnickyoung.minecraft.yungsapi.world.BlockStateRandomizer;
-import com.yungnickyoung.minecraft.yungsapi.world.ItemSetSelector;
+import com.yungnickyoung.minecraft.yungsapi.world.ItemRandomizer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -13,7 +16,6 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@Deprecated
 public class JSON {
     private JSON() {}
 
@@ -23,9 +25,9 @@ public class JSON {
     static  {
         GsonBuilder gsonBuilder = newGsonBuilder();
         gsonBuilder.registerTypeHierarchyAdapter(BlockState.class, new BlockStateAdapter());
-        gsonBuilder.registerTypeHierarchyAdapter(BlockStateRandomizer.class, new BlockSetSelectorAdapter());
+        gsonBuilder.registerTypeHierarchyAdapter(BlockStateRandomizer.class, new BlockStateRandomizerAdapter());
         gsonBuilder.registerTypeHierarchyAdapter(Item.class, new ItemAdapter());
-        gsonBuilder.registerTypeHierarchyAdapter(ItemSetSelector.class, new ItemSetSelectorAdapter());
+        gsonBuilder.registerTypeHierarchyAdapter(ItemRandomizer.class, new ItemRandomizerAdapter());
         gsonBuilder.setPrettyPrinting();
         gsonBuilder.disableHtmlEscaping();
         gson = gsonBuilder.create();
