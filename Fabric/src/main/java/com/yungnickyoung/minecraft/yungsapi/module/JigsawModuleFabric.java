@@ -1,11 +1,6 @@
 package com.yungnickyoung.minecraft.yungsapi.module;
 
-import com.mojang.serialization.Codec;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
-import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.MaxCountFeaturePoolElement;
-import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.MaxCountLegacySinglePoolElement;
-import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.MaxCountListPoolElement;
-import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.MaxCountSinglePoolElement;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
@@ -17,13 +12,13 @@ import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementTy
  */
 public class JigsawModuleFabric {
     public static void init() {
-        register("max_count_single_element", MaxCountSinglePoolElement.CODEC);
-        register("max_count_legacy_single_element", MaxCountLegacySinglePoolElement.CODEC);
-        register("max_count_feature_element", MaxCountFeaturePoolElement.CODEC);
-        register("max_count_list_element", MaxCountListPoolElement.CODEC);
+        register("max_count_single_element", JigsawModule.MAX_COUNT_SINGLE_ELEMENT);
+        register("max_count_legacy_single_element", JigsawModule.MAX_COUNT_LEGACY_SINGLE_ELEMENT);
+        register("max_count_feature_element", JigsawModule.MAX_COUNT_FEATURE_ELEMENT);
+        register("max_count_list_element", JigsawModule.MAX_COUNT_LIST_ELEMENT);
     }
 
-    private static <P extends StructurePoolElement> StructurePoolElementType<P> register(String name, Codec<P> codec) {
-        return Registry.register(Registry.STRUCTURE_POOL_ELEMENT, new ResourceLocation(YungsApiCommon.MOD_ID, name), () -> codec);
+    private static <P extends StructurePoolElement> StructurePoolElementType<P> register(String name, StructurePoolElementType<P> structurePoolElementType) {
+        return Registry.register(Registry.STRUCTURE_POOL_ELEMENT, new ResourceLocation(YungsApiCommon.MOD_ID, name), structurePoolElementType);
     }
 }
