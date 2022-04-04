@@ -2,6 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "com.yungnickyoung.minecraft.yungsapi.mixin",
+  "plugin": "com.yungnickyoung.minecraft.yungsapi.YungsApiMixinPlugin",
   "compatibilityLevel": "JAVA_17",
   "refmap": "yungsapi.refmap.json",
   "mixins": [
