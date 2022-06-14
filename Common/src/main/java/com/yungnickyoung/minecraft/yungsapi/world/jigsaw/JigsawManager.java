@@ -4,29 +4,31 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.mojang.datafixers.util.Pair;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
-import com.yungnickyoung.minecraft.yungsapi.api.YungJigsawConfig;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.BoundingBoxAccessor;
+import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.JigsawPlacementAccess;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.StructureTemplatePoolAccessor;
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.IMaxCountJigsawPiece;
 import net.minecraft.core.*;
 import net.minecraft.data.worldgen.Pools;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.JigsawBlock;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.LegacyRandomSource;
+import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
-import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
-import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
-import net.minecraft.world.level.levelgen.structure.pieces.PieceGeneratorSupplier;
-import net.minecraft.world.level.levelgen.structure.pools.*;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.pools.EmptyPoolElement;
+import net.minecraft.world.level.levelgen.structure.pools.JigsawJunction;
+import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
+import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -37,25 +39,19 @@ import java.util.*;
 import java.util.function.Predicate;
 
 public class JigsawManager {
-    public static Optional<PieceGenerator<YungJigsawConfig>> assembleJigsawStructure(
-        PieceGeneratorSupplier.Context<YungJigsawConfig> jigsawContext,
-        JigsawPlacement.PieceFactory pieceFactory,
-        BlockPos startPos,
-        boolean doBoundaryAdjustments,
-        boolean useHeightmap,
-        int structureBoundingBoxRadius
-    ) {
+    public static Optional<Structure.GenerationStub> assembleJigsawStructure(
+            Structure.GenerationContext context,
+            Holder<StructureTemplatePool> pool,
+            Optional<ResourceLocation> startJigsawName,
+            int maxDepth, BlockPos startPos, boolean doBoundaryAdjustments, Optional<Heightmap.Types> heightMap, int structureBoundingBoxRadius) {
         // Extract data from context
-        WorldgenRandom worldgenRandom = new WorldgenRandom(new LegacyRandomSource(0L));
-        worldgenRandom.setLargeFeatureSeed(jigsawContext.seed(), jigsawContext.chunkPos().x, jigsawContext.chunkPos().z);
-        RegistryAccess registryAccess = jigsawContext.registryAccess();
-        YungJigsawConfig config = jigsawContext.config();
-        ChunkGenerator chunkGenerator = jigsawContext.chunkGenerator();
-        StructureManager structureManager = jigsawContext.structureManager();
-        LevelHeightAccessor levelHeightAccessor = jigsawContext.heightAccessor();
-        Predicate<Holder<Biome>> validBiomePredicate = jigsawContext.validBiome();
-
-        StructureFeature.bootstrap(); // Ensures static members are all loaded
+        RegistryAccess registryAccess = context.registryAccess();
+        ChunkGenerator chunkGenerator = context.chunkGenerator();
+        WorldgenRandom worldgenRandom = context.random();
+        StructureTemplateManager structureManager = context.structureTemplateManager();
+        LevelHeightAccessor levelHeightAccessor = context.heightAccessor();
+        Predicate<Holder<Biome>> validBiomePredicate = context.validBiome();
+        RandomState randomState = context.randomState();
 
         // Get jigsaw pool registry
         Registry<StructureTemplatePool> registry = registryAccess.registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY);
@@ -64,7 +60,7 @@ public class JigsawManager {
         Rotation rotation = Rotation.getRandom(worldgenRandom);
 
         // Get starting pool
-        StructureTemplatePool structureTemplatePool = registry.get(config.getStartPool());
+        StructureTemplatePool structureTemplatePool = pool.value();
 
         // Grab a random starting piece from the start pool. This is just the piece design itself, without rotation or position information.
         // Think of it as a blueprint.
@@ -72,34 +68,49 @@ public class JigsawManager {
         if (startPieceBlueprint == EmptyPoolElement.INSTANCE) {
             return Optional.empty();
         }
+        BlockPos blockpos;
+        if (startJigsawName.isPresent()) {
+            ResourceLocation resourcelocation = startJigsawName.get();
+            Optional<BlockPos> optional = JigsawPlacementAccess.yungs_getRandomNamedJigsaw(startPieceBlueprint, resourcelocation, startPos, rotation, structureManager, worldgenRandom);
+            if (optional.isEmpty()) {
+                YungsApiCommon.LOGGER.error("No starting jigsaw {} found in start pool {}", resourcelocation, pool.unwrapKey().get().location());
+                return Optional.empty();
+            }
+
+            blockpos = optional.get();
+        } else {
+            blockpos = startPos;
+        }
+
+        Vec3i vec3i = blockpos.subtract(blockpos);
+
 
         // Instantiate a piece using the "blueprint" we just got.
-        PoolElementStructurePiece startPiece = pieceFactory.create(
-            structureManager,
-            startPieceBlueprint,
-            startPos,
-            startPieceBlueprint.getGroundLevelDelta(),
-            rotation,
-            startPieceBlueprint.getBoundingBox(structureManager, startPos, rotation)
+        PoolElementStructurePiece startPiece = new PoolElementStructurePiece(
+                structureManager,
+                startPieceBlueprint,
+                startPos,
+                startPieceBlueprint.getGroundLevelDelta(),
+                rotation,
+                startPieceBlueprint.getBoundingBox(structureManager, startPos, rotation)
         );
 
         // Store center position of starting piece's bounding box
         BoundingBox pieceBoundingBox = startPiece.getBoundingBox();
         int pieceCenterX = (pieceBoundingBox.maxX() + pieceBoundingBox.minX()) / 2;
         int pieceCenterZ = (pieceBoundingBox.maxZ() + pieceBoundingBox.minZ()) / 2;
-        int pieceCenterY = useHeightmap
-            ? startPos.getY() + chunkGenerator.getFirstFreeHeight(pieceCenterX, pieceCenterZ, Heightmap.Types.WORLD_SURFACE_WG, levelHeightAccessor)
-            : startPos.getY();
-        if (!validBiomePredicate.test(chunkGenerator.getNoiseBiome(QuartPos.fromBlock(pieceCenterX), QuartPos.fromBlock(pieceCenterY), QuartPos.fromBlock(pieceCenterZ)))) {
+        int pieceCenterY = heightMap.map(types -> startPos.getY() + chunkGenerator.getFirstFreeHeight(pieceCenterX, pieceCenterZ, types, levelHeightAccessor, randomState)).orElseGet(startPos::getY);
+        if (!validBiomePredicate.test(chunkGenerator.getBiomeSource().getNoiseBiome(QuartPos.fromBlock(pieceCenterX), QuartPos.fromBlock(pieceCenterY), QuartPos.fromBlock(pieceCenterZ), randomState.sampler()))) {
             return Optional.empty();
         }
         int yAdjustment = pieceBoundingBox.minY() + startPiece.getGroundLevelDelta(); // groundLevelDelta seems to always be 1. Not sure what the point of this is.
         startPiece.move(0, pieceCenterY - yAdjustment, 0); // Ends up always offseting the piece by y = -1?
+        int stubY = pieceCenterY + vec3i.getY();
 
-        return Optional.of((structurePiecesBuilder, context) -> {
+        return Optional.of(new Structure.GenerationStub(new BlockPos(pieceCenterX, stubY, pieceCenterZ), (structurePiecesBuilder) -> {
             ArrayList<PoolElementStructurePiece> pieces = Lists.newArrayList();
             pieces.add(startPiece);
-            if (config.getMaxDepth() <= 0) { // Realistically this should never be true. Why make a jigsaw config with a non-positive size?
+            if (maxDepth <= 0) { // Realistically this should never be true. Why make a jigsaw config with a non-positive size?
                 return;
             }
 
@@ -108,7 +119,7 @@ public class JigsawManager {
             AABB aABB = new AABB(
                     pieceCenterX - structureBoundingBoxRadius, pieceCenterY - structureBoundingBoxRadius, pieceCenterZ - structureBoundingBoxRadius,
                     pieceCenterX + structureBoundingBoxRadius + 1, pieceCenterY + structureBoundingBoxRadius + 1, pieceCenterZ + structureBoundingBoxRadius + 1);
-            Placer placer = new Placer(registry, config.getMaxDepth(), pieceFactory, chunkGenerator, structureManager, pieces, worldgenRandom);
+            Placer placer = new Placer(registry, maxDepth, chunkGenerator, structureManager, pieces, worldgenRandom);
             PieceState startPieceEntry = new PieceState(
                     startPiece,
                     new MutableObject<>(
@@ -127,31 +138,30 @@ public class JigsawManager {
             // Place the structure
             while (!placer.placing.isEmpty()) {
                 PieceState entry = placer.placing.removeFirst();
-                placer.processPiece(entry.piece, entry.free, entry.depth, doBoundaryAdjustments, levelHeightAccessor);
+                placer.processPiece(entry.piece, entry.free, entry.depth, doBoundaryAdjustments, levelHeightAccessor, randomState);
             }
             pieces.forEach(structurePiecesBuilder::addPiece);
-        });
+        }));
     }
 
-    public static Optional<PieceGenerator<YungJigsawConfig>> assembleJigsawStructure(
-            PieceGeneratorSupplier.Context<YungJigsawConfig> jigsawContext,
-            JigsawPlacement.PieceFactory pieceFactory,
-            BlockPos startPos,
+    public static Optional<Structure.GenerationStub> assembleJigsawStructure(
+            Structure.GenerationContext context,
+            Holder<StructureTemplatePool> pool,
+            Optional<ResourceLocation> startJigsawName,
+            int maxDepth, BlockPos startPos,
             boolean doBoundaryAdjustments,
-            boolean useHeightmap)
-    {
-        return assembleJigsawStructure(jigsawContext, pieceFactory, startPos, doBoundaryAdjustments, useHeightmap, 80);
+            Optional<Heightmap.Types> heightMap) {
+        return assembleJigsawStructure(context, pool, startJigsawName, maxDepth, startPos, doBoundaryAdjustments, heightMap, 80);
     }
 
     public static final class Placer {
         // Vanilla
         private final Registry<StructureTemplatePool> patternRegistry;
         private final int maxDepth;
-        private final JigsawPlacement.PieceFactory pieceFactory;
         private final ChunkGenerator chunkGenerator;
-        private final StructureManager structureManager;
+        private final StructureTemplateManager structureManager;
         private final List<? super PoolElementStructurePiece> pieces;
-        private final Random rand;
+        private final RandomSource rand;
         public final Deque<PieceState> placing = Queues.newArrayDeque();
 
         // Additional behavior
@@ -160,17 +170,15 @@ public class JigsawManager {
         private final int maxY;
 
         public Placer(
-            Registry<StructureTemplatePool> patternRegistry,
-            int maxDepth,
-            JigsawPlacement.PieceFactory pieceFactory,
-            ChunkGenerator chunkGenerator,
-            StructureManager structureManager,
-            List<? super PoolElementStructurePiece> pieces,
-            Random rand
+                Registry<StructureTemplatePool> patternRegistry,
+                int maxDepth,
+                ChunkGenerator chunkGenerator,
+                StructureTemplateManager structureManager,
+                List<? super PoolElementStructurePiece> pieces,
+                RandomSource rand
         ) {
             this.patternRegistry = patternRegistry;
             this.maxDepth = maxDepth;
-            this.pieceFactory = pieceFactory;
             this.chunkGenerator = chunkGenerator;
             this.structureManager = structureManager;
             this.pieces = pieces;
@@ -185,7 +193,8 @@ public class JigsawManager {
                 MutableObject<VoxelShape> voxelShape,
                 int depth,
                 boolean doBoundaryAdjustments,
-                LevelHeightAccessor levelHeightAccessor
+                LevelHeightAccessor levelHeightAccessor,
+                RandomState randomState
         ) {
             // Collect data from params regarding piece to process
             StructurePoolElement pieceBlueprint = piece.getElement();
@@ -240,31 +249,32 @@ public class JigsawManager {
 
                 // Process the pool pieces, randomly choosing different pieces from the pool to spawn
                 if (depth != this.maxDepth) {
-                    StructurePoolElement generatedPiece = this.processList(new ArrayList<>(((StructureTemplatePoolAccessor)poolOptional.get()).getRawTemplates()), doBoundaryAdjustments, jigsawBlock, jigsawBlockTargetPos, pieceMinY, jigsawBlockPos, pieceVoxelShape, piece, depth, levelHeightAccessor);
+                    StructurePoolElement generatedPiece = this.processList(new ArrayList<>(((StructureTemplatePoolAccessor) poolOptional.get()).getRawTemplates()), doBoundaryAdjustments, jigsawBlock, jigsawBlockTargetPos, pieceMinY, jigsawBlockPos, pieceVoxelShape, piece, depth, levelHeightAccessor, randomState);
                     if (generatedPiece != null) continue; // Stop here since we've already generated the piece
                 }
 
                 // Process the fallback pieces in the event none of the pool pieces work
-                this.processList(new ArrayList<>(((StructureTemplatePoolAccessor)fallbackOptional.get()).getRawTemplates()), doBoundaryAdjustments, jigsawBlock, jigsawBlockTargetPos, pieceMinY, jigsawBlockPos, pieceVoxelShape, piece, depth, levelHeightAccessor);
+                this.processList(new ArrayList<>(((StructureTemplatePoolAccessor) fallbackOptional.get()).getRawTemplates()), doBoundaryAdjustments, jigsawBlock, jigsawBlockTargetPos, pieceMinY, jigsawBlockPos, pieceVoxelShape, piece, depth, levelHeightAccessor, randomState);
             }
         }
 
         /**
          * Helper function. Searches candidatePieces for a suitable piece to spawn.
          * All other params are intended to be passed directly from {@link Placer#processPiece}
+         *
          * @return The piece generated, or null if no suitable piece was found.
          */
         private StructurePoolElement processList(
-            List<Pair<StructurePoolElement, Integer>> candidatePieces,
-            boolean doBoundaryAdjustments,
-            StructureTemplate.StructureBlockInfo jigsawBlock,
-            BlockPos jigsawBlockTargetPos,
-            int pieceMinY,
-            BlockPos jigsawBlockPos,
-            MutableObject<VoxelShape> pieceVoxelShape,
-            PoolElementStructurePiece piece,
-            int depth,
-            LevelHeightAccessor levelHeightAccessor
+                List<Pair<StructurePoolElement, Integer>> candidatePieces,
+                boolean doBoundaryAdjustments,
+                StructureTemplate.StructureBlockInfo jigsawBlock,
+                BlockPos jigsawBlockTargetPos,
+                int pieceMinY,
+                BlockPos jigsawBlockPos,
+                MutableObject<VoxelShape> pieceVoxelShape,
+                PoolElementStructurePiece piece,
+                int depth,
+                LevelHeightAccessor levelHeightAccessor, RandomState randomState
         ) {
             StructureTemplatePool.Projection piecePlacementBehavior = piece.getElement().getProjection();
             boolean isPieceRigid = piecePlacementBehavior == StructureTemplatePool.Projection.RIGID;
@@ -372,7 +382,7 @@ public class JigsawManager {
                             adjustedCandidatePieceMinY = pieceMinY + candidateJigsawYOffsetNeeded;
                         } else {
                             if (surfaceHeight == -1) {
-                                surfaceHeight = this.chunkGenerator.getFirstFreeHeight(jigsawBlockPos.getX(), jigsawBlockPos.getZ(), Heightmap.Types.WORLD_SURFACE_WG, levelHeightAccessor);
+                                surfaceHeight = this.chunkGenerator.getFirstFreeHeight(jigsawBlockPos.getX(), jigsawBlockPos.getZ(), Heightmap.Types.WORLD_SURFACE_WG, levelHeightAccessor, randomState);
                             }
 
                             adjustedCandidatePieceMinY = surfaceHeight - candidateJigsawBlockRelativeY;
@@ -388,7 +398,7 @@ public class JigsawManager {
                         // Final adjustments to the bounding box.
                         if (candidateHeightAdjustments > 0) {
                             int k2 = Math.max(candidateHeightAdjustments + 1, adjustedCandidateBoundingBox.maxY() - adjustedCandidateBoundingBox.minY());
-                            ((BoundingBoxAccessor)adjustedCandidateBoundingBox).setMaxY(adjustedCandidateBoundingBox.minY() + k2);
+                            ((BoundingBoxAccessor) adjustedCandidateBoundingBox).setMaxY(adjustedCandidateBoundingBox.minY() + k2);
                         }
 
                         // Prevent pieces from spawning above max Y
@@ -413,13 +423,13 @@ public class JigsawManager {
                         }
 
                         // Create new piece
-                        PoolElementStructurePiece newPiece = pieceFactory.create(
-                            this.structureManager,
-                            candidatePiece,
-                            adjustedCandidateJigsawBlockRelativePos,
-                            groundLevelDelta,
-                            rotation,
-                            adjustedCandidateBoundingBox
+                        PoolElementStructurePiece newPiece = new PoolElementStructurePiece(
+                                this.structureManager,
+                                candidatePiece,
+                                adjustedCandidateJigsawBlockRelativePos,
+                                groundLevelDelta,
+                                rotation,
+                                adjustedCandidateBoundingBox
                         );
 
                         // Determine actual y-value for the new jigsaw block
@@ -430,7 +440,7 @@ public class JigsawManager {
                             candidateJigsawBlockY = adjustedCandidatePieceMinY + candidateJigsawBlockRelativeY;
                         } else {
                             if (surfaceHeight == -1) {
-                                surfaceHeight = this.chunkGenerator.getFirstFreeHeight(jigsawBlockPos.getX(), jigsawBlockPos.getZ(), Heightmap.Types.WORLD_SURFACE_WG, levelHeightAccessor);
+                                surfaceHeight = this.chunkGenerator.getFirstFreeHeight(jigsawBlockPos.getX(), jigsawBlockPos.getZ(), Heightmap.Types.WORLD_SURFACE_WG, levelHeightAccessor, randomState);
                             }
 
                             candidateJigsawBlockY = surfaceHeight + candidateJigsawYOffsetNeeded / 2;
@@ -438,22 +448,22 @@ public class JigsawManager {
 
                         // Add the junction to the existing piece
                         piece.addJunction(
-                            new JigsawJunction(
-                                jigsawBlockTargetPos.getX(),
-                                candidateJigsawBlockY - jigsawBlockRelativeY + newPieceGroundLevelDelta,
-                                jigsawBlockTargetPos.getZ(),
-                                candidateJigsawYOffsetNeeded,
-                                candidatePlacementBehavior)
+                                new JigsawJunction(
+                                        jigsawBlockTargetPos.getX(),
+                                        candidateJigsawBlockY - jigsawBlockRelativeY + newPieceGroundLevelDelta,
+                                        jigsawBlockTargetPos.getZ(),
+                                        candidateJigsawYOffsetNeeded,
+                                        candidatePlacementBehavior)
                         );
 
                         // Add the junction to the new piece
                         newPiece.addJunction(
-                            new JigsawJunction(
-                                jigsawBlockPos.getX(),
-                                candidateJigsawBlockY - candidateJigsawBlockRelativeY + groundLevelDelta,
-                                jigsawBlockPos.getZ(),
-                                -candidateJigsawYOffsetNeeded,
-                                piecePlacementBehavior)
+                                new JigsawJunction(
+                                        jigsawBlockPos.getX(),
+                                        candidateJigsawBlockY - candidateJigsawBlockRelativeY + groundLevelDelta,
+                                        jigsawBlockPos.getZ(),
+                                        -candidateJigsawYOffsetNeeded,
+                                        piecePlacementBehavior)
                         );
 
                         // Add the piece

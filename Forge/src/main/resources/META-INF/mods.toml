@@ -16,7 +16,7 @@ issueTrackerURL="https://github.com/yungnickyoung/YUNGs-Api/issues"
 [[dependencies.yungsapi]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.18.2,1.19)"
+    versionRange="[1.19,)"
 
 [[dependencies.yungsapi]]
     modId="forge"

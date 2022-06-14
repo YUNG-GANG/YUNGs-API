@@ -2,9 +2,13 @@ package com.yungnickyoung.minecraft.yungsapi.api;
 
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.JigsawManager;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.levelgen.structure.pieces.PieceGenerator;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGeneratorSupplier;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
+import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 
 import java.util.Optional;
 
@@ -42,14 +46,14 @@ public class YungJigsawManager {
      * @param structureBoundingBoxRadius (Optional) The radius of the bounding box for the structure. Defaults to 80.
      *                                   May need to be increased if your structure is particularly large.
      */
-    public static Optional<PieceGenerator<YungJigsawConfig>> assembleJigsawStructure(
-            PieceGeneratorSupplier.Context<YungJigsawConfig> jigsawContext,
-            JigsawPlacement.PieceFactory pieceFactory,
-            BlockPos startPos,
+    public static Optional<Structure.GenerationStub> assembleJigsawStructure(
+            Structure.GenerationContext context,
+            Holder<StructureTemplatePool> pool,
+            Optional<ResourceLocation> startJigsawName,
+            int maxDepth, BlockPos startPos,
             boolean doBoundaryAdjustments,
-            boolean useHeightmap,
-            int structureBoundingBoxRadius
-    ) {
-        return JigsawManager.assembleJigsawStructure(jigsawContext, pieceFactory, startPos, doBoundaryAdjustments, useHeightmap, structureBoundingBoxRadius);
+            Optional<Heightmap.Types> heightMap,
+            int structureBoundingBoxRadius) {
+        return JigsawManager.assembleJigsawStructure(context, pool, startJigsawName, maxDepth, startPos, doBoundaryAdjustments, heightMap, structureBoundingBoxRadius);
     }
 }

@@ -15,10 +15,10 @@ public class SurfaceHelper {
      * Returns 1 if somehow no non-air block is found.
      */
     public static int getSurfaceHeight(ChunkAccess chunk, ColumnPos pos) {
-        BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos(pos.x, 255, pos.z);
+        BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos(pos.x(), 255, pos.z());
 
         // Edge case: blocks go all the way up to build height
-        BlockPos topPos = new BlockPos(pos.x, 255, pos.z);
+        BlockPos topPos = new BlockPos(pos.x(), 255, pos.z());
         if (chunk.getBlockState(topPos) != Blocks.AIR.defaultBlockState())
             return 255;
 

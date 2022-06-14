@@ -2,7 +2,10 @@ package com.yungnickyoung.minecraft.yungsapi.world.banner;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentContents;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WallBannerBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -76,7 +79,7 @@ public class Banner {
      */
     public static class Builder {
         private final List<BannerPattern> patterns = new ArrayList<>();
-        private TranslatableComponent customNameTranslate;
+        private String customNameTranslate;
         private String customColor;
         private BlockState state = Blocks.BLACK_WALL_BANNER.defaultBlockState();
 
@@ -99,7 +102,7 @@ public class Banner {
         }
 
         public Builder customName(String translatableNamePath) {
-            this.customNameTranslate = new TranslatableComponent(translatableNamePath);
+            this.customNameTranslate = translatableNamePath;
             return this;
         }
 
@@ -132,7 +135,7 @@ public class Banner {
             // Custom name and color
             if (this.customColor != null || this.customNameTranslate != null) {
                 String color = this.customColor == null ? "" : String.format("\"color\":\"%s\"", this.customColor);
-                String name = this.customNameTranslate == null ? "" : String.format("\"translate\":\"%s\"", this.customNameTranslate.getKey());
+                String name = this.customNameTranslate == null ? "" : String.format("\"translate\":\"%s\"", this.customNameTranslate);
                 if (this.customColor != null && this.customNameTranslate != null) name = "," + name;
                 String customNameString = "{" + color + name + "}";
 

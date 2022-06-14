@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -29,7 +30,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 /**
  * Allows for processing entities in Jigsaw structures.
@@ -47,7 +47,7 @@ public class EntityProcessorMixin {
     @Inject(
             method = "placeInWorld",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplate;placeEntities(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Mirror;Lnet/minecraft/world/level/block/Rotation;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/levelgen/structure/BoundingBox;Z)V"))
-    private void processEntities(ServerLevelAccessor serverLevelAccessor, BlockPos structurePiecePos, BlockPos structurePieceBottomCenterPos, StructurePlaceSettings structurePlaceSettings, Random random, int i, CallbackInfoReturnable<Boolean> cir) {
+    private void processEntities(ServerLevelAccessor serverLevelAccessor, BlockPos structurePiecePos, BlockPos structurePieceBottomCenterPos, StructurePlaceSettings structurePlaceSettings, RandomSource randomSource, int i, CallbackInfoReturnable<Boolean> cir) {
         for (StructureTemplate.StructureEntityInfo entityInfo : processEntityInfos(serverLevelAccessor, structurePiecePos, structurePieceBottomCenterPos, structurePlaceSettings, this.entityInfoList)) {
             BlockPos blockPos = entityInfo.blockPos;
             if (structurePlaceSettings.getBoundingBox() == null || structurePlaceSettings.getBoundingBox().isInside(blockPos)) {
