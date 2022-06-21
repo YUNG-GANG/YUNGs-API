@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[40,)"
+loaderVersion="[41,)"
 license="LGPLv3"
 issueTrackerURL="https://github.com/yungnickyoung/YUNGs-Api/issues"
 
@@ -21,4 +21,4 @@ issueTrackerURL="https://github.com/yungnickyoung/YUNGs-Api/issues"
 [[dependencies.yungsapi]]
     modId="forge"
     mandatory=true
-    versionRange="[40.0.8,)"
+    versionRange="[41.0.45,)"
