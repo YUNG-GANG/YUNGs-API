@@ -6,8 +6,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.levelgen.structure.pieces.PieceGeneratorSupplier;
-import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 
 import java.util.Optional;
@@ -34,26 +32,31 @@ import java.util.Optional;
 public class YungJigsawManager {
     /**
      * Entrypoint for assembling Jigsaw structures with YUNG's Jigsaw Manager.
-     * You can call this method in the exact same manner as vanilla's {@link JigsawPlacement#addPieces(PieceGeneratorSupplier.Context, JigsawPlacement.PieceFactory, BlockPos, boolean, boolean)}
      *
-     * @param jigsawContext              The PieceGeneratorSupplier.Context
-     * @param pieceFactory               The JigsawPlacement.PieceFactory
+     * @param generationContext          The generation context.
+     * @param startPool                  The StructureTemplatePool of the starting piece.
+     * @param startJigsawNameOptional    An optional Resource Location specifying the Name field of a jigsaw block in the starting pool.
+     *                                   If specified, the position of a matching jigsaw block will be used as the structure's starting position
+     *                                   when generating the structure. I believe Ancient Cities use this to adjust its starting position.
+     * @param maxDepth                   The max distance, in Jigsaw pieces, the structure can generate before stopping.
      * @param startPos                   Position from which generation of this structure will start
-     * @param doBoundaryAdjustments      Whether or not boundary adjustments should be performed on this structure.
+     * @param useExpansionHack           Whether boundary adjustments should be performed on this structure.
      *                                   In vanilla, only villages and pillager outposts have this enabled.
-     * @param useHeightmap               Whether or not the heightmap should be used to correct piece placement.
-     *                                   In vanilla, only villages and pillager outposts have this enabled.
-     * @param structureBoundingBoxRadius (Optional) The radius of the bounding box for the structure. Defaults to 80.
+     * @param projectStartToHeightmap    Heightmap to use, if applicable. If provided, the startPos y-coordinate should be an offset.
+     *                                   Otherwise, it should be an absolute world coordinate.
+     * @param maxDistanceFromCenter      The radius of the bounding box for the structure. Typical is 80.
      *                                   May need to be increased if your structure is particularly large.
      */
     public static Optional<Structure.GenerationStub> assembleJigsawStructure(
-            Structure.GenerationContext context,
-            Holder<StructureTemplatePool> pool,
-            Optional<ResourceLocation> startJigsawName,
-            int maxDepth, BlockPos startPos,
-            boolean doBoundaryAdjustments,
-            Optional<Heightmap.Types> heightMap,
-            int structureBoundingBoxRadius) {
-        return JigsawManager.assembleJigsawStructure(context, pool, startJigsawName, maxDepth, startPos, doBoundaryAdjustments, heightMap, structureBoundingBoxRadius);
+            Structure.GenerationContext generationContext,
+            Holder<StructureTemplatePool> startPool,
+            Optional<ResourceLocation> startJigsawNameOptional,
+            int maxDepth,
+            BlockPos startPos,
+            boolean useExpansionHack,
+            Optional<Heightmap.Types> projectStartToHeightmap,
+            int maxDistanceFromCenter
+    ) {
+        return JigsawManager.assembleJigsawStructure(generationContext, startPool, startJigsawNameOptional, maxDepth, startPos, useExpansionHack, projectStartToHeightmap, maxDistanceFromCenter);
     }
 }

@@ -13,8 +13,9 @@ public class IncreaseStructureWeightLimitMixin {
      * @return - The higher weight that is a more reasonable limit.
      */
     @ModifyConstant(
-            method = "lambda$static$1(Lcom/mojang/serialization/codecs/RecordCodecBuilder$Instance;)Lcom/mojang/datafixers/kinds/App;",
+            method = "lambda$static$1",
             constant = @Constant(intValue = 150),
+            remap = false,
             require = 0
     )
     private static int yungsapi_increaseWeightLimit(int constant) {

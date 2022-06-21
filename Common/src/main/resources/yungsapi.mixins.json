@@ -12,7 +12,6 @@
     "accessor.BoundingBoxAccessor",
     "accessor.CriteriaTriggersAccessor",
     "accessor.FeaturePoolElementAccessor",
-    "accessor.JigsawPlacementAccess",
     "accessor.ListPoolElementAccessor",
     "accessor.StructureTemplatePoolAccessor"
   ],
