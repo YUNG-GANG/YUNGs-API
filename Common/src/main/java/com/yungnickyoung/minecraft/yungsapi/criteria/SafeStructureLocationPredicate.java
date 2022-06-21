@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
+import net.minecraft.world.level.levelgen.structure.Structure;
 
 /**
  * Custom predicate for safely locating a structure.
@@ -20,9 +20,9 @@ import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
  * @author TelepathicGrunt
  */
 public class SafeStructureLocationPredicate {
-    private final ResourceKey<ConfiguredStructureFeature<?, ?>> configuredStructureFeature;
+    private final ResourceKey<Structure> configuredStructureFeature;
 
-    public SafeStructureLocationPredicate(ResourceKey<ConfiguredStructureFeature<?, ?>> configuredStructureFeature) {
+    public SafeStructureLocationPredicate(ResourceKey<Structure> configuredStructureFeature) {
         this.configuredStructureFeature = configuredStructureFeature;
     }
 
@@ -34,7 +34,7 @@ public class SafeStructureLocationPredicate {
         BlockPos blockpos = new BlockPos(x, y, z);
         return this.configuredStructureFeature != null &&
                 serverLevel.isLoaded(blockpos) &&
-                serverLevel.structureFeatureManager().getStructureWithPieceAt(blockpos, this.configuredStructureFeature).isValid();
+                serverLevel.structureManager().getStructureWithPieceAt(blockpos, this.configuredStructureFeature).isValid();
     }
 
     public JsonElement serializeToJson() {
@@ -48,11 +48,11 @@ public class SafeStructureLocationPredicate {
     public static SafeStructureLocationPredicate fromJson(JsonElement jsonElement) {
         if (jsonElement != null && !jsonElement.isJsonNull()) {
             JsonObject jsonObject = GsonHelper.convertToJsonObject(jsonElement, "location");
-            ResourceKey<ConfiguredStructureFeature<?, ?>> featureResourceKey = jsonObject.has("feature")
+            ResourceKey<Structure> featureResourceKey = jsonObject.has("feature")
                     ? ResourceLocation.CODEC
                         .parse(JsonOps.INSTANCE, jsonObject.get("feature"))
                         .resultOrPartial(YungsApiCommon.LOGGER::error)
-                        .map((resourceLocation) -> ResourceKey.create(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY, resourceLocation))
+                        .map((resourceLocation) -> ResourceKey.create(Registry.STRUCTURE_REGISTRY, resourceLocation))
                         .orElse(null)
                     : null;
 
