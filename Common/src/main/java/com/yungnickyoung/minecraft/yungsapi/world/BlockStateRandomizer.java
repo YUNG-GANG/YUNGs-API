@@ -6,6 +6,7 @@ import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -131,6 +132,27 @@ public class BlockStateRandomizer {
      */
     public BlockState get(Random random) {
         float target = random.nextFloat();
+        float currBottom = 0;
+
+        for (Entry entry : entries) {
+            if (currBottom <= target && target < currBottom + entry.probability) {
+                return entry.blockState;
+            }
+
+            currBottom += entry.probability;
+        }
+
+        // No match found
+        return this.defaultBlockState;
+    }
+
+    /**
+     * Randomly select a BlockState from this BlockSetSelector.
+     * The RandomSource provided should be one used in generation of your structure or feature,
+     * to ensure reproducibility for the same world seed.
+     */
+    public BlockState get(RandomSource randomSource) {
+        float target = randomSource.nextFloat();
         float currBottom = 0;
 
         for (Entry entry : entries) {
