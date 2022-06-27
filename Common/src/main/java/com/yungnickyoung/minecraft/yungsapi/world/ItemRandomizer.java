@@ -7,6 +7,7 @@ import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
@@ -125,6 +126,27 @@ public class ItemRandomizer {
      */
     public Item get(Random random) {
         float target = random.nextFloat();
+        float currBottom = 0;
+
+        for (Entry entry : entries) {
+            if (currBottom <= target && target < currBottom + entry.probability) {
+                return entry.item;
+            }
+
+            currBottom += entry.probability;
+        }
+
+        // No match found
+        return this.defaultItem;
+    }
+
+    /**
+     * Randomly select an Item from this ItemSetSelector.
+     * The RandomSource provided should be one used in generation of your structure or feature,
+     * to ensure reproducibility for the same world seed.
+     */
+    public Item get(RandomSource randomSource) {
+        float target = randomSource.nextFloat();
         float currBottom = 0;
 
         for (Entry entry : entries) {
