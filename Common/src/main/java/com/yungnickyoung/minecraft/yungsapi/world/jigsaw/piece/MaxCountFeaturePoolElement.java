@@ -3,7 +3,7 @@ package com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.FeaturePoolElementAccessor;
-import com.yungnickyoung.minecraft.yungsapi.module.JigsawModule;
+import com.yungnickyoung.minecraft.yungsapi.module.StructurePoolElementTypeModule;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
@@ -40,7 +40,7 @@ public class MaxCountFeaturePoolElement extends FeaturePoolElement implements IM
     }
 
     public StructurePoolElementType<?> getType() {
-        return JigsawModule.MAX_COUNT_FEATURE_ELEMENT;
+        return StructurePoolElementTypeModule.MAX_COUNT_FEATURE_ELEMENT;
     }
 
     public String toString() {

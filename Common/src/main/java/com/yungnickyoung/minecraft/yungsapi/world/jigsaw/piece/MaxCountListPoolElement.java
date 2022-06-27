@@ -3,7 +3,7 @@ package com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.ListPoolElementAccessor;
-import com.yungnickyoung.minecraft.yungsapi.module.JigsawModule;
+import com.yungnickyoung.minecraft.yungsapi.module.StructurePoolElementTypeModule;
 import net.minecraft.world.level.levelgen.structure.pools.ListPoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType;
@@ -41,7 +41,7 @@ public class MaxCountListPoolElement extends ListPoolElement implements IMaxCoun
     }
 
     public StructurePoolElementType<?> getType() {
-        return JigsawModule.MAX_COUNT_LIST_ELEMENT;
+        return StructurePoolElementTypeModule.MAX_COUNT_LIST_ELEMENT;
     }
 
     public String toString() {

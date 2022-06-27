@@ -3,7 +3,7 @@ package com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.yungnickyoung.minecraft.yungsapi.module.JigsawModule;
+import com.yungnickyoung.minecraft.yungsapi.module.StructurePoolElementTypeModule;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.structure.pools.LegacySinglePoolElement;
@@ -42,7 +42,7 @@ public class MaxCountLegacySinglePoolElement extends LegacySinglePoolElement imp
     }
 
     public StructurePoolElementType<?> getType() {
-        return JigsawModule.MAX_COUNT_LEGACY_SINGLE_ELEMENT;
+        return StructurePoolElementTypeModule.MAX_COUNT_LEGACY_SINGLE_ELEMENT;
     }
 
     public String toString() {
