@@ -46,6 +46,8 @@ public class YungJigsawManager {
      *                                   Otherwise, it should be an absolute world coordinate.
      * @param maxDistanceFromCenter      The radius of the bounding box for the structure. Typical is 80.
      *                                   May need to be increased if your structure is particularly large.
+     * @param maxY                       Optional Integer for specifying the max possible y-value of the structure.
+     *                                   No pieces of the structure can go above this value, if provided.
      */
     public static Optional<Structure.GenerationStub> assembleJigsawStructure(
             Structure.GenerationContext generationContext,
@@ -55,8 +57,9 @@ public class YungJigsawManager {
             BlockPos startPos,
             boolean useExpansionHack,
             Optional<Heightmap.Types> projectStartToHeightmap,
-            int maxDistanceFromCenter
+            int maxDistanceFromCenter,
+            Optional<Integer> maxY
     ) {
-        return JigsawManager.assembleJigsawStructure(generationContext, startPool, startJigsawNameOptional, maxDepth, startPos, useExpansionHack, projectStartToHeightmap, maxDistanceFromCenter);
+        return JigsawManager.assembleJigsawStructure(generationContext, startPool, startJigsawNameOptional, maxDepth, startPos, useExpansionHack, projectStartToHeightmap, maxDistanceFromCenter, maxY);
     }
 }

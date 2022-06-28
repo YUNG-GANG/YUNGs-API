@@ -7,6 +7,7 @@ import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.BoundingBoxAccessor;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.StructureTemplatePoolAccessor;
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.IMaxCountJigsawPiece;
+import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.YungJigsawSinglePoolElement;
 import net.minecraft.core.*;
 import net.minecraft.data.worldgen.Pools;
 import net.minecraft.resources.ResourceLocation;
@@ -44,7 +45,8 @@ public class JigsawManager {
             BlockPos startPos,
             boolean useExpansionHack, // Used to be doBoundaryAdjustments
             Optional<Heightmap.Types> projectStartToHeightmap,
-            int maxDistanceFromCenter // Used to be structureBoundingBoxRadius
+            int maxDistanceFromCenter, // Used to be structureBoundingBoxRadius
+            Optional<Integer> maxY
     ) {
         // Extract data from context
         RegistryAccess registryAccess = generationContext.registryAccess();
@@ -122,7 +124,7 @@ public class JigsawManager {
                     pieceCenterX + maxDistanceFromCenter + 1, adjustedPieceCenterY + maxDistanceFromCenter + 1, pieceCenterZ + maxDistanceFromCenter + 1);
 
             // Create placer + initial entry
-            Placer placer = new Placer(registry, maxDepth, chunkGenerator, structureManager, pieces, worldgenRandom);
+            Placer placer = new Placer(registry, maxDepth, chunkGenerator, structureManager, pieces, worldgenRandom, maxY);
             PieceState startPieceEntry = new PieceState(
                     startPiece,
                     new MutableObject<>(
@@ -172,7 +174,7 @@ public class JigsawManager {
         // Additional behavior
         private final Map<String, Integer> pieceCounts;
         private final Map<String, Integer> maxPieceCounts;
-        private final int maxY;
+        private final Optional<Integer> maxY;
 
         public Placer(
                 Registry<StructureTemplatePool> poolRegistry,
@@ -180,7 +182,8 @@ public class JigsawManager {
                 ChunkGenerator chunkGenerator,
                 StructureTemplateManager structureTemplateManager,
                 List<? super PoolElementStructurePiece> pieces,
-                RandomSource rand
+                RandomSource rand,
+                Optional<Integer> maxY
         ) {
             this.poolRegistry = poolRegistry;
             this.maxDepth = maxDepth;
@@ -188,9 +191,11 @@ public class JigsawManager {
             this.structureTemplateManager = structureTemplateManager;
             this.pieces = pieces;
             this.rand = rand;
+
+            // Initialize piece counts
             this.pieceCounts = new HashMap<>();
             this.maxPieceCounts = new HashMap<>();
-            this.maxY = 319;
+            this.maxY = maxY;
         }
 
         public void tryPlacingChildren(
@@ -279,49 +284,93 @@ public class JigsawManager {
                 MutableObject<VoxelShape> pieceVoxelShape,
                 PoolElementStructurePiece piece,
                 int depth,
-                LevelHeightAccessor levelHeightAccessor, RandomState randomState
+                LevelHeightAccessor levelHeightAccessor,
+                RandomState randomState
         ) {
             StructureTemplatePool.Projection piecePlacementBehavior = piece.getElement().getProjection();
             boolean isPieceRigid = piecePlacementBehavior == StructureTemplatePool.Projection.RIGID;
             int jigsawBlockRelativeY = jigsawBlockPos.getY() - pieceMinY;
             int surfaceHeight = -1; // The y-coordinate of the surface. Only used if isPieceRigid is false.
 
-            // Sum of weights of all pieces in the pool
+            // Sum of weights in all pieces in the pool
             int totalWeightSum = candidatePieces.stream().mapToInt(Pair::getSecond).reduce(0, Integer::sum);
 
             while (candidatePieces.size() > 0 && totalWeightSum > 0) {
                 Pair<StructurePoolElement, Integer> chosenPiecePair = null;
 
-                // Random weight used to choose random piece from the pool of candidates
-                int chosenWeight = rand.nextInt(totalWeightSum) + 1;
-
-                // Randomly choose a candidate piece
-                for (Pair<StructurePoolElement, Integer> candidate : candidatePieces) {
-                    chosenWeight -= candidate.getSecond();
-                    if (chosenWeight <= 0) {
-                        chosenPiecePair = candidate;
+                // First, check for any priority pieces
+                for (Pair<StructurePoolElement, Integer> candidatePiecePair : candidatePieces) {
+                    StructurePoolElement candidatePiece = candidatePiecePair.getFirst();
+                    if (candidatePiece instanceof YungJigsawSinglePoolElement yungJigsawPiece && yungJigsawPiece.isPriorityPiece()) {
+                        chosenPiecePair = candidatePiecePair;
                         break;
                     }
                 }
 
-                StructurePoolElement candidatePiece = chosenPiecePair.getFirst();
+                // Randomly choose piece if priority piece wasn't selected
+                if (chosenPiecePair == null) {
+                    // Random weight used to choose random piece from the pool of candidates
+                    int chosenWeight = rand.nextInt(totalWeightSum) + 1;
+
+                    // Randomly choose a candidate piece
+                    for (Pair<StructurePoolElement, Integer> candidate : candidatePieces) {
+                        chosenWeight -= candidate.getSecond();
+                        if (chosenWeight <= 0) {
+                            chosenPiecePair = candidate;
+                            break;
+                        }
+                    }
+                }
+
+                StructurePoolElement chosenPiece = chosenPiecePair.getFirst();
+                int chosenPieceWeight = chosenPiecePair.getSecond();
 
                 // Abort if we reach an empty piece.
                 // Not sure if aborting is necessary here, but this is vanilla behavior.
-                if (candidatePiece == EmptyPoolElement.INSTANCE) {
+                if (chosenPiece == EmptyPoolElement.INSTANCE) {
                     return null;
                 }
 
-                // Before performing any logic, check to ensure we haven't reached the max number of instances of this piece.
-                // This is my own additional feature - vanilla does not offer this behavior.
-                if (candidatePiece instanceof IMaxCountJigsawPiece) {
-                    String pieceName = ((IMaxCountJigsawPiece) candidatePiece).getName();
-                    int maxCount = ((IMaxCountJigsawPiece) candidatePiece).getMaxCount();
+                // Validate to make sure we haven't reached the max number of instances of this piece, if applicable
+                if (chosenPiece instanceof YungJigsawSinglePoolElement yungJigsawPiece && yungJigsawPiece.maxCount.isPresent()) {
+                    int pieceMaxCount = yungJigsawPiece.maxCount.get();
+
+                    // Max count pieces must also be named
+                    if (yungJigsawPiece.name.isEmpty()) {
+                        YungsApiCommon.LOGGER.error("Found YUNG Jigsaw piece with max_count={} missing \"name\" property.", pieceMaxCount);
+                        YungsApiCommon.LOGGER.error("Max count pieces must be named in order to work properly!");
+                        YungsApiCommon.LOGGER.error("Ignoring max_count for this piece...");
+                    } else {
+                        String pieceName = yungJigsawPiece.name.get();
+                        // Check if max count of this piece does not match stored max count for this name.
+                        // This can happen when the same name is reused across pools, but the max count values are different.
+                        if (this.maxPieceCounts.containsKey(pieceName) && this.maxPieceCounts.get(pieceName) != pieceMaxCount) {
+                            YungsApiCommon.LOGGER.error("YUNG Jigsaw Piece with name {} and max_count {} does not match stored max_count of {}!", pieceName, pieceMaxCount, this.maxPieceCounts.get(pieceName));
+                            YungsApiCommon.LOGGER.error("This can happen when multiple pieces across pools use the same name, but have different max_count values.");
+                            YungsApiCommon.LOGGER.error("Please change these max_count values to match. Using max_count={} for now...", pieceMaxCount);
+                        }
+
+                        // Update stored maxCount entry
+                        this.maxPieceCounts.put(pieceName, pieceMaxCount);
+
+                        // If we reached the max count, remove this piece from the list of candidates and retry
+                        if (this.pieceCounts.getOrDefault(pieceName, 0) >= pieceMaxCount) {
+                            totalWeightSum -= chosenPieceWeight;
+                            candidatePieces.remove(chosenPiecePair);
+                            continue;
+                        }
+                    }
+                }
+
+                // LEGACY - support for IMaxCountJigsawPiece
+                if (chosenPiece instanceof IMaxCountJigsawPiece) {
+                    String pieceName = ((IMaxCountJigsawPiece) chosenPiece).getName();
+                    int maxCount = ((IMaxCountJigsawPiece) chosenPiece).getMaxCount();
 
                     // Check if max count of this piece does not match stored max count for this name.
                     // This can happen when the same name is reused across pools, but the max count values are different.
                     if (this.maxPieceCounts.containsKey(pieceName) && this.maxPieceCounts.get(pieceName) != maxCount) {
-                        YungsApiCommon.LOGGER.error("YUNG Jigsaw piece with name {} and max_count {} does not match stored max_count of {}!", pieceName, maxCount, this.maxPieceCounts.get(pieceName));
+                        YungsApiCommon.LOGGER.error("Max Count Jigsaw Piece with name {} and max_count {} does not match stored max_count of {}!", pieceName, maxCount, this.maxPieceCounts.get(pieceName));
                         YungsApiCommon.LOGGER.error("This can happen when multiple pieces across pools use the same name, but have different max_count values.");
                         YungsApiCommon.LOGGER.error("Please change these max_count values to match. Using max_count={} for now...", maxCount);
                     }
@@ -337,10 +386,17 @@ public class JigsawManager {
                     }
                 }
 
+                // Validate piece depth, if applicable
+                if (chosenPiece instanceof YungJigsawSinglePoolElement yungJigsawPiece && !yungJigsawPiece.isAtValidDepth(depth)) {
+                    totalWeightSum -= chosenPieceWeight;
+                    candidatePieces.remove(chosenPiecePair);
+                    continue;
+                }
+
                 // Try different rotations to see which sides of the piece are fit to be the receiving end
                 for (Rotation rotation : Rotation.getShuffled(this.rand)) {
-                    List<StructureTemplate.StructureBlockInfo> candidateJigsawBlocks = candidatePiece.getShuffledJigsawBlocks(this.structureTemplateManager, BlockPos.ZERO, rotation, this.rand);
-                    BoundingBox tempCandidateBoundingBox = candidatePiece.getBoundingBox(this.structureTemplateManager, BlockPos.ZERO, rotation);
+                    List<StructureTemplate.StructureBlockInfo> candidateJigsawBlocks = chosenPiece.getShuffledJigsawBlocks(this.structureTemplateManager, BlockPos.ZERO, rotation, this.rand);
+                    BoundingBox tempCandidateBoundingBox = chosenPiece.getBoundingBox(this.structureTemplateManager, BlockPos.ZERO, rotation);
 
                     // Some sort of logic for setting the candidateHeightAdjustments var if useExpansionHack.
                     // Not sure on this - personally, I never enable useExpansionHack.
@@ -369,10 +425,10 @@ public class JigsawManager {
                         BlockPos candidateJigsawBlockRelativePos = jigsawBlockTargetPos.subtract(candidateJigsawBlockPos);
 
                         // Get the bounding box for the piece, offset by the relative position difference
-                        BoundingBox candidateBoundingBox = candidatePiece.getBoundingBox(this.structureTemplateManager, candidateJigsawBlockRelativePos, rotation);
+                        BoundingBox candidateBoundingBox = chosenPiece.getBoundingBox(this.structureTemplateManager, candidateJigsawBlockRelativePos, rotation);
 
                         // Determine if candidate is rigid
-                        StructureTemplatePool.Projection candidatePlacementBehavior = candidatePiece.getProjection();
+                        StructureTemplatePool.Projection candidatePlacementBehavior = chosenPiece.getProjection();
                         boolean isCandidateRigid = candidatePlacementBehavior == StructureTemplatePool.Projection.RIGID;
 
                         // Determine how much the candidate jigsaw block is off in the y direction.
@@ -407,7 +463,7 @@ public class JigsawManager {
                         }
 
                         // Prevent pieces from spawning above max Y
-                        if (adjustedCandidateBoundingBox.maxY() > this.maxY) {
+                        if (this.maxY.isPresent() && adjustedCandidateBoundingBox.maxY() > this.maxY.get()) {
                             continue;
                         }
 
@@ -424,13 +480,13 @@ public class JigsawManager {
                         if (isCandidateRigid) {
                             groundLevelDelta = newPieceGroundLevelDelta - candidateJigsawYOffsetNeeded;
                         } else {
-                            groundLevelDelta = candidatePiece.getGroundLevelDelta();
+                            groundLevelDelta = chosenPiece.getGroundLevelDelta();
                         }
 
                         // Create new piece
                         PoolElementStructurePiece newPiece = new PoolElementStructurePiece(
                                 this.structureTemplateManager,
-                                candidatePiece,
+                                chosenPiece,
                                 adjustedCandidateJigsawBlockRelativePos,
                                 groundLevelDelta,
                                 rotation,
@@ -477,15 +533,29 @@ public class JigsawManager {
                             this.placing.addLast(new PieceState(newPiece, pieceVoxelShape, depth + 1));
                         }
 
-                        // Update piece count, if piece is of max count type
-                        if (candidatePiece instanceof IMaxCountJigsawPiece) {
-                            String pieceName = ((IMaxCountJigsawPiece) candidatePiece).getName();
+                        // Update piece count, if applicable
+                        if (chosenPiece instanceof YungJigsawSinglePoolElement yungJigsawPiece && yungJigsawPiece.maxCount.isPresent()) {
+                            // Max count pieces must also be named.
+                            // The following condition will never be met if users correctly configure their template pools.
+                            if (yungJigsawPiece.name.isEmpty()) {
+                                // If name is missing, ignore max count for this piece. We've already logged an error for it earlier.
+                                return chosenPiece;
+                            }
+
+                            String pieceName = yungJigsawPiece.name.get();
                             this.pieceCounts.put(pieceName, this.pieceCounts.getOrDefault(pieceName, 0) + 1);
                         }
-                        return candidatePiece;
+
+                        // LEGACY - support for IMaxCountJigsawPiece
+                        if (chosenPiece instanceof IMaxCountJigsawPiece) {
+                            String pieceName = ((IMaxCountJigsawPiece) chosenPiece).getName();
+                            this.pieceCounts.put(pieceName, this.pieceCounts.getOrDefault(pieceName, 0) + 1);
+                        }
+
+                        return chosenPiece;
                     }
                 }
-                totalWeightSum -= chosenPiecePair.getSecond();
+                totalWeightSum -= chosenPieceWeight;
                 candidatePieces.remove(chosenPiecePair);
             }
             return null;

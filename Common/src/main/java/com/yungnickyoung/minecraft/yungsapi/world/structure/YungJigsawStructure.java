@@ -1,13 +1,14 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.api.YungJigsawManager;
 import com.yungnickyoung.minecraft.yungsapi.module.StructureTypeModule;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.valueproviders.ConstantInt;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -18,7 +19,6 @@ import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 
 import java.util.Optional;
-import java.util.function.Function;
 
 public class YungJigsawStructure extends Structure {
     public static final int MAX_TOTAL_STRUCTURE_RADIUS = 128;
@@ -26,49 +26,45 @@ public class YungJigsawStructure extends Structure {
             .group(
                     settingsCodec(builder),
                     StructureTemplatePool.CODEC.fieldOf("start_pool").forGetter(structure -> structure.startPool),
+                    ResourceLocation.CODEC.optionalFieldOf("start_jigsaw_name").forGetter(structure -> structure.startJigsawName),
                     Codec.intRange(0, 128).fieldOf("size").forGetter(structure -> structure.maxDepth),
                     HeightProvider.CODEC.fieldOf("start_height").forGetter(structure -> structure.startHeight),
-                    IntProvider.codec(0, 15).optionalFieldOf("x_offset_in_chunk").forGetter(structure -> structure.xOffsetInChunk),
-                    IntProvider.codec(0, 15).optionalFieldOf("z_offset_in_chunk").forGetter(structure -> structure.zOffsetInChunk),
-                    Codec.BOOL.fieldOf("use_expansion_hack").forGetter(structure -> structure.useExpansionHack),
+                    IntProvider.codec(0, 15).optionalFieldOf("x_offset_in_chunk", ConstantInt.of(0)).forGetter(structure -> structure.xOffsetInChunk),
+                    IntProvider.codec(0, 15).optionalFieldOf("z_offset_in_chunk", ConstantInt.of(0)).forGetter(structure -> structure.zOffsetInChunk),
+                    Codec.BOOL.optionalFieldOf("use_expansion_hack", false).forGetter(structure -> structure.useExpansionHack),
                     Heightmap.Types.CODEC.optionalFieldOf("project_start_to_heightmap").forGetter(structure -> structure.projectStartToHeightmap),
-                    Codec.intRange(1, MAX_TOTAL_STRUCTURE_RADIUS).fieldOf("max_distance_from_center").forGetter(structure -> structure.maxDistanceFromCenter))
+                    Codec.intRange(1, MAX_TOTAL_STRUCTURE_RADIUS).fieldOf("max_distance_from_center").forGetter(structure -> structure.maxDistanceFromCenter),
+                    Codec.INT.optionalFieldOf("max_y").forGetter(structure -> structure.maxY))
             .apply(builder, YungJigsawStructure::new));
 
     public final Holder<StructureTemplatePool> startPool;
+    private final Optional<ResourceLocation> startJigsawName;
+
     public final int maxDepth;
     public final HeightProvider startHeight;
-    public final Optional<IntProvider> xOffsetInChunk;
-    public final Optional<IntProvider> zOffsetInChunk;
+    public final IntProvider xOffsetInChunk;
+    public final IntProvider zOffsetInChunk;
     public final boolean useExpansionHack;
     public final Optional<Heightmap.Types> projectStartToHeightmap;
     public final int maxDistanceFromCenter;
-
-    private static Function<YungJigsawStructure, DataResult<YungJigsawStructure>> verifyRange() {
-        return (jigsawStructure) -> {
-            int terrainAdaptation = switch (jigsawStructure.terrainAdaptation()) {
-                case NONE -> 0;
-                case BURY, BEARD_THIN, BEARD_BOX -> 12;
-            };
-            return jigsawStructure.maxDistanceFromCenter + terrainAdaptation > MAX_TOTAL_STRUCTURE_RADIUS
-                    ? DataResult.error("Structure size including terrain adaptation must not exceed " + MAX_TOTAL_STRUCTURE_RADIUS)
-                    : DataResult.success(jigsawStructure);
-        };
-    }
+    public final Optional<Integer> maxY;
 
     public YungJigsawStructure(
             StructureSettings structureSettings,
             Holder<StructureTemplatePool> startPool,
+            Optional<ResourceLocation> startJigsawName,
             int maxDepth,
             HeightProvider startHeight,
-            Optional<IntProvider> xOffsetInChunk,
-            Optional<IntProvider> zOffsetInChunk,
+            IntProvider xOffsetInChunk,
+            IntProvider zOffsetInChunk,
             boolean useExpansionHack,
             Optional<Heightmap.Types> projectStartToHeightmap,
-            int maxBlockDistanceFromCenter
+            int maxBlockDistanceFromCenter,
+            Optional<Integer> maxY
     ) {
         super(structureSettings);
         this.startPool = startPool;
+        this.startJigsawName = startJigsawName;
         this.maxDepth = maxDepth;
         this.startHeight = startHeight;
         this.xOffsetInChunk = xOffsetInChunk;
@@ -76,25 +72,27 @@ public class YungJigsawStructure extends Structure {
         this.useExpansionHack = useExpansionHack;
         this.projectStartToHeightmap = projectStartToHeightmap;
         this.maxDistanceFromCenter = maxBlockDistanceFromCenter;
+        this.maxY = maxY;
     }
 
     @Override
     public Optional<GenerationStub> findGenerationPoint(GenerationContext context) {
         ChunkPos chunkPos = context.chunkPos();
         RandomSource randomSource = context.random();
-        int xOffset = this.xOffsetInChunk.map(intProvider -> intProvider.sample(randomSource)).orElse(0);
-        int zOffset = this.zOffsetInChunk.map(intProvider -> intProvider.sample(randomSource)).orElse(0);
+        int xOffset = this.xOffsetInChunk.sample(randomSource);
+        int zOffset = this.zOffsetInChunk.sample(randomSource);
         int startY = this.startHeight.sample(context.random(), new WorldGenerationContext(context.chunkGenerator(), context.heightAccessor()));
         BlockPos startPos = new BlockPos(chunkPos.getBlockX(xOffset), startY, chunkPos.getBlockZ(zOffset));
         return YungJigsawManager.assembleJigsawStructure(
                 context,
                 this.startPool,
-                Optional.empty(), // currently unused
+                this.startJigsawName,
                 this.maxDepth,
                 startPos,
                 this.useExpansionHack,
                 this.projectStartToHeightmap,
-                this.maxDistanceFromCenter
+                this.maxDistanceFromCenter,
+                this.maxY
         );
     }
 
