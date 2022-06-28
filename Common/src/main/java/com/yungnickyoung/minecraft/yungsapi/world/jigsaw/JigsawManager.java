@@ -46,7 +46,8 @@ public class JigsawManager {
             boolean useExpansionHack, // Used to be doBoundaryAdjustments
             Optional<Heightmap.Types> projectStartToHeightmap,
             int maxDistanceFromCenter, // Used to be structureBoundingBoxRadius
-            Optional<Integer> maxY
+            Optional<Integer> maxY,
+            Optional<Integer> minY
     ) {
         // Extract data from context
         RegistryAccess registryAccess = generationContext.registryAccess();
@@ -124,7 +125,7 @@ public class JigsawManager {
                     pieceCenterX + maxDistanceFromCenter + 1, adjustedPieceCenterY + maxDistanceFromCenter + 1, pieceCenterZ + maxDistanceFromCenter + 1);
 
             // Create placer + initial entry
-            Placer placer = new Placer(registry, maxDepth, chunkGenerator, structureManager, pieces, worldgenRandom, maxY);
+            Placer placer = new Placer(registry, maxDepth, chunkGenerator, structureManager, pieces, worldgenRandom, maxY, minY);
             PieceState startPieceEntry = new PieceState(
                     startPiece,
                     new MutableObject<>(
@@ -175,6 +176,7 @@ public class JigsawManager {
         private final Map<String, Integer> pieceCounts;
         private final Map<String, Integer> maxPieceCounts;
         private final Optional<Integer> maxY;
+        private final Optional<Integer> minY;
 
         public Placer(
                 Registry<StructureTemplatePool> poolRegistry,
@@ -183,7 +185,8 @@ public class JigsawManager {
                 StructureTemplateManager structureTemplateManager,
                 List<? super PoolElementStructurePiece> pieces,
                 RandomSource rand,
-                Optional<Integer> maxY
+                Optional<Integer> maxY,
+                Optional<Integer> minY
         ) {
             this.poolRegistry = poolRegistry;
             this.maxDepth = maxDepth;
@@ -196,6 +199,7 @@ public class JigsawManager {
             this.pieceCounts = new HashMap<>();
             this.maxPieceCounts = new HashMap<>();
             this.maxY = maxY;
+            this.minY = minY;
         }
 
         public void tryPlacingChildren(
@@ -462,10 +466,9 @@ public class JigsawManager {
                             ((BoundingBoxAccessor) adjustedCandidateBoundingBox).setMaxY(adjustedCandidateBoundingBox.minY() + k2);
                         }
 
-                        // Prevent pieces from spawning above max Y
-                        if (this.maxY.isPresent() && adjustedCandidateBoundingBox.maxY() > this.maxY.get()) {
-                            continue;
-                        }
+                        // Prevent pieces from spawning above max Y and below min Y
+                        if (this.maxY.isPresent() && adjustedCandidateBoundingBox.maxY() > this.maxY.get()) continue;
+                        if (this.minY.isPresent() && adjustedCandidateBoundingBox.minY() < this.minY.get()) continue;
 
                         // Some sort of final boundary check before adding the new piece.
                         // Not sure why the candidate box is shrunk by 0.25.

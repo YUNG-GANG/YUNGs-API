@@ -34,12 +34,12 @@ public class YungJigsawStructure extends Structure {
                     Codec.BOOL.optionalFieldOf("use_expansion_hack", false).forGetter(structure -> structure.useExpansionHack),
                     Heightmap.Types.CODEC.optionalFieldOf("project_start_to_heightmap").forGetter(structure -> structure.projectStartToHeightmap),
                     Codec.intRange(1, MAX_TOTAL_STRUCTURE_RADIUS).fieldOf("max_distance_from_center").forGetter(structure -> structure.maxDistanceFromCenter),
-                    Codec.INT.optionalFieldOf("max_y").forGetter(structure -> structure.maxY))
+                    Codec.INT.optionalFieldOf("max_y").forGetter(structure -> structure.maxY),
+                    Codec.INT.optionalFieldOf("min_y").forGetter(structure -> structure.minY))
             .apply(builder, YungJigsawStructure::new));
 
     public final Holder<StructureTemplatePool> startPool;
     private final Optional<ResourceLocation> startJigsawName;
-
     public final int maxDepth;
     public final HeightProvider startHeight;
     public final IntProvider xOffsetInChunk;
@@ -48,6 +48,7 @@ public class YungJigsawStructure extends Structure {
     public final Optional<Heightmap.Types> projectStartToHeightmap;
     public final int maxDistanceFromCenter;
     public final Optional<Integer> maxY;
+    public final Optional<Integer> minY;
 
     public YungJigsawStructure(
             StructureSettings structureSettings,
@@ -60,7 +61,8 @@ public class YungJigsawStructure extends Structure {
             boolean useExpansionHack,
             Optional<Heightmap.Types> projectStartToHeightmap,
             int maxBlockDistanceFromCenter,
-            Optional<Integer> maxY
+            Optional<Integer> maxY,
+            Optional<Integer> minY
     ) {
         super(structureSettings);
         this.startPool = startPool;
@@ -73,6 +75,7 @@ public class YungJigsawStructure extends Structure {
         this.projectStartToHeightmap = projectStartToHeightmap;
         this.maxDistanceFromCenter = maxBlockDistanceFromCenter;
         this.maxY = maxY;
+        this.minY = minY;
     }
 
     @Override
@@ -92,7 +95,8 @@ public class YungJigsawStructure extends Structure {
                 this.useExpansionHack,
                 this.projectStartToHeightmap,
                 this.maxDistanceFromCenter,
-                this.maxY
+                this.maxY,
+                this.minY
         );
     }
 

@@ -58,8 +58,10 @@ public class YungJigsawManager {
             boolean useExpansionHack,
             Optional<Heightmap.Types> projectStartToHeightmap,
             int maxDistanceFromCenter,
-            Optional<Integer> maxY
+            Optional<Integer> maxY,
+            Optional<Integer> minY
     ) {
-        return JigsawManager.assembleJigsawStructure(generationContext, startPool, startJigsawNameOptional, maxDepth, startPos, useExpansionHack, projectStartToHeightmap, maxDistanceFromCenter, maxY);
+        return JigsawManager.assembleJigsawStructure(generationContext, startPool, startJigsawNameOptional, maxDepth,
+                startPos, useExpansionHack, projectStartToHeightmap, maxDistanceFromCenter, maxY, minY);
     }
 }
