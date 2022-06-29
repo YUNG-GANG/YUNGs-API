@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "yungsapi.refmap.json",
   "mixins": [
+    "IncreaseStructureWeightLimitMixinForge"
   ],
   "injectors": {
     "defaultRequire": 1

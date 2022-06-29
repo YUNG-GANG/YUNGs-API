@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 @SuppressWarnings("UnresolvedMixinReference")
 @Mixin(StructureTemplatePool.class)
-public class IncreaseStructureWeightLimitMixin {
+public class IncreaseStructureWeightLimitMixinFabric {
     /**
      * Increases the weight limit that mojang slapped on that was a workaround for https://bugs.mojang.com/browse/MC-203131
      * @author - TelepathicGrunt
@@ -19,7 +19,7 @@ public class IncreaseStructureWeightLimitMixin {
             remap = false,
             require = 0
     )
-    private static int yungsapi_increaseWeightLimit(int constant) {
+    private static int yungsapi_increaseWeightLimitDev(int constant) {
         return 5000;
     }
 
