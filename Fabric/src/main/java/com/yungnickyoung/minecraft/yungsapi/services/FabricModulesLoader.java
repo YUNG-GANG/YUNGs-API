@@ -1,12 +1,16 @@
 package com.yungnickyoung.minecraft.yungsapi.services;
 
-import com.yungnickyoung.minecraft.yungsapi.module.CriteriaModuleFabric;
-import com.yungnickyoung.minecraft.yungsapi.module.JigsawModuleFabric;
+import com.yungnickyoung.minecraft.yungsapi.module.*;
 
 public class FabricModulesLoader implements IModulesLoader {
     @Override
     public void loadModules() {
-        JigsawModuleFabric.init();
+        IModulesLoader.super.loadModules(); // Load common modules
+        StructurePoolElementTypeModuleFabric.init();
         CriteriaModuleFabric.init();
+        StructureFeatureModuleFabric.init();
+        ItemModuleFabric.init();
+        BlockModuleFabric.init();
+        StructureProcessorTypeModuleFabric.init();
     }
 }

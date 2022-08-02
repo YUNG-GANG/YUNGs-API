@@ -1,5 +1,9 @@
 package com.yungnickyoung.minecraft.yungsapi.services;
 
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
+
 public interface IModulesLoader {
-    void loadModules();
+    default void loadModules() {
+        AutoRegistrationManager.init();
+    }
 }
