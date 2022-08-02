@@ -1,6 +1,6 @@
 package com.yungnickyoung.minecraft.yungsapi.api.autoregister;
 
-import com.yungnickyoung.minecraft.yungsapi.autoregister.entry.AutoRegisterEntry;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterEntry;
 import net.minecraft.world.item.Item;
 
 import java.util.function.Supplier;

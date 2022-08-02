@@ -1,10 +1,9 @@
-package com.yungnickyoung.minecraft.yungsapi.autoregister.entry;
-
-import org.objectweb.asm.Type;
+package com.yungnickyoung.minecraft.yungsapi.autoregister;
 
 import java.util.function.Supplier;
 
 public abstract class AutoRegisterEntry<T> {
+    T cachedEntry;
     Supplier<T> entrySupplier;
 
     public AutoRegisterEntry(Supplier<T> entrySupplier) {
@@ -20,6 +19,9 @@ public abstract class AutoRegisterEntry<T> {
     }
 
     public T get() {
-        return entrySupplier.get();
+        if (this.cachedEntry != null) return cachedEntry;
+        T entry = entrySupplier.get();
+        this.cachedEntry = entry;
+        return entry;
     }
 }

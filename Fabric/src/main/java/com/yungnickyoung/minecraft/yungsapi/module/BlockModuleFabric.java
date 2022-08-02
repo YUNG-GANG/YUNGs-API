@@ -23,7 +23,7 @@ public class BlockModuleFabric {
 
         // Register item if applicable
         if (autoRegisterBlock.hasItemProperties()) {
-            ItemModuleFabric.registerBlockItem(data.name(), block, autoRegisterBlock.getItemProperties());
+            ItemModuleFabric.registerBlockItem(data.name(), block, autoRegisterBlock.getItemProperties().get());
         }
     }
 }

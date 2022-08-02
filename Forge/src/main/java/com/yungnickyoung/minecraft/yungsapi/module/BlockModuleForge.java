@@ -44,7 +44,7 @@ public class BlockModuleForge {
 
         // Register item if applicable
         if (autoRegisterBlock.hasItemProperties()) {
-            ItemModuleForge.registerBlockItem(data.name(), registryObject, autoRegisterBlock.getItemProperties());
+            ItemModuleForge.registerBlockItem(data.name(), registryObject, autoRegisterBlock.getItemProperties().get());
         }
     }
 }
