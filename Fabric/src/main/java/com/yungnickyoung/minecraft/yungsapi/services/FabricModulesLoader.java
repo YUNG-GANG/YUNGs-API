@@ -12,5 +12,6 @@ public class FabricModulesLoader implements IModulesLoader {
         ItemModuleFabric.init();
         BlockModuleFabric.init();
         StructureProcessorTypeModuleFabric.init();
+        BlockEntityTypeModuleFabric.init();
     }
 }

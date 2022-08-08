@@ -11,6 +11,7 @@ public class ForgeModulesLoader implements IModulesLoader {
         StructureFeatureModuleForge.init();
         ItemModuleForge.init();
         BlockModuleForge.init();
+        BlockEntityTypeModuleForge.init();
         StructureProcessorTypeModuleForge.init();
     }
 }

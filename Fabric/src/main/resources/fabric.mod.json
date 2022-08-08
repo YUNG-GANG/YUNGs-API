@@ -25,6 +25,7 @@
     "yungsapi.mixins.json",
     "yungsapi_fabric.mixins.json"
   ],
+  "accessWidener": "yungsapi.accesswidener",
   "depends": {
     "fabricloader": ">=0.13.3",
     "minecraft": ">=1.18.2",

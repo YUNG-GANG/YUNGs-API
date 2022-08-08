@@ -9,6 +9,7 @@ public class Services {
     public static final IModulesLoader MODULES = load(IModulesLoader.class);
     public static final IAutoRegisterHelper AUTO_REGISTER = load(IAutoRegisterHelper.class);
     public static final ICreativeModeTabProvider CREATIVE_MODE_TAB = load(ICreativeModeTabProvider.class);
+    public static final IBlockEntityTypeHelper BLOCK_ENTITY_TYPE_HELPER = load(IBlockEntityTypeHelper.class);
 
     public static <T> T load(Class<T> clazz) {
         final T loadedService = ServiceLoader.load(clazz)

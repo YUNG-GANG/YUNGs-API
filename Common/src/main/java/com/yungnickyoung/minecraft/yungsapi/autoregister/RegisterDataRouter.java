@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.autoregister;
 
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterBlock;
+import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterBlockEntityType;
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterItem;
 import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
@@ -21,6 +22,8 @@ public class RegisterDataRouter {
             AutoRegistrationManager.ITEMS.add(registerData);
         } else if (registerData.object() instanceof StructureProcessorType<?>) {
             AutoRegistrationManager.STRUCTURE_PROCESSOR_TYPES.add(registerData);
+        } else if (registerData.object() instanceof AutoRegisterBlockEntityType) {
+            AutoRegistrationManager.BLOCK_ENTITY_TYPES.add(registerData);
         }
     }
 }
