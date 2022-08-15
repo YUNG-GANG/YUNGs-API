@@ -13,6 +13,7 @@ public class AutoRegistrationManager {
     public static final List<RegisterData> BLOCKS = new ArrayList<>();
     public static final List<RegisterData> ITEMS = new ArrayList<>();
     public static final List<RegisterData> BLOCK_ENTITY_TYPES = new ArrayList<>();
+    public static final List<RegisterData> CREATIVE_MODE_TABS = new ArrayList<>();
 
     public static void init() {
         // Scan all mod files to check for AutoRegister annotated fields.

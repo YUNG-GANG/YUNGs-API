@@ -9,6 +9,7 @@ public class ForgeModulesLoader implements IModulesLoader {
         StructurePoolElementTypeModuleForge.init();
         CriteriaModuleForge.init();
         StructureFeatureModuleForge.init();
+        CreativeModeTabModuleForge.init();
         ItemModuleForge.init();
         BlockModuleForge.init();
         BlockEntityTypeModuleForge.init();

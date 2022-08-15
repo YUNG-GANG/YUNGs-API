@@ -9,6 +9,7 @@ public class FabricModulesLoader implements IModulesLoader {
         StructurePoolElementTypeModuleFabric.init();
         CriteriaModuleFabric.init();
         StructureFeatureModuleFabric.init();
+        CreativeModeTabModuleFabric.init();
         ItemModuleFabric.init();
         BlockModuleFabric.init();
         StructureProcessorTypeModuleFabric.init();
