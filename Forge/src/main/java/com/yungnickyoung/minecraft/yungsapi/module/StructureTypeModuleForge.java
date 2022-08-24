@@ -1,23 +1,25 @@
 package com.yungnickyoung.minecraft.yungsapi.module;
 
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.RegisterEvent;
 
-import java.util.HashMap;
-import java.util.Map;
-
+/**
+ * Registration of structure types.
+ */
 public class StructureTypeModuleForge {
-    public static Map<ResourceLocation, StructureType<? extends Structure>> STRUCTURE_TYPES = new HashMap<>();
-
     public static void init() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(StructureTypeModuleForge::registerStructures);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(StructureTypeModuleForge::registerStructureTypes);
     }
 
-    private static void registerStructures(RegisterEvent event) {
-        event.register(Registry.STRUCTURE_TYPE_REGISTRY, helper -> STRUCTURE_TYPES.forEach(helper::register));
+    private static void registerStructureTypes(RegisterEvent event) {
+        event.register(Registry.STRUCTURE_TYPE_REGISTRY, helper -> {
+            AutoRegistrationManager.STRUCTURE_TYPES.forEach(data -> {
+                StructureType<?> structureType = (StructureType<?>) data.object();
+                helper.register(data.name(), structureType);
+            });
+        });
     }
 }
