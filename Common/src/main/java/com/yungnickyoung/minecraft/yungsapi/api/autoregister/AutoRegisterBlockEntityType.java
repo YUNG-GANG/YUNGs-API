@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.function.Supplier;
 
-public class AutoRegisterBlockEntityType <T extends BlockEntity> extends AutoRegisterEntry<BlockEntityType<T>> {
+public class AutoRegisterBlockEntityType<T extends BlockEntity> extends AutoRegisterEntry<BlockEntityType<T>> {
     public static <U extends BlockEntity> AutoRegisterBlockEntityType<U> of(Supplier<BlockEntityType<U>> blockSupplier) {
         return new AutoRegisterBlockEntityType<>(blockSupplier);
     }
@@ -20,7 +20,7 @@ public class AutoRegisterBlockEntityType <T extends BlockEntity> extends AutoReg
         super(blockSupplier);
     }
 
-    public static class Builder <T extends BlockEntity> {
+    public static class Builder<T extends BlockEntity> {
         private final BlockEntitySupplier<? extends T> factory;
         private final Block[] blocks;
 

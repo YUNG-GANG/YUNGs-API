@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(value = RetentionPolicy.RUNTIME)
-@Target(value = {ElementType.FIELD, ElementType.TYPE})
+@Target(value = {ElementType.FIELD, ElementType.TYPE, ElementType.METHOD})
 public @interface AutoRegister {
     String value();
 }

@@ -1,7 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.module;
 
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
-import com.yungnickyoung.minecraft.yungsapi.autoregister.RegisterData;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.CriteriaTriggersAccessor;
 import net.minecraft.advancements.CriterionTrigger;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -19,7 +19,7 @@ public class CriteriaModuleForge {
         event.enqueueWork(() -> AutoRegistrationManager.CRITERION_TRIGGERS.forEach(CriteriaModuleForge::register));
     }
 
-    private static void register(RegisterData data) {
+    private static void register(AutoRegisterField data) {
         CriteriaTriggersAccessor.getValues().put(data.name(), (CriterionTrigger<?>) data.object());
     }
 }

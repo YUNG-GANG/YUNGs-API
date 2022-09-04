@@ -13,10 +13,10 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
  */
 public class ItemModuleForge {
     public static void init() {
-        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Item.class, ItemModuleForge::registerItems);
+        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Item.class, ItemModuleForge::register);
     }
 
-    private static void registerItems(RegistryEvent.Register<Item> event) {
+    private static void register(RegistryEvent.Register<Item> event) {
         // Register BlockItems
         AutoRegistrationManager.BLOCKS.forEach(data -> {
             AutoRegisterBlock autoRegisterBlock = (AutoRegisterBlock) data.object();

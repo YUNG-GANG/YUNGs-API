@@ -1,0 +1,24 @@
+package com.yungnickyoung.minecraft.yungsapi.module;
+
+import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterParticleType;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
+import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleType;
+
+/**
+ * Registration of ParticleTypes.
+ */
+public class ParticleTypeModuleFabric {
+    public static void init() {
+        AutoRegistrationManager.PARTICLE_TYPES.forEach(ParticleTypeModuleFabric::register);
+    }
+
+    private static void register(AutoRegisterField data) {
+        AutoRegisterParticleType<?> autoRegisterParticleType = (AutoRegisterParticleType<?>) data.object();
+        ParticleType<?> particleType = autoRegisterParticleType.get();
+
+        // Register
+        Registry.register(Registry.PARTICLE_TYPE, data.name(), particleType);
+    }
+}

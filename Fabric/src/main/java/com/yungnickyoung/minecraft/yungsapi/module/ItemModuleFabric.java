@@ -2,7 +2,7 @@ package com.yungnickyoung.minecraft.yungsapi.module;
 
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterItem;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
-import com.yungnickyoung.minecraft.yungsapi.autoregister.RegisterData;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
@@ -19,7 +19,7 @@ public class ItemModuleFabric {
         AutoRegistrationManager.ITEMS.forEach(ItemModuleFabric::register);
     }
 
-    private static void register(RegisterData data) {
+    private static void register(AutoRegisterField data) {
         AutoRegisterItem autoRegisterItem = (AutoRegisterItem) data.object();
         Item item = autoRegisterItem.get();
 

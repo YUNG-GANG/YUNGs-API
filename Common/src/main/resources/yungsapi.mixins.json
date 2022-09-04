@@ -13,6 +13,7 @@
     "accessor.CriteriaTriggersAccessor",
     "accessor.FeaturePoolElementAccessor",
     "accessor.ListPoolElementAccessor",
+    "accessor.PotionBrewingAccessor",
     "accessor.StructureTemplatePoolAccessor"
   ],
   "injectors": {
