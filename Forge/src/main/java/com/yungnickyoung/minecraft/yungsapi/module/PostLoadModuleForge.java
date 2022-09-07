@@ -1,10 +1,6 @@
 package com.yungnickyoung.minecraft.yungsapi.module;
 
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
-import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
-import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
-import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.CriteriaTriggersAccessor;
-import net.minecraft.advancements.CriterionTrigger;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
@@ -13,6 +9,9 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Holds methods for executing during common setup (after registration).
+ */
 public class PostLoadModuleForge {
     public static List<Method> METHODS = new ArrayList<>();
 

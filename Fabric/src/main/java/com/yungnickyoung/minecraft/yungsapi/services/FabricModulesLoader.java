@@ -10,8 +10,6 @@ public class FabricModulesLoader implements IModulesLoader {
         SoundEventModuleFabric.init();
         StructureFeatureModuleFabric.init();
         FeatureModuleFabric.init();
-        ConfiguredFeatureModuleFabric.init();
-        PlacedFeatureModuleFabric.init();
         CreativeModeTabModuleFabric.init();
         ItemModuleFabric.init();
         BlockModuleFabric.init();

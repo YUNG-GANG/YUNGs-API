@@ -13,10 +13,6 @@ public class AutoRegisterFieldRouter {
             AutoRegistrationManager.STRUCTURE_FEATURES.add(registerData);
         } else if (registerData.object() instanceof Feature<?>) {
             AutoRegistrationManager.FEATURES.add(registerData);
-        } else if (registerData.object() instanceof AutoRegisterConfiguredFeature<?,?>) {
-            AutoRegistrationManager.CONFIGURED_FEATURES.add(registerData);
-        } else if (registerData.object() instanceof AutoRegisterPlacedFeature) {
-            AutoRegistrationManager.PLACED_FEATURES.add(registerData);
         } else if (registerData.object() instanceof StructurePoolElementType<?>) {
             AutoRegistrationManager.STRUCTURE_POOL_ELEMENT_TYPES.add(registerData);
         } else if (registerData.object() instanceof CriterionTrigger) {

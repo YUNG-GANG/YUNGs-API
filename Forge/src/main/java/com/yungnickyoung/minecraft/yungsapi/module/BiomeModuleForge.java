@@ -7,7 +7,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 import java.util.HashMap;
@@ -22,25 +21,8 @@ public class BiomeModuleForge {
 
 
     public static void init() {
-//        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Biome.class, BiomeModuleForge::register);
         AutoRegistrationManager.BIOMES.forEach(BiomeModuleForge::register);
     }
-
-//    private static void register(RegistryEvent.Register<Biome> event) {
-//        // Register biomes
-//        AutoRegistrationManager.BIOMES.forEach(data -> {
-//            AutoRegisterBiome autoRegisterBiome = (AutoRegisterBiome) data.object();
-//            Biome biome = autoRegisterBiome.get();
-////            ResourceKey<Biome> key = ResourceKey.create(Registry.BIOME_REGISTRY, data.name());
-////            autoRegisterBiome.setResourceKey(key);
-//
-//            // Register
-//            biome.setRegistryName(data.name());
-//            event.getRegistry().register(biome);
-//
-//            autoRegisterBiome.setResourceKey(event.getRegistry().getResourceKey(biome).get());
-//        });
-//    }
 
     private static void register(AutoRegisterField data) {
         // Create & register deferred registry for current mod, if necessary

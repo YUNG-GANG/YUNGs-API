@@ -10,8 +10,6 @@ public class ForgeModulesLoader implements IModulesLoader {
         SoundEventModuleForge.init();
         BlockModuleForge.init();
         FeatureModuleForge.init();
-        ConfiguredFeatureModuleForge.init();
-        PlacedFeatureModuleForge.init();
         StructureFeatureModuleForge.init();
         CreativeModeTabModuleForge.init();
         ItemModuleForge.init();

@@ -1,20 +1,15 @@
 package com.yungnickyoung.minecraft.yungsapi.module;
 
-import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterBlock;
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterEntityType;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
-import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -8,8 +8,6 @@ import java.util.List;
 public class AutoRegistrationManager {
     public static final List<AutoRegisterField> STRUCTURE_FEATURES = new ArrayList<>();
     public static final List<AutoRegisterField> FEATURES = new ArrayList<>();
-    public static final List<AutoRegisterField> CONFIGURED_FEATURES = new ArrayList<>();
-    public static final List<AutoRegisterField> PLACED_FEATURES = new ArrayList<>();
     public static final List<AutoRegisterField> STRUCTURE_PROCESSOR_TYPES = new ArrayList<>();
     public static final List<AutoRegisterField> STRUCTURE_POOL_ELEMENT_TYPES = new ArrayList<>();
     public static final List<AutoRegisterField> CRITERION_TRIGGERS = new ArrayList<>();
