@@ -9,6 +9,7 @@ public class AutoRegistrationManager {
     public static final List<RegisterData> STRUCTURE_TYPES = new ArrayList<>();
     public static final List<RegisterData> STRUCTURE_PROCESSOR_TYPES = new ArrayList<>();
     public static final List<RegisterData> STRUCTURE_POOL_ELEMENT_TYPES = new ArrayList<>();
+    public static final List<RegisterData> STRUCTURE_PIECE_TYPES = new ArrayList<>();
     public static final List<RegisterData> CRITERION_TRIGGERS = new ArrayList<>();
     public static final List<RegisterData> BLOCKS = new ArrayList<>();
     public static final List<RegisterData> ITEMS = new ArrayList<>();

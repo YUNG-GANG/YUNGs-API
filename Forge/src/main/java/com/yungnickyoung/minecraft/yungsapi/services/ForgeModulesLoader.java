@@ -6,6 +6,7 @@ public class ForgeModulesLoader implements IModulesLoader {
     @Override
     public void loadModules() {
         IModulesLoader.super.loadModules(); // Load common modules
+        StructurePieceTypeModuleForge.init();
         StructurePoolElementTypeModuleForge.init();
         CriteriaModuleForge.init();
         StructureTypeModuleForge.init();

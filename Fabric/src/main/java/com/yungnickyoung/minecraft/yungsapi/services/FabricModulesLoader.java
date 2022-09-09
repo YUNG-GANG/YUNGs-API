@@ -6,6 +6,7 @@ public class FabricModulesLoader implements IModulesLoader {
     @Override
     public void loadModules() {
         IModulesLoader.super.loadModules(); // Load common modules
+        StructurePieceTypeModuleFabric.init();
         StructurePoolElementTypeModuleFabric.init();
         CriteriaModuleFabric.init();
         StructureTypeModuleFabric.init();
