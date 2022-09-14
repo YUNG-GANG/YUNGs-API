@@ -4,6 +4,7 @@ import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterBiome;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
@@ -18,7 +19,6 @@ import java.util.function.Supplier;
  */
 public class BiomeModuleForge {
     private static final Map<String, DeferredRegister<Biome>> registersByModId = new HashMap<>();
-
 
     public static void init() {
         AutoRegistrationManager.BIOMES.forEach(BiomeModuleForge::register);
@@ -42,5 +42,8 @@ public class BiomeModuleForge {
 
         // Update the supplier to use the RegistryObject so that it will be properly updated later on
         autoRegisterBiome.setSupplier(registryObject);
+
+        ResourceKey<Biome> key = ResourceKey.create(Registry.BIOME_REGISTRY, data.name());
+        autoRegisterBiome.setResourceKey(key);
     }
 }
