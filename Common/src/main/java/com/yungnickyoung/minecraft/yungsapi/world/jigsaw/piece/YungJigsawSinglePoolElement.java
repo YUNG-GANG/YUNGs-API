@@ -25,7 +25,8 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
                     ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("max_count").forGetter(element -> element.maxCount),
                     ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("min_required_depth").forGetter(element -> element.minRequiredDepth),
                     ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("max_possible_depth").forGetter(element -> element.maxPossibleDepth),
-                    Codec.BOOL.optionalFieldOf("is_priority", false).forGetter(element -> element.isPriority)
+                    Codec.BOOL.optionalFieldOf("is_priority", false).forGetter(element -> element.isPriority),
+                    Codec.BOOL.optionalFieldOf("ignore_bounds", false).forGetter(element -> element.ignoreBounds)
             ).apply(builder, YungJigsawSinglePoolElement::new));
 
     public final Optional<Integer> maxCount;
@@ -33,6 +34,7 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
     public final Optional<Integer> minRequiredDepth;
     public final Optional<Integer> maxPossibleDepth;
     public final boolean isPriority;
+    public final boolean ignoreBounds;
 
     public YungJigsawSinglePoolElement(
             Either<ResourceLocation, StructureTemplate> resourceLocation,
@@ -42,7 +44,8 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
             Optional<Integer> maxCount,
             Optional<Integer> minRequiredDepth,
             Optional<Integer> maxPossibleDepth,
-            boolean isPriority
+            boolean isPriority,
+            boolean ignoreBounds
     ) {
         super(resourceLocation, processors, projection);
         this.maxCount = maxCount;
@@ -50,6 +53,7 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
         this.minRequiredDepth = minRequiredDepth;
         this.maxPossibleDepth = maxPossibleDepth;
         this.isPriority = isPriority;
+        this.ignoreBounds = ignoreBounds;
     }
 
     public StructurePoolElementType<?> getType() {
@@ -58,6 +62,10 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
 
     public boolean isPriorityPiece() {
         return isPriority;
+    }
+
+    public boolean ignoresBounds() {
+        return this.ignoreBounds;
     }
 
     public boolean isAtValidDepth(int depth) {

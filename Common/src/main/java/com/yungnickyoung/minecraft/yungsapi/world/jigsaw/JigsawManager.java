@@ -296,7 +296,8 @@ public class JigsawManager {
             int jigsawBlockRelativeY = jigsawBlockPos.getY() - pieceMinY;
             int surfaceHeight = -1; // The y-coordinate of the surface. Only used if isPieceRigid is false.
 
-            // Sum of weights in all pieces in the pool
+            // Sum of weights in all pieces in the pool.
+            // When choosing a piece, we will remove its weight from this sum.
             int totalWeightSum = candidatePieces.stream().mapToInt(Pair::getSecond).reduce(0, Integer::sum);
 
             while (candidatePieces.size() > 0 && totalWeightSum > 0) {
@@ -326,6 +327,7 @@ public class JigsawManager {
                     }
                 }
 
+                // Extract data from the chosen piece pair.
                 StructurePoolElement chosenPiece = chosenPiecePair.getFirst();
                 int chosenPieceWeight = chosenPiecePair.getSecond();
 
@@ -357,7 +359,7 @@ public class JigsawManager {
                         // Update stored maxCount entry
                         this.maxPieceCounts.put(pieceName, pieceMaxCount);
 
-                        // If we reached the max count, remove this piece from the list of candidates and retry
+                        // If we reached the max count already, remove this piece from the list of candidates and retry
                         if (this.pieceCounts.getOrDefault(pieceName, 0) >= pieceMaxCount) {
                             totalWeightSum -= chosenPieceWeight;
                             candidatePieces.remove(chosenPiecePair);
@@ -372,7 +374,7 @@ public class JigsawManager {
                     int maxCount = ((IMaxCountJigsawPiece) chosenPiece).getMaxCount();
 
                     // Check if max count of this piece does not match stored max count for this name.
-                    // This can happen when the same name is reused across pools, but the max count values are different.
+                    // This can happen when the same name is reused pool entries, but the max count values are different.
                     if (this.maxPieceCounts.containsKey(pieceName) && this.maxPieceCounts.get(pieceName) != maxCount) {
                         YungsApiCommon.LOGGER.error("Max Count Jigsaw Piece with name {} and max_count {} does not match stored max_count of {}!", pieceName, maxCount, this.maxPieceCounts.get(pieceName));
                         YungsApiCommon.LOGGER.error("This can happen when multiple pieces across pools use the same name, but have different max_count values.");
@@ -404,7 +406,7 @@ public class JigsawManager {
 
                     // Some sort of logic for setting the candidateHeightAdjustments var if useExpansionHack.
                     // Not sure on this - personally, I never enable useExpansionHack.
-                    int candidateHeightAdjustments;
+                    int candidateHeightAdjustments = 0;
                     if (useExpansionHack && tempCandidateBoundingBox.getYSpan() <= 16) {
                         candidateHeightAdjustments = candidateJigsawBlocks.stream().mapToInt((pieceCandidateJigsawBlock) -> {
                             if (!tempCandidateBoundingBox.isInside(pieceCandidateJigsawBlock.pos.relative(JigsawBlock.getFrontFacing(pieceCandidateJigsawBlock.state)))) {
@@ -417,8 +419,6 @@ public class JigsawManager {
                             int tallestCandidateTargetFallbackPieceHeight = candidateTargetFallbackOptional.map((structureTemplatePool) -> structureTemplatePool.getMaxSize(this.structureTemplateManager)).orElse(0);
                             return Math.max(tallestCandidateTargetPoolPieceHeight, tallestCandidateTargetFallbackPieceHeight);
                         }).max().orElse(0);
-                    } else {
-                        candidateHeightAdjustments = 0;
                     }
 
                     // Check for each of the candidate's jigsaw blocks for a match
@@ -460,7 +460,7 @@ public class JigsawManager {
                         // Add this offset to the relative jigsaw block position as well
                         BlockPos adjustedCandidateJigsawBlockRelativePos = candidateJigsawBlockRelativePos.offset(0, candidatePieceYOffsetNeeded, 0);
 
-                        // Final adjustments to the bounding box.
+                        // Final adjustments to the bounding box. Can only happen if useExpansionHack is true.
                         if (candidateHeightAdjustments > 0) {
                             int k2 = Math.max(candidateHeightAdjustments + 1, adjustedCandidateBoundingBox.maxY() - adjustedCandidateBoundingBox.minY());
                             ((BoundingBoxAccessor) adjustedCandidateBoundingBox).setMaxY(adjustedCandidateBoundingBox.minY() + k2);
@@ -470,11 +470,21 @@ public class JigsawManager {
                         if (this.maxY.isPresent() && adjustedCandidateBoundingBox.maxY() > this.maxY.get()) continue;
                         if (this.minY.isPresent() && adjustedCandidateBoundingBox.minY() < this.minY.get()) continue;
 
-                        // Some sort of final boundary check before adding the new piece.
-                        // Not sure why the candidate box is shrunk by 0.25.
-                        if (Shapes.joinIsNotEmpty(pieceVoxelShape.getValue(), Shapes.create(AABB.of(adjustedCandidateBoundingBox).deflate(0.25D)), BooleanOp.ONLY_SECOND)) {
+                        // Final boundary check before adding the new piece.
+                        // Not sure why the candidate box is shrunk by 0.25. Maybe just ensures no overlap for adjacent block positions?
+                        AABB aabb = AABB.of(adjustedCandidateBoundingBox);
+                        AABB aabbDeflated = aabb.deflate(0.25);
+                        boolean pieceIgnoresBounds = false;
+
+                        if (chosenPiece instanceof YungJigsawSinglePoolElement yungJigsawPiece) {
+                            pieceIgnoresBounds = yungJigsawPiece.ignoresBounds();
+                        }
+
+                        // Check for overlap with other pieces
+                        if (!pieceIgnoresBounds && Shapes.joinIsNotEmpty(pieceVoxelShape.getValue(), Shapes.create(aabbDeflated), BooleanOp.ONLY_SECOND)) {
                             continue;
                         }
+
                         pieceVoxelShape.setValue(Shapes.joinUnoptimized(pieceVoxelShape.getValue(), Shapes.create(AABB.of(adjustedCandidateBoundingBox)), BooleanOp.ONLY_FIRST));
 
                         // Determine ground level delta for this new piece
