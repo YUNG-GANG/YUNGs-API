@@ -6,6 +6,7 @@ import com.mojang.datafixers.util.Pair;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.BoundingBoxAccessor;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.StructureTemplatePoolAccessor;
+import com.yungnickyoung.minecraft.yungsapi.world.condition.ConditionContext;
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.IMaxCountJigsawPiece;
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.YungJigsawSinglePoolElement;
 import net.minecraft.core.*;
@@ -472,8 +473,7 @@ public class JigsawManager {
 
                         // Final boundary check before adding the new piece.
                         // Not sure why the candidate box is shrunk by 0.25. Maybe just ensures no overlap for adjacent block positions?
-                        AABB aabb = AABB.of(adjustedCandidateBoundingBox);
-                        AABB aabbDeflated = aabb.deflate(0.25);
+                        AABB aabbDeflated = AABB.of(adjustedCandidateBoundingBox).deflate(0.25);
                         boolean pieceIgnoresBounds = false;
 
                         if (chosenPiece instanceof YungJigsawSinglePoolElement yungJigsawPiece) {
@@ -483,6 +483,14 @@ public class JigsawManager {
                         // Check for overlap with other pieces
                         if (!pieceIgnoresBounds && Shapes.joinIsNotEmpty(pieceVoxelShape.getValue(), Shapes.create(aabbDeflated), BooleanOp.ONLY_SECOND)) {
                             continue;
+                        }
+
+                        // Validate conditions for this piece, if applicable
+                        if (chosenPiece instanceof YungJigsawSinglePoolElement yungJigsawPiece) {
+                            ConditionContext ctx = new ConditionContext(adjustedCandidateBoundingBox.minY(), adjustedCandidateBoundingBox.maxY());
+                            if (!yungJigsawPiece.passesConditions(ctx)) {
+                                continue; // Abort this piece & rotation if it doesn't pass conditions check
+                            }
                         }
 
                         pieceVoxelShape.setValue(Shapes.joinUnoptimized(pieceVoxelShape.getValue(), Shapes.create(AABB.of(adjustedCandidateBoundingBox)), BooleanOp.ONLY_FIRST));

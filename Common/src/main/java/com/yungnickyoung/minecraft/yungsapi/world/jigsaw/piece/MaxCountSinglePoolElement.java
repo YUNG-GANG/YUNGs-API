@@ -12,6 +12,11 @@ import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
+/**
+ * Equivalent of vanilla {@link SinglePoolElement} with additional support for max_count setting.
+ * Deprecated. Use {@link YungJigsawSinglePoolElement} instead.
+ */
+@Deprecated
 public class MaxCountSinglePoolElement extends SinglePoolElement implements IMaxCountJigsawPiece {
     public static final Codec<MaxCountSinglePoolElement> CODEC = RecordCodecBuilder.create((builder) -> builder
         .group(

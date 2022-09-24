@@ -12,6 +12,10 @@ import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
+/**
+ * Equivalent of vanilla {@link LegacySinglePoolElement} with additional support for max_count setting.
+ * Prefer using {@link YungJigsawSinglePoolElement} if possible instead.
+ */
 public class MaxCountLegacySinglePoolElement extends LegacySinglePoolElement implements IMaxCountJigsawPiece {
     public static final Codec<MaxCountLegacySinglePoolElement> CODEC = RecordCodecBuilder.create((builder) -> builder
         .group(

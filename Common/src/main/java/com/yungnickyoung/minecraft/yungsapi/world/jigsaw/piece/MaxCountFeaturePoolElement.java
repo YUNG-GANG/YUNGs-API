@@ -11,6 +11,10 @@ import net.minecraft.world.level.levelgen.structure.pools.FeaturePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 
+/**
+ * Equivalent of vanilla {@link FeaturePoolElement} with additional support for max_count setting.
+ * Prefer using {@link YungJigsawSinglePoolElement} if possible instead.
+ */
 public class MaxCountFeaturePoolElement extends FeaturePoolElement implements IMaxCountJigsawPiece {
     public static final Codec<MaxCountFeaturePoolElement> CODEC = RecordCodecBuilder.create((builder) -> builder
         .group(

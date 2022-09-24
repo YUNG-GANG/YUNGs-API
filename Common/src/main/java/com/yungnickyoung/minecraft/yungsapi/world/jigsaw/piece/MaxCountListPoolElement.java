@@ -12,6 +12,10 @@ import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Equivalent of vanilla {@link ListPoolElement} with additional support for max_count setting.
+ * Prefer using {@link YungJigsawSinglePoolElement} if possible instead.
+ */
 public class MaxCountListPoolElement extends ListPoolElement implements IMaxCountJigsawPiece {
     public static final Codec<MaxCountListPoolElement> CODEC = RecordCodecBuilder.create((builder) -> builder
         .group(
