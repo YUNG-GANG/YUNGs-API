@@ -6,6 +6,7 @@ import com.mojang.datafixers.util.Pair;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.BoundingBoxAccessor;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.StructureTemplatePoolAccessor;
+import com.yungnickyoung.minecraft.yungsapi.util.BoxOctree;
 import com.yungnickyoung.minecraft.yungsapi.world.condition.ConditionContext;
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.IMaxCountJigsawPiece;
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.YungJigsawSinglePoolElement;
@@ -30,9 +31,6 @@ import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.shapes.BooleanOp;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.*;
@@ -119,34 +117,28 @@ public class JigsawManager {
                 return;
             }
 
-            // We expand the bounding box of the start piece each direction.
-            // Make sure the supplied radius is large enough to cover the size of your entire piece.
+            // Establish max bounds of entire structure.
+            // Make sure the supplied distance is large enough to cover the size of your entire structure.
             AABB aABB = new AABB(
                     pieceCenterX - maxDistanceFromCenter, adjustedPieceCenterY - maxDistanceFromCenter, pieceCenterZ - maxDistanceFromCenter,
                     pieceCenterX + maxDistanceFromCenter + 1, adjustedPieceCenterY + maxDistanceFromCenter + 1, pieceCenterZ + maxDistanceFromCenter + 1);
+            BoxOctree maxStructureBounds = new BoxOctree(aABB); // The maximum boundary of the entire structure
+            maxStructureBounds.addBox(AABB.of(pieceBoundingBox)); // Add start piece to our structure's bounds
 
             // Create placer + initial entry
-            Placer placer = new Placer(registry, maxDepth, chunkGenerator, structureManager, pieces, worldgenRandom, maxY, minY);
-            PieceState startPieceEntry = new PieceState(
-                    startPiece,
-                    new MutableObject<>(
-                            Shapes.join(
-                                    Shapes.create(aABB),
-                                    Shapes.create(AABB.of(pieceBoundingBox)),
-                                    BooleanOp.ONLY_FIRST
-                            )
-                    ),
-                    0
-            );
+            Assembler assembler = new Assembler(registry, maxDepth, chunkGenerator, structureManager, pieces, worldgenRandom, maxY, minY);
+            PieceEntry startPieceEntry = new PieceEntry(startPiece, new MutableObject<>(maxStructureBounds), 0);
 
             // Add the start piece to the placer
-            placer.placing.addLast(startPieceEntry);
+            assembler.pieceQueue.addLast(startPieceEntry);
 
-            // Place the structure
-            while (!placer.placing.isEmpty()) {
-                PieceState entry = placer.placing.removeFirst();
-                placer.tryPlacingChildren(entry.piece, entry.free, entry.depth, useExpansionHack, levelHeightAccessor, generationContext.randomState());
+            // Assemble the structure
+            while (!assembler.pieceQueue.isEmpty()) {
+                PieceEntry entry = assembler.pieceQueue.removeFirst();
+                assembler.processPiece(entry.piece, entry.boxOctreeMutableObject, entry.depth, useExpansionHack, levelHeightAccessor, generationContext.randomState());
             }
+
+            // Add all assembled pieces to the structure builder. These will be placed at a later stage of worldgen.
             pieces.forEach(structurePiecesBuilder::addPiece);
         }));
     }
@@ -163,7 +155,7 @@ public class JigsawManager {
         return Optional.empty();
     }
 
-    public static final class Placer {
+    public static final class Assembler {
         // Vanilla
         private final Registry<StructureTemplatePool> poolRegistry;
         private final int maxDepth;
@@ -171,15 +163,15 @@ public class JigsawManager {
         private final StructureTemplateManager structureTemplateManager;
         private final List<? super PoolElementStructurePiece> pieces;
         private final RandomSource rand;
-        public final Deque<PieceState> placing = Queues.newArrayDeque();
+        public final Deque<PieceEntry> pieceQueue = Queues.newArrayDeque();
 
-        // Additional behavior
+        // Additional, non-vanilla behavior
         private final Map<String, Integer> pieceCounts;
         private final Map<String, Integer> maxPieceCounts;
         private final Optional<Integer> maxY;
         private final Optional<Integer> minY;
 
-        public Placer(
+        public Assembler(
                 Registry<StructureTemplatePool> poolRegistry,
                 int maxDepth,
                 ChunkGenerator chunkGenerator,
@@ -203,9 +195,9 @@ public class JigsawManager {
             this.minY = minY;
         }
 
-        public void tryPlacingChildren(
+        public void processPiece(
                 PoolElementStructurePiece piece,
-                MutableObject<VoxelShape> voxelShape,
+                MutableObject<BoxOctree> boxOctree,
                 int depth,
                 boolean useExpansionHack,
                 LevelHeightAccessor levelHeightAccessor,
@@ -217,9 +209,7 @@ public class JigsawManager {
             Rotation pieceRotation = piece.getRotation();
             BoundingBox pieceBoundingBox = piece.getBoundingBox();
             int pieceMinY = pieceBoundingBox.minY();
-
-            // I think this is a holder variable for reuse
-            MutableObject<VoxelShape> tempNewPieceVoxelShape = new MutableObject<>();
+            MutableObject<BoxOctree> parentOctree = new MutableObject<>();
 
             // Get list of all jigsaw blocks in this piece
             List<StructureTemplate.StructureBlockInfo> pieceJigsawBlocks = pieceBlueprint.getShuffledJigsawBlocks(this.structureTemplateManager, piecePos, pieceRotation, this.rand);
@@ -252,30 +242,31 @@ public class JigsawManager {
 
                 // Adjustments for if the target block position is inside the current piece
                 boolean isTargetInsideCurrentPiece = pieceBoundingBox.isInside(jigsawBlockTargetPos);
-                MutableObject<VoxelShape> pieceVoxelShape;
+                MutableObject<BoxOctree> octreeToUse;
                 if (isTargetInsideCurrentPiece) {
-                    pieceVoxelShape = tempNewPieceVoxelShape;
-                    if (tempNewPieceVoxelShape.getValue() == null) {
-                        tempNewPieceVoxelShape.setValue(Shapes.create(AABB.of(pieceBoundingBox)));
+                    octreeToUse = parentOctree;
+                    if (parentOctree.getValue() == null) {
+                        parentOctree.setValue(new BoxOctree(AABB.of(pieceBoundingBox)));
                     }
                 } else {
-                    pieceVoxelShape = voxelShape;
+                    octreeToUse = boxOctree;
                 }
 
                 // Process the pool pieces, randomly choosing different pieces from the pool to spawn
                 if (depth != this.maxDepth) {
-                    StructurePoolElement generatedPiece = this.processList(new ArrayList<>(((StructureTemplatePoolAccessor) poolOptional.get()).getRawTemplates()), useExpansionHack, jigsawBlockInfo, jigsawBlockTargetPos, pieceMinY, jigsawBlockPos, pieceVoxelShape, piece, depth, levelHeightAccessor, randomState);
+                    StructurePoolElement generatedPiece = this.processList(
+                            new ArrayList<>(((StructureTemplatePoolAccessor) poolOptional.get()).getRawTemplates()), useExpansionHack, jigsawBlockInfo, jigsawBlockTargetPos, pieceMinY, jigsawBlockPos, octreeToUse, piece, depth, levelHeightAccessor, randomState);
                     if (generatedPiece != null) continue; // Stop here since we've already generated the piece
                 }
 
                 // Process the fallback pieces in the event none of the pool pieces work
-                this.processList(new ArrayList<>(((StructureTemplatePoolAccessor) fallbackOptional.get()).getRawTemplates()), useExpansionHack, jigsawBlockInfo, jigsawBlockTargetPos, pieceMinY, jigsawBlockPos, pieceVoxelShape, piece, depth, levelHeightAccessor, randomState);
+                this.processList(new ArrayList<>(((StructureTemplatePoolAccessor) fallbackOptional.get()).getRawTemplates()), useExpansionHack, jigsawBlockInfo, jigsawBlockTargetPos, pieceMinY, jigsawBlockPos, octreeToUse, piece, depth, levelHeightAccessor, randomState);
             }
         }
 
         /**
          * Helper function. Searches candidatePieces for a suitable piece to spawn.
-         * All other params are intended to be passed directly from {@link Placer#tryPlacingChildren}
+         * All other params are intended to be passed directly from {@link Assembler#processPiece}
          *
          * @return The piece generated, or null if no suitable piece was found.
          */
@@ -286,14 +277,14 @@ public class JigsawManager {
                 BlockPos jigsawBlockTargetPos,
                 int pieceMinY,
                 BlockPos jigsawBlockPos,
-                MutableObject<VoxelShape> pieceVoxelShape,
+                MutableObject<BoxOctree> boxOctreeMutableObject,
                 PoolElementStructurePiece piece,
                 int depth,
                 LevelHeightAccessor levelHeightAccessor,
                 RandomState randomState
         ) {
-            StructureTemplatePool.Projection piecePlacementBehavior = piece.getElement().getProjection();
-            boolean isPieceRigid = piecePlacementBehavior == StructureTemplatePool.Projection.RIGID;
+            StructureTemplatePool.Projection pieceProjection = piece.getElement().getProjection();
+            boolean isPieceRigid = pieceProjection == StructureTemplatePool.Projection.RIGID;
             int jigsawBlockRelativeY = jigsawBlockPos.getY() - pieceMinY;
             int surfaceHeight = -1; // The y-coordinate of the surface. Only used if isPieceRigid is false.
 
@@ -473,16 +464,21 @@ public class JigsawManager {
 
                         // Final boundary check before adding the new piece.
                         // Not sure why the candidate box is shrunk by 0.25. Maybe just ensures no overlap for adjacent block positions?
-                        AABB aabbDeflated = AABB.of(adjustedCandidateBoundingBox).deflate(0.25);
+                        AABB aabb = AABB.of(adjustedCandidateBoundingBox);
+                        AABB aabbDeflated = aabb.deflate(0.25);
                         boolean pieceIgnoresBounds = false;
 
                         if (chosenPiece instanceof YungJigsawSinglePoolElement yungJigsawPiece) {
                             pieceIgnoresBounds = yungJigsawPiece.ignoresBounds();
                         }
 
-                        // Check for overlap with other pieces
-                        if (!pieceIgnoresBounds && Shapes.joinIsNotEmpty(pieceVoxelShape.getValue(), Shapes.create(aabbDeflated), BooleanOp.ONLY_SECOND)) {
-                            continue;
+                        // Validate piece boundaries
+                        if (!pieceIgnoresBounds) {
+                            boolean pieceIntersectsExistingPieces = boxOctreeMutableObject.getValue().intersectsAnyBox(aabbDeflated);
+                            boolean pieceIsContainedWithinStructureBoundaries = boxOctreeMutableObject.getValue().boundaryContains(aabbDeflated);
+                            if (pieceIntersectsExistingPieces || !pieceIsContainedWithinStructureBoundaries) {
+                                continue;
+                            }
                         }
 
                         // Validate conditions for this piece, if applicable
@@ -493,7 +489,8 @@ public class JigsawManager {
                             }
                         }
 
-                        pieceVoxelShape.setValue(Shapes.joinUnoptimized(pieceVoxelShape.getValue(), Shapes.create(AABB.of(adjustedCandidateBoundingBox)), BooleanOp.ONLY_FIRST));
+                        // At this point we are locked in for adding this piece, so add its box to the structure's
+                        boxOctreeMutableObject.getValue().addBox(aabb);
 
                         // Determine ground level delta for this new piece
                         int newPieceGroundLevelDelta = piece.getGroundLevelDelta();
@@ -545,13 +542,13 @@ public class JigsawManager {
                                         candidateJigsawBlockY - candidateJigsawBlockRelativeY + groundLevelDelta,
                                         jigsawBlockPos.getZ(),
                                         -candidateJigsawYOffsetNeeded,
-                                        piecePlacementBehavior)
+                                        pieceProjection)
                         );
 
                         // Add the piece
                         this.pieces.add(newPiece);
                         if (depth + 1 <= this.maxDepth) {
-                            this.placing.addLast(new PieceState(newPiece, pieceVoxelShape, depth + 1));
+                            this.pieceQueue.addLast(new PieceEntry(newPiece, boxOctreeMutableObject, depth + 1));
                         }
 
                         // Update piece count, if applicable
@@ -583,15 +580,6 @@ public class JigsawManager {
         }
     }
 
-    public static final class PieceState {
-        public final PoolElementStructurePiece piece;
-        public final MutableObject<VoxelShape> free;
-        public final int depth;
-
-        public PieceState(PoolElementStructurePiece piece, MutableObject<VoxelShape> voxelShape, int depth) {
-            this.piece = piece;
-            this.free = voxelShape;
-            this.depth = depth;
-        }
+    public record PieceEntry(PoolElementStructurePiece piece, MutableObject<BoxOctree> boxOctreeMutableObject, int depth) {
     }
 }
