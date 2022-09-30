@@ -81,7 +81,7 @@ public class BoxOctree {
 
         for (AABB parentInnerBox : innerBoxes) {
             for (BoxOctree octree : childrenOctants) {
-                if (octree.boundaryContainsFuzzy(parentInnerBox)) {
+                if (octree.boundaryIntersectsFuzzy(parentInnerBox)) {
                     octree.addBox(parentInnerBox);
                 }
             }
@@ -97,7 +97,7 @@ public class BoxOctree {
 
         if (!childrenOctants.isEmpty()) {
             for (BoxOctree octree : childrenOctants) {
-                if (octree.boundaryContainsFuzzy(axisAlignedBB)) {
+                if (octree.boundaryIntersectsFuzzy(axisAlignedBB)) {
                     octree.addBox(axisAlignedBB);
                 }
             }
@@ -113,7 +113,7 @@ public class BoxOctree {
         }
     }
 
-    public boolean boundaryContainsFuzzy(AABB axisAlignedBB) {
+    public boolean boundaryIntersectsFuzzy(AABB axisAlignedBB) {
         return boundary.inflate(axisAlignedBB.getSize() / 2).intersects(axisAlignedBB);
     }
 
