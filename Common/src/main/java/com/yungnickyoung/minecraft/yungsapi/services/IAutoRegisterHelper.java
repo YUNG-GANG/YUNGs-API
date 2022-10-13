@@ -5,6 +5,7 @@ import com.yungnickyoung.minecraft.yungsapi.autoregister.RegisterData;
 import java.util.List;
 
 public interface IAutoRegisterHelper {
-    List<RegisterData> getAllAutoRegisterFields();
+    List<RegisterData> getAllAutoRegisterFieldsInPackage(String packageName);
     void autoRegisterAllObjects(List<RegisterData> allRegisterData);
+    void processAllAutoRegEntriesForPackage(String packageName);
 }

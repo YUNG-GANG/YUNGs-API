@@ -12,15 +12,18 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
  * For more information, read about {@link com.yungnickyoung.minecraft.yungsapi.api.YungJigsawManager}
  */
 public class StructurePoolElementTypeModuleForge {
-    public static void init() {
+    public static void processEntries() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(StructurePoolElementTypeModuleForge::commonSetup);
     }
 
     private static void commonSetup(final FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> AutoRegistrationManager.STRUCTURE_POOL_ELEMENT_TYPES.forEach(StructurePoolElementTypeModuleForge::register));
+        event.enqueueWork(() -> AutoRegistrationManager.STRUCTURE_POOL_ELEMENT_TYPES.stream()
+                .filter(data -> !data.processed())
+                .forEach(StructurePoolElementTypeModuleForge::register));
     }
 
     private static void register(RegisterData data) {
         Registry.register(Registry.STRUCTURE_POOL_ELEMENT, data.name(),  (StructurePoolElementType<?>) data.object());
+        data.markProcessed();
     }
 }

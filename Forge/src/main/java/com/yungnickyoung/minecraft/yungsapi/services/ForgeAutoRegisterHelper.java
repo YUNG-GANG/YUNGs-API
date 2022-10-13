@@ -21,7 +21,7 @@ public class ForgeAutoRegisterHelper implements IAutoRegisterHelper {
     }
 
     @Override
-    public List<RegisterData> getAllAutoRegisterFields() {
+    public List<RegisterData> getAllAutoRegisterFieldsInPackage(String packageName) {
         List<RegisterData> allAutoRegisterData = new ArrayList<>();
         Map<Type, String> classModIds = new HashMap<>(); // Map of class to namespace
 
@@ -71,5 +71,12 @@ public class ForgeAutoRegisterHelper implements IAutoRegisterHelper {
                 });
 
         return allAutoRegisterData;
+    }
+
+    @Override
+    public void processAllAutoRegEntriesForPackage(String packageName) {
+        // No-op.
+        // In Forge, we scan for ALL AutoRegister annotations in ALL mods at the start,
+        // so there is actually no need for other mods to manually register their module package.
     }
 }

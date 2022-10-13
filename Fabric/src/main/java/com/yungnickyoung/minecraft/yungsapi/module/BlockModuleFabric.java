@@ -10,8 +10,10 @@ import net.minecraft.world.level.block.Block;
  * Registration of Blocks and BlockItems.
  */
 public class BlockModuleFabric {
-    public static void init() {
-        AutoRegistrationManager.BLOCKS.forEach(BlockModuleFabric::register);
+    public static void processEntries() {
+        AutoRegistrationManager.BLOCKS.stream()
+                .filter(data -> !data.processed())
+                .forEach(BlockModuleFabric::register);
     }
 
     private static void register(RegisterData data) {
@@ -25,5 +27,7 @@ public class BlockModuleFabric {
         if (autoRegisterBlock.hasItemProperties()) {
             ItemModuleFabric.registerBlockItem(data.name(), block, autoRegisterBlock.getItemProperties().get());
         }
+
+        data.markProcessed();
     }
 }

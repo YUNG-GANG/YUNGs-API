@@ -16,10 +16,10 @@ public class AutoRegistrationManager {
     public static final List<RegisterData> BLOCK_ENTITY_TYPES = new ArrayList<>();
     public static final List<RegisterData> CREATIVE_MODE_TABS = new ArrayList<>();
 
-    public static void init() {
+    public static void registerAnnotationsInPackage(String packageName) {
         // Scan all mod files to check for AutoRegister annotated fields.
         // Grab references to each of those fields so we can register them for the appropriate loader.
-        List<RegisterData> allAutoRegisterData = Services.AUTO_REGISTER.getAllAutoRegisterFields();
+        List<RegisterData> allAutoRegisterData = Services.AUTO_REGISTER.getAllAutoRegisterFieldsInPackage(packageName);
         Services.AUTO_REGISTER.autoRegisterAllObjects(allAutoRegisterData);
     }
 }

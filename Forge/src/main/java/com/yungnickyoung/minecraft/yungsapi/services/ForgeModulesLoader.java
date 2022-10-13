@@ -6,14 +6,18 @@ public class ForgeModulesLoader implements IModulesLoader {
     @Override
     public void loadModules() {
         IModulesLoader.super.loadModules(); // Load common modules
-        StructurePieceTypeModuleForge.init();
-        StructurePoolElementTypeModuleForge.init();
-        CriteriaModuleForge.init();
-        StructureTypeModuleForge.init();
-        CreativeModeTabModuleForge.init();
-        ItemModuleForge.init();
-        BlockModuleForge.init();
-        BlockEntityTypeModuleForge.init();
-        StructureProcessorTypeModuleForge.init();
+    }
+
+    @Override
+    public void processAllModuleEntries() {
+        StructurePieceTypeModuleForge.processEntries();
+        StructurePoolElementTypeModuleForge.processEntries();
+        CriteriaModuleForge.processEntries();
+        StructureTypeModuleForge.processEntries();
+        CreativeModeTabModuleForge.processEntries();
+        ItemModuleForge.processEntries();
+        BlockModuleForge.processEntries();
+        BlockEntityTypeModuleForge.processEntries();
+        StructureProcessorTypeModuleForge.processEntries();
     }
 }

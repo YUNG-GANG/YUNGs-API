@@ -11,15 +11,18 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
  * Registration of StructurePieceTypes.
  */
 public class StructurePieceTypeModuleForge {
-    public static void init() {
+    public static void processEntries() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(StructurePieceTypeModuleForge::commonSetup);
     }
 
     private static void commonSetup(final FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> AutoRegistrationManager.STRUCTURE_PIECE_TYPES.forEach(StructurePieceTypeModuleForge::register));
+        event.enqueueWork(() -> AutoRegistrationManager.STRUCTURE_PIECE_TYPES.stream()
+                .filter(data -> !data.processed())
+                .forEach(StructurePieceTypeModuleForge::register));
     }
 
     private static void register(RegisterData data) {
         Registry.register(Registry.STRUCTURE_PIECE, data.name(),  (StructurePieceType) data.object());
+        data.markProcessed();
     }
 }

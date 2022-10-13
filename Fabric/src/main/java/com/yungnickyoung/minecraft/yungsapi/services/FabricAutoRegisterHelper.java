@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.services;
 
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegister;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.RegisterData;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.RegisterDataRouter;
 import net.minecraft.resources.ResourceLocation;
@@ -21,13 +22,13 @@ public class FabricAutoRegisterHelper implements IAutoRegisterHelper {
     }
 
     @Override
-    public List<RegisterData> getAllAutoRegisterFields() {
+    public List<RegisterData> getAllAutoRegisterFieldsInPackage(String packageName) {
         List<RegisterData> allAutoRegisterData = new ArrayList<>();
 
         Reflections reflections = new Reflections(
                 new ConfigurationBuilder()
-                        .forPackage("com.yungnickyoung.minecraft")
-                        .filterInputsBy(new FilterBuilder().includePackage("com.yungnickyoung.minecraft"))
+                        .forPackage(packageName)
+                        .filterInputsBy(new FilterBuilder().includePackage(packageName))
                         .setScanners(Scanners.TypesAnnotated));
         Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(AutoRegister.class);
 
@@ -51,5 +52,11 @@ public class FabricAutoRegisterHelper implements IAutoRegisterHelper {
                     });
         });
         return allAutoRegisterData;
+    }
+
+    @Override
+    public void processAllAutoRegEntriesForPackage(String packageName) {
+        AutoRegistrationManager.registerAnnotationsInPackage(packageName);
+        FabricModulesLoader.processModuleEntries();
     }
 }

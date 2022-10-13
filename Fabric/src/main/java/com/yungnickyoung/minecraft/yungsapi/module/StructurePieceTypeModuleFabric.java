@@ -9,11 +9,14 @@ import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
  * Registration of StructurePieceTypes.
  */
 public class StructurePieceTypeModuleFabric {
-    public static void init() {
-        AutoRegistrationManager.STRUCTURE_PIECE_TYPES.forEach(StructurePieceTypeModuleFabric::register);
+    public static void processEntries() {
+        AutoRegistrationManager.STRUCTURE_PIECE_TYPES.stream()
+                .filter(data -> !data.processed())
+                .forEach(StructurePieceTypeModuleFabric::register);
     }
 
     private static void register(RegisterData data) {
         Registry.register(Registry.STRUCTURE_PIECE, data.name(), (StructurePieceType) data.object());
+        data.markProcessed();
     }
 }

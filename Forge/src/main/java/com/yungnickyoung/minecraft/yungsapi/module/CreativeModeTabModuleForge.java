@@ -2,6 +2,7 @@ package com.yungnickyoung.minecraft.yungsapi.module;
 
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterCreativeTab;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.RegisterData;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
@@ -24,40 +25,43 @@ public class CreativeModeTabModuleForge {
      */
     private static final Map<String, AutoRegisterCreativeTab> initializedTabs = new HashMap<>();
 
-    public static void init() {
-        // We subscribe to Register Event because it runs before Common Setup.
+    public static void processEntries() {
+        // We subscribe to RegisterEvent because it runs before Common Setup.
         // We subscribe to Block class because it runs before all other Register events, ensuring creative tabs will be initialized first.
         FMLJavaModLoadingContext.get().getModEventBus().addListener(EventPriority.HIGHEST, CreativeModeTabModuleForge::initializeTabs);
     }
 
     private static void initializeTabs(final RegisterEvent event) {
-        event.register(Registry.BLOCK_REGISTRY, helper -> {
-            AutoRegistrationManager.CREATIVE_MODE_TABS.forEach(data -> {
-                // Check cache to see if we already initialized this tab
-                ResourceLocation resourceLocation = data.name();
-                String name = String.format("%s.%s", resourceLocation.getNamespace(), resourceLocation.getPath());
-                if (initializedTabs.containsKey(name)) {
-                    return;
-                }
+        event.register(Registry.BLOCK_REGISTRY, helper -> AutoRegistrationManager.CREATIVE_MODE_TABS.stream()
+                .filter(data -> !data.processed())
+                .forEach(CreativeModeTabModuleForge::initializeTab));
+    }
 
-                // Extract data
-                AutoRegisterCreativeTab autoRegisterCreativeTab = (AutoRegisterCreativeTab) data.object();
-                Supplier<ItemStack> itemStackSupplier = autoRegisterCreativeTab.getIconItemStackSupplier();
+    private static void initializeTab(RegisterData data) {
+        // Check cache to see if we already initialized this tab
+        ResourceLocation resourceLocation = data.name();
+        String name = String.format("%s.%s", resourceLocation.getNamespace(), resourceLocation.getPath());
+        if (initializedTabs.containsKey(name)) {
+            return;
+        }
 
-                // Create tab
-                CreativeModeTab creativeModeTab = new CreativeModeTab(name) {
-                    @Override
-                    public ItemStack makeIcon() {
-                        return itemStackSupplier.get();
-                    }
-                };
+        // Extract data
+        AutoRegisterCreativeTab autoRegisterCreativeTab = (AutoRegisterCreativeTab) data.object();
+        Supplier<ItemStack> itemStackSupplier = autoRegisterCreativeTab.getIconItemStackSupplier();
 
-                // Update supplier to retrieve tab
-                autoRegisterCreativeTab.setSupplier(() -> creativeModeTab);
+        // Create tab
+        CreativeModeTab creativeModeTab = new CreativeModeTab(name) {
+            @Override
+            public ItemStack makeIcon() {
+                return itemStackSupplier.get();
+            }
+        };
 
-                // Add to cache
-                initializedTabs.put(name, autoRegisterCreativeTab);
-            });
-        });
+        // Update supplier to retrieve tab
+        autoRegisterCreativeTab.setSupplier(() -> creativeModeTab);
+
+        // Add to cache
+        initializedTabs.put(name, autoRegisterCreativeTab);
+        data.markProcessed();
     }
 }

@@ -9,11 +9,14 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProc
  * Registration of StructureProcessorTypes.
  */
 public class StructureProcessorTypeModuleFabric {
-    public static void init() {
-        AutoRegistrationManager.STRUCTURE_PROCESSOR_TYPES.forEach(StructureProcessorTypeModuleFabric::register);
+    public static void processEntries() {
+        AutoRegistrationManager.STRUCTURE_PROCESSOR_TYPES.stream()
+                .filter(data -> !data.processed())
+                .forEach(StructureProcessorTypeModuleFabric::register);
     }
 
     private static void register(RegisterData data) {
         Registry.register(Registry.STRUCTURE_PROCESSOR, data.name(),  (StructureProcessorType<?>) data.object());
+        data.markProcessed();
     }
 }

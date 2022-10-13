@@ -9,11 +9,14 @@ import net.minecraft.advancements.CriterionTrigger;
  * Registration of custom criteria triggers for advancements.
  */
 public class CriteriaModuleFabric {
-    public static void init() {
-        AutoRegistrationManager.CRITERION_TRIGGERS.forEach(CriteriaModuleFabric::register);
+    public static void processEntries() {
+        AutoRegistrationManager.CRITERION_TRIGGERS.stream()
+                .filter(data -> !data.processed())
+                .forEach(CriteriaModuleFabric::register);
     }
 
     private static void register(RegisterData data) {
         CriteriaTriggersAccessor.getValues().put(data.name(), (CriterionTrigger<?>) data.object());
+        data.markProcessed();
     }
 }

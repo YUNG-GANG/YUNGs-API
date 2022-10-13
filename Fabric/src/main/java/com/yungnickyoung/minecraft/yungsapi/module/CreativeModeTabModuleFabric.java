@@ -14,8 +14,10 @@ import java.util.function.Supplier;
  * Initialization of creative mode tabs.
  */
 public class CreativeModeTabModuleFabric {
-    public static void init() {
-        AutoRegistrationManager.CREATIVE_MODE_TABS.forEach(CreativeModeTabModuleFabric::initialize);
+    public static void processEntries() {
+        AutoRegistrationManager.CREATIVE_MODE_TABS.stream()
+                .filter(data -> !data.processed())
+                .forEach(CreativeModeTabModuleFabric::initialize);
     }
 
     private static void initialize(RegisterData data) {
@@ -29,5 +31,7 @@ public class CreativeModeTabModuleFabric {
 
         // Update supplier to retrieve tab
         autoRegisterCreativeTab.setSupplier(() -> creativeModeTab);
+
+        data.markProcessed();
     }
 }
