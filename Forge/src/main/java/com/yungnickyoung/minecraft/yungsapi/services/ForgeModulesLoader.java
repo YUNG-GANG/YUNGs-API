@@ -19,5 +19,6 @@ public class ForgeModulesLoader implements IModulesLoader {
         BlockModuleForge.processEntries();
         BlockEntityTypeModuleForge.processEntries();
         StructureProcessorTypeModuleForge.processEntries();
+        StructurePlacementTypeModuleForge.processEntries();
     }
 }

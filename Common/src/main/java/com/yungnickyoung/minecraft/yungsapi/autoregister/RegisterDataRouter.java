@@ -7,6 +7,7 @@ import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterItem;
 import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 
@@ -18,6 +19,8 @@ public class RegisterDataRouter {
             AutoRegistrationManager.STRUCTURE_POOL_ELEMENT_TYPES.add(registerData);
         } else if (registerData.object() instanceof StructurePieceType) {
             AutoRegistrationManager.STRUCTURE_PIECE_TYPES.add(registerData);
+        } else if (registerData.object() instanceof StructurePlacementType<?>) {
+            AutoRegistrationManager.STRUCTURE_PLACEMENT_TYPES.add(registerData);
         } else if (registerData.object() instanceof CriterionTrigger) {
             AutoRegistrationManager.CRITERION_TRIGGERS.add(registerData);
         } else if (registerData.object() instanceof AutoRegisterBlock) {

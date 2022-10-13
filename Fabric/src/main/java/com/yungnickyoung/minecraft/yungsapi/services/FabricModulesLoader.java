@@ -28,5 +28,6 @@ public class FabricModulesLoader implements IModulesLoader {
         BlockModuleFabric.processEntries();
         BlockEntityTypeModuleFabric.processEntries();
         StructureProcessorTypeModuleFabric.processEntries();
+        StructurePlacementTypeModuleFabric.processEntries();
     }
 }
