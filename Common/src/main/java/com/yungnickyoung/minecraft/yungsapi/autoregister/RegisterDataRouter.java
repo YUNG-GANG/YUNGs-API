@@ -5,6 +5,8 @@ import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterBlockEn
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterCreativeTab;
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterItem;
 import net.minecraft.advancements.CriterionTrigger;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
@@ -21,6 +23,10 @@ public class RegisterDataRouter {
             AutoRegistrationManager.STRUCTURE_PIECE_TYPES.add(registerData);
         } else if (registerData.object() instanceof StructurePlacementType<?>) {
             AutoRegistrationManager.STRUCTURE_PLACEMENT_TYPES.add(registerData);
+        } else if (registerData.object() instanceof Feature<?>) {
+            AutoRegistrationManager.FEATURES.add(registerData);
+        } else if (registerData.object() instanceof PlacementModifierType<?>) {
+            AutoRegistrationManager.PLACEMENT_MODIFIER_TYPES.add(registerData);
         } else if (registerData.object() instanceof CriterionTrigger) {
             AutoRegistrationManager.CRITERION_TRIGGERS.add(registerData);
         } else if (registerData.object() instanceof AutoRegisterBlock) {

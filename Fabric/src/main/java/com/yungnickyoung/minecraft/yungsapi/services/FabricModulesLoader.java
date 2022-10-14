@@ -23,6 +23,8 @@ public class FabricModulesLoader implements IModulesLoader {
         StructurePoolElementTypeModuleFabric.processEntries();
         CriteriaModuleFabric.processEntries();
         StructureTypeModuleFabric.processEntries();
+        FeatureModuleFabric.processEntries();
+        PlacementModifierTypeModuleFabric.processEntries();
         CreativeModeTabModuleFabric.processEntries();
         ItemModuleFabric.processEntries();
         BlockModuleFabric.processEntries();

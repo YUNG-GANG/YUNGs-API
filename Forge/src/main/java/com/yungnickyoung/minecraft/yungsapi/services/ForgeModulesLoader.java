@@ -14,6 +14,8 @@ public class ForgeModulesLoader implements IModulesLoader {
         StructurePoolElementTypeModuleForge.processEntries();
         CriteriaModuleForge.processEntries();
         StructureTypeModuleForge.processEntries();
+        FeatureModuleForge.processEntries();
+        PlacementModifierTypeModuleForge.processEntries();
         CreativeModeTabModuleForge.processEntries();
         ItemModuleForge.processEntries();
         BlockModuleForge.processEntries();
