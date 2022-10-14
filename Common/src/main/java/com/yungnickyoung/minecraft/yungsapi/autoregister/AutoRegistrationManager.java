@@ -18,6 +18,8 @@ public class AutoRegistrationManager {
     public static final List<RegisterData> ITEMS = new ArrayList<>();
     public static final List<RegisterData> BLOCK_ENTITY_TYPES = new ArrayList<>();
     public static final List<RegisterData> CREATIVE_MODE_TABS = new ArrayList<>();
+    public static final List<RegisterData> SOUND_EVENTS = new ArrayList<>();
+    public static final List<RegisterData> COMMANDS = new ArrayList<>();
 
     public static void registerAnnotationsInPackage(String packageName) {
         // Scan all mod files to check for AutoRegister annotated fields.

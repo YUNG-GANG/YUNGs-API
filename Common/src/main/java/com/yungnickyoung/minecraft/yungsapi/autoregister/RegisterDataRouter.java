@@ -1,9 +1,6 @@
 package com.yungnickyoung.minecraft.yungsapi.autoregister;
 
-import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterBlock;
-import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterBlockEntityType;
-import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterCreativeTab;
-import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterItem;
+import com.yungnickyoung.minecraft.yungsapi.api.autoregister.*;
 import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
@@ -39,6 +36,10 @@ public class RegisterDataRouter {
             AutoRegistrationManager.BLOCK_ENTITY_TYPES.add(registerData);
         } else if (registerData.object() instanceof AutoRegisterCreativeTab) {
             AutoRegistrationManager.CREATIVE_MODE_TABS.add(registerData);
+        } else if (registerData.object() instanceof AutoRegisterSoundEvent) {
+            AutoRegistrationManager.SOUND_EVENTS.add(registerData);
+        } else if (registerData.object() instanceof AutoRegisterCommand) {
+            AutoRegistrationManager.COMMANDS.add(registerData);
         }
     }
 }

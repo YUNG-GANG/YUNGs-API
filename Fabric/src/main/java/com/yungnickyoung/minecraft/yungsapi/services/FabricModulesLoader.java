@@ -19,6 +19,8 @@ public class FabricModulesLoader implements IModulesLoader {
      * system for Forge does not actually use the package name passed in for AutoReg.
      */
     public static void processModuleEntries() {
+        SoundEventModuleFabric.processEntries();
+        CommandModuleFabric.processEntries();
         StructurePieceTypeModuleFabric.processEntries();
         StructurePoolElementTypeModuleFabric.processEntries();
         CriteriaModuleFabric.processEntries();

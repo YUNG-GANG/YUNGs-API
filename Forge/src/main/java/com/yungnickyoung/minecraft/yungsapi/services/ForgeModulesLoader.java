@@ -10,6 +10,8 @@ public class ForgeModulesLoader implements IModulesLoader {
 
     @Override
     public void processAllModuleEntries() {
+        SoundEventModuleForge.processEntries();
+        CommandModuleForge.processEntries();
         StructurePieceTypeModuleForge.processEntries();
         StructurePoolElementTypeModuleForge.processEntries();
         CriteriaModuleForge.processEntries();
