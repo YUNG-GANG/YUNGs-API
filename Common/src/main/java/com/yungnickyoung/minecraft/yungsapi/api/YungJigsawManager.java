@@ -41,6 +41,7 @@ import java.util.Optional;
  *   can be used in a single instance of the entire structure. If multiple entries share the same name, they
  *   should have matching max_count's as well. A warning will be logged if they do not match, and behavior may be unexpected.</li>
  * </ol>
+ * <p>
  * Note that the <i>max_count</i> behavior is also supported by the {@link YungJigsawSinglePoolElement}, so there is never
  * any reason to use {@link MaxCountSinglePoolElement}
  * </p>
