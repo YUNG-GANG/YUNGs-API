@@ -46,18 +46,18 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
 
     /**
      * The name of this piece.
-     * Used to uniquely identify pieces for the sake of tracking max_count.
+     * Solely used to uniquely identify pieces for the sake of tracking max_count.
      */
     public final Optional<String> name;
 
     /**
-     * The minimum required distance (in jigsaw pieces) from the structure start
+     * The minimum required depth (in jigsaw pieces) from the structure start
      * at which this piece can spawn.
      */
     public final Optional<Integer> minRequiredDepth;
 
     /**
-     * The maximum allowed distance (in jigsaw pieces) from the structure start
+     * The maximum allowed depth (in jigsaw pieces) from the structure start
      * at which this piece will no longer spawn.
      */
     public final Optional<Integer> maxPossibleDepth;
@@ -71,7 +71,7 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
 
     /**
      * Whether this piece should ignore the usual piece boundary checks.
-     * Enabling this allows this piece to spawn partially overlap other pieces.
+     * Enabling this allows this piece to spawn while overlapping other pieces.
      */
     public final boolean ignoreBounds;
 

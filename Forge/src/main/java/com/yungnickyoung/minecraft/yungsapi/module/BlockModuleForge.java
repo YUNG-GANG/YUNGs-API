@@ -2,7 +2,7 @@ package com.yungnickyoung.minecraft.yungsapi.module;
 
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterBlock;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
-import com.yungnickyoung.minecraft.yungsapi.autoregister.RegisterData;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -22,7 +22,7 @@ public class BlockModuleForge {
                 .forEach(data -> registerBlock(data, helper)));
     }
 
-    private static void registerBlock(RegisterData data, RegisterEvent.RegisterHelper<Block> helper) {
+    private static void registerBlock(AutoRegisterField data, RegisterEvent.RegisterHelper<Block> helper) {
         AutoRegisterBlock autoRegisterBlock = (AutoRegisterBlock) data.object();
         Block block = autoRegisterBlock.get();
         helper.register(data.name(), block);

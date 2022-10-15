@@ -2,7 +2,7 @@ package com.yungnickyoung.minecraft.yungsapi.module;
 
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterSoundEvent;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
-import com.yungnickyoung.minecraft.yungsapi.autoregister.RegisterData;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
@@ -22,7 +22,7 @@ public class SoundEventModuleForge {
         AutoRegistrationManager.SOUND_EVENTS.forEach(SoundEventModuleForge::register);
     }
 
-    private static void register(RegisterData data) {
+    private static void register(AutoRegisterField data) {
         // Create & register deferred registry for current mod, if necessary
         String modId = data.name().getNamespace();
         if (!registersByModId.containsKey(modId)) {

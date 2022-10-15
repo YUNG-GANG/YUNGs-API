@@ -3,7 +3,7 @@ package com.yungnickyoung.minecraft.yungsapi.module;
 import com.mojang.brigadier.CommandDispatcher;
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterCommand;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
-import com.yungnickyoung.minecraft.yungsapi.autoregister.RegisterData;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -24,7 +24,7 @@ public class CommandModuleForge {
                 .forEach(data -> registerCommand(data, event.getDispatcher(), event.getBuildContext(), event.getCommandSelection()));
     }
 
-    private static void registerCommand(RegisterData data,
+    private static void registerCommand(AutoRegisterField data,
                                         CommandDispatcher<CommandSourceStack> dispatcher,
                                         CommandBuildContext context,
                                         Commands.CommandSelection selection) {

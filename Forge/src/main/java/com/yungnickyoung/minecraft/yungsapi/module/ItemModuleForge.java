@@ -3,7 +3,7 @@ package com.yungnickyoung.minecraft.yungsapi.module;
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterBlock;
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterItem;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
-import com.yungnickyoung.minecraft.yungsapi.autoregister.RegisterData;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import net.minecraft.core.Registry;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -30,7 +30,7 @@ public class ItemModuleForge {
         });
     }
 
-    private static void registerBlockItem(RegisterData data, RegisterEvent.RegisterHelper<Item> helper) {
+    private static void registerBlockItem(AutoRegisterField data, RegisterEvent.RegisterHelper<Item> helper) {
         AutoRegisterBlock autoRegisterBlock = (AutoRegisterBlock) data.object();
         if (autoRegisterBlock.hasItemProperties()) {
             BlockItem blockItem = new BlockItem(autoRegisterBlock.get(), autoRegisterBlock.getItemProperties().get());
@@ -38,7 +38,7 @@ public class ItemModuleForge {
         }
     }
 
-    private static void registerItem(RegisterData data, RegisterEvent.RegisterHelper<Item> helper) {
+    private static void registerItem(AutoRegisterField data, RegisterEvent.RegisterHelper<Item> helper) {
         AutoRegisterItem autoRegisterItem = (AutoRegisterItem) data.object();
         Item item = autoRegisterItem.get();
         helper.register(data.name(), item);

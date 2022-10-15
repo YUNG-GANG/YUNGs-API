@@ -1,30 +1,24 @@
 package com.yungnickyoung.minecraft.yungsapi.services;
 
+import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegister;
-import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
-import com.yungnickyoung.minecraft.yungsapi.autoregister.RegisterData;
-import com.yungnickyoung.minecraft.yungsapi.autoregister.RegisterDataRouter;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterFieldRouter;
+import com.yungnickyoung.minecraft.yungsapi.module.*;
 import net.minecraft.resources.ResourceLocation;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
-import java.util.ArrayList;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
 public class FabricAutoRegisterHelper implements IAutoRegisterHelper {
     @Override
-    public void autoRegisterAllObjects(List<RegisterData> allRegisterData) {
-        allRegisterData.forEach(RegisterDataRouter::queueRegisterData);
-    }
-
-    @Override
-    public List<RegisterData> getAllAutoRegisterFieldsInPackage(String packageName) {
-        List<RegisterData> allAutoRegisterData = new ArrayList<>();
-
+    public void collectAllAutoRegisterFieldsInPackage(String packageName) {
+        // Collect all AutoRegister annotated classes in package
         Reflections reflections = new Reflections(
                 new ConfigurationBuilder()
                         .forPackage(packageName)
@@ -32,31 +26,68 @@ public class FabricAutoRegisterHelper implements IAutoRegisterHelper {
                         .setScanners(Scanners.TypesAnnotated));
         Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(AutoRegister.class);
 
-        annotatedClasses.stream().forEach(clazz -> {
+        annotatedClasses.forEach(clazz -> {
             String modId = clazz.getAnnotation(AutoRegister.class).value();
+
+            // Scan each class for AutoRegister annotated fields and queue them for registration
             Arrays.stream(clazz.getDeclaredFields())
-                    .peek(f -> f.setAccessible(true))
                     .filter(field -> field.isAnnotationPresent(AutoRegister.class))
-                    .forEach(f -> {
-                        String name = f.getAnnotation(AutoRegister.class).value();
+                    .forEach(field -> {
+                        field.setAccessible(true);
+                        String name = field.getAnnotation(AutoRegister.class).value();
                         Object o;
                         try {
-                            o = f.get(null);
+                            o = field.get(null);
                         } catch (IllegalAccessException e) {
                             // Impossible?
                             throw new RuntimeException(e);
                         }
                         ResourceLocation resourceLocation = new ResourceLocation(modId, name);
-                        RegisterData registerData = new RegisterData(o, resourceLocation);
-                        allAutoRegisterData.add(registerData);
+                        AutoRegisterField autoRegisterField = new AutoRegisterField(o, resourceLocation);
+                        AutoRegisterFieldRouter.queueField(autoRegisterField);
                     });
         });
-        return allAutoRegisterData;
     }
 
     @Override
-    public void processAllAutoRegEntriesForPackage(String packageName) {
-        AutoRegistrationManager.registerAnnotationsInPackage(packageName);
-        FabricModulesLoader.processModuleEntries();
+    public void invokeAllAutoRegisterMethods(String packageName) {
+        // Collect all AutoRegister annotated classes in package
+        Reflections reflections = new Reflections(
+                new ConfigurationBuilder()
+                        .forPackage(packageName)
+                        .filterInputsBy(new FilterBuilder().includePackage(packageName))
+                        .setScanners(Scanners.TypesAnnotated));
+        Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(AutoRegister.class);
+
+        // Scan each class for AutoRegister annotated methods and invoke them
+        annotatedClasses.forEach(clazz -> Arrays.stream(clazz.getDeclaredMethods())
+                .filter(method -> method.isAnnotationPresent(AutoRegister.class))
+                .forEach(method -> {
+                    method.setAccessible(true);
+                    try {
+                        method.invoke(null);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        YungsApiCommon.LOGGER.error("Unable to invoke method {} - make sure it's static and has no args!", method.getName());
+                        throw new RuntimeException(e);
+                    }
+                }));
+    }
+
+    @Override
+    public void processQueuedAutoRegEntries() {
+        SoundEventModuleFabric.processEntries();
+        CommandModuleFabric.processEntries();
+        StructurePieceTypeModuleFabric.processEntries();
+        StructurePoolElementTypeModuleFabric.processEntries();
+        CriteriaModuleFabric.processEntries();
+        StructureTypeModuleFabric.processEntries();
+        FeatureModuleFabric.processEntries();
+        PlacementModifierTypeModuleFabric.processEntries();
+        CreativeModeTabModuleFabric.processEntries();
+        ItemModuleFabric.processEntries();
+        BlockModuleFabric.processEntries();
+        BlockEntityTypeModuleFabric.processEntries();
+        StructureProcessorTypeModuleFabric.processEntries();
+        StructurePlacementTypeModuleFabric.processEntries();
     }
 }

@@ -2,7 +2,7 @@ package com.yungnickyoung.minecraft.yungsapi.module;
 
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterCreativeTab;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
-import com.yungnickyoung.minecraft.yungsapi.autoregister.RegisterData;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
@@ -37,7 +37,7 @@ public class CreativeModeTabModuleForge {
                 .forEach(CreativeModeTabModuleForge::initializeTab));
     }
 
-    private static void initializeTab(RegisterData data) {
+    private static void initializeTab(AutoRegisterField data) {
         // Check cache to see if we already initialized this tab
         ResourceLocation resourceLocation = data.name();
         String name = String.format("%s.%s", resourceLocation.getNamespace(), resourceLocation.getPath());

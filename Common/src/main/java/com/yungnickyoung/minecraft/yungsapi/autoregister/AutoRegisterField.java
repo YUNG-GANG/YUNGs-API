@@ -2,12 +2,12 @@ package com.yungnickyoung.minecraft.yungsapi.autoregister;
 
 import net.minecraft.resources.ResourceLocation;
 
-public class RegisterData {
+public class AutoRegisterField {
     public Object object;
     public ResourceLocation name;
     public boolean processed;
 
-    public RegisterData(Object object, ResourceLocation name) {
+    public AutoRegisterField(Object object, ResourceLocation name) {
         this.object = object;
         this.name = name;
         this.processed = false;

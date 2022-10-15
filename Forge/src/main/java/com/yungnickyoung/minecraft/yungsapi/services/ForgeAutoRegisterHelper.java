@@ -2,9 +2,10 @@ package com.yungnickyoung.minecraft.yungsapi.services;
 
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegister;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterFieldRouter;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
-import com.yungnickyoung.minecraft.yungsapi.autoregister.RegisterData;
-import com.yungnickyoung.minecraft.yungsapi.autoregister.RegisterDataRouter;
+import com.yungnickyoung.minecraft.yungsapi.module.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.ModFileScanData;
@@ -12,71 +13,130 @@ import org.objectweb.asm.Type;
 
 import java.lang.annotation.ElementType;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 
 public class ForgeAutoRegisterHelper implements IAutoRegisterHelper {
     @Override
-    public void autoRegisterAllObjects(List<RegisterData> allRegisterData) {
-        allRegisterData.forEach(RegisterDataRouter::queueRegisterData);
-    }
+    public void collectAllAutoRegisterFieldsInPackage(String packageName) {
+        Map<Type, String> classToNamespaceMap = new HashMap<>();
 
-    @Override
-    public List<RegisterData> getAllAutoRegisterFieldsInPackage(String packageName) {
-        List<RegisterData> allAutoRegisterData = new ArrayList<>();
-        Map<Type, String> classModIds = new HashMap<>(); // Map of class to namespace
-
-        final List<ModFileScanData.AnnotationData> annotations = ModList.get().getAllScanData().stream()
+        // Collect all AutoRegister annotations
+        List<ModFileScanData.AnnotationData> annotations = ModList.get().getAllScanData().stream()
                 .map(ModFileScanData::getAnnotations)
                 .flatMap(Collection::stream)
                 .filter(a -> a.annotationType().equals(Type.getType(AutoRegister.class)))
                 .toList();
 
-        // First pass -> gather all modIds from class-level annotations
+        // First pass -> gather all modIds from class-level annotations.
+        // Used for namespacing fields.
         annotations.stream()
                 .filter(data -> data.targetType() == ElementType.TYPE)
-                .forEach(data -> classModIds.put(data.clazz(), (String) data.annotationData().get("value")));
+                .forEach(data -> classToNamespaceMap.put(data.clazz(), (String) data.annotationData().get("value")));
 
-        // Second pass -> store values for registration from field-level annotations
+        // Second pass -> scrape all annotated fields & queue for registration
         annotations.stream()
                 .filter(data -> data.targetType() == ElementType.FIELD)
                 .forEach(data -> {
-                    String modId = classModIds.get(data.clazz());
+                    // Check mod ID
+                    String modId = classToNamespaceMap.get(data.clazz());
                     if (modId == null) {
                         YungsApiCommon.LOGGER.error("Missing class AutoRegister annotation for field {}", data.memberName());
                         return;
                     }
+
+                    // Get containing class
                     Class<?> clazz;
                     try {
                         clazz = Class.forName(data.clazz().getClassName(), false, AutoRegistrationManager.class.getClassLoader());
                     } catch (ClassNotFoundException e) {
-                        // Impossible?
+                        YungsApiCommon.LOGGER.error("Unable to find class containing AutoRegister field {}. This shouldn't happen!", data.memberName());
+                        YungsApiCommon.LOGGER.error("If you're using AutoRegister on a field, make sure the containing class is also using the AutoRegister annotation with your mod ID as the value.");
                         throw new RuntimeException(e);
                     }
+
+                    // Get field
                     Field f;
                     try {
                         f = clazz.getDeclaredField(data.memberName());
                     } catch (NoSuchFieldException e) {
-                        // Impossible?
+                        YungsApiCommon.LOGGER.error("Unable to find AutoRegister field with name {} in class {}. This shouldn't happen!", data.memberName(), clazz.getName());
                         throw new RuntimeException(e);
                     }
+
+                    // Get field value
                     Object o;
                     try {
                         o = f.get(null);
                     } catch (IllegalAccessException e) {
                         // Impossible?
+                        YungsApiCommon.LOGGER.error("Unable to get value for AutoRegister field {}. This shouldn't happen!", data.memberName());
                         throw new RuntimeException(e);
                     }
-                    RegisterData registerData = new RegisterData(o, new ResourceLocation(modId, (String) data.annotationData().get("value")));
-                    allAutoRegisterData.add(registerData);
-                });
 
-        return allAutoRegisterData;
+                    // Queue for registration
+                    String name = (String) data.annotationData().get("value");
+                    AutoRegisterField autoRegisterField = new AutoRegisterField(o, new ResourceLocation(modId, name));
+                    AutoRegisterFieldRouter.queueField(autoRegisterField);
+                });
     }
 
     @Override
-    public void processAllAutoRegEntriesForPackage(String packageName) {
-        // No-op.
-        // In Forge, we scan for ALL AutoRegister annotations in ALL mods at the start,
-        // so there is actually no need for other mods to manually register their module package.
+    public void invokeAllAutoRegisterMethods(String packageName) {
+        List<Method> methods = new ArrayList<>();
+
+        // Collect all AutoRegister annotations
+        List<ModFileScanData.AnnotationData> annotations = ModList.get().getAllScanData().stream()
+                .map(ModFileScanData::getAnnotations)
+                .flatMap(Collection::stream)
+                .filter(a -> a.annotationType().equals(Type.getType(AutoRegister.class)))
+                .toList();
+
+        // Scan all annotated methods
+        annotations.stream()
+                .filter(data -> data.targetType() == ElementType.METHOD)
+                .forEach(data -> {
+                    // Get containing class
+                    Class<?> clazz;
+                    try {
+                        clazz = Class.forName(data.clazz().getClassName(), false, AutoRegistrationManager.class.getClassLoader());
+                    } catch (ClassNotFoundException e) {
+                        YungsApiCommon.LOGGER.error("Unable to find class containing AutoRegister method {}. This shouldn't happen!", data.memberName());
+                        YungsApiCommon.LOGGER.error("If you're using AutoRegister on a method, make sure the containing class is also using the AutoRegister annotation with your mod ID as the value.");
+                        throw new RuntimeException(e);
+                    }
+
+                    // Get method
+                    Method m;
+                    try {
+                        m = clazz.getDeclaredMethod(data.memberName().substring(0, data.memberName().indexOf("(")));
+                    } catch (NoSuchMethodException e) {
+                        YungsApiCommon.LOGGER.error("Unable to find AutoRegister method with name {} in class {}. This shouldn't happen!", data.memberName(), clazz.getName());
+                        throw new RuntimeException(e);
+                    }
+                    m.setAccessible(true);
+                    methods.add(m);
+                });
+
+        PostLoadModuleForge.METHODS.addAll(methods);
+        PostLoadModuleForge.init();
+    }
+
+    @Override
+    public void processQueuedAutoRegEntries() {
+        SoundEventModuleForge.processEntries();
+        CommandModuleForge.processEntries();
+        StructurePieceTypeModuleForge.processEntries();
+        StructurePoolElementTypeModuleForge.processEntries();
+        CriteriaModuleForge.processEntries();
+        StructureTypeModuleForge.processEntries();
+        FeatureModuleForge.processEntries();
+        PlacementModifierTypeModuleForge.processEntries();
+        CreativeModeTabModuleForge.processEntries();
+        ItemModuleForge.processEntries();
+        BlockModuleForge.processEntries();
+        BlockEntityTypeModuleForge.processEntries();
+        StructureProcessorTypeModuleForge.processEntries();
+        StructurePlacementTypeModuleForge.processEntries();
     }
 }

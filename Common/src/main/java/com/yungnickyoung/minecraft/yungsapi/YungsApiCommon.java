@@ -1,6 +1,6 @@
 package com.yungnickyoung.minecraft.yungsapi;
 
-import com.yungnickyoung.minecraft.yungsapi.services.Services;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,6 +14,6 @@ public class YungsApiCommon {
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 
     public static void init() {
-        Services.MODULES.loadModules();
+        AutoRegistrationManager.initAutoRegPackage("com.yungnickyoung.minecraft.yungsapi.module");
     }
 }

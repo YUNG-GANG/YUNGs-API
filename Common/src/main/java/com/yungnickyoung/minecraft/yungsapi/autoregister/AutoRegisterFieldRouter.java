@@ -10,8 +10,8 @@ import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 
-public class RegisterDataRouter {
-    public static void queueRegisterData(RegisterData registerData) {
+public class AutoRegisterFieldRouter {
+    public static void queueField(AutoRegisterField registerData) {
         if (registerData.object() instanceof StructureType<?>) {
             AutoRegistrationManager.STRUCTURE_TYPES.add(registerData);
         } else if (registerData.object() instanceof StructurePoolElementType<?>) {

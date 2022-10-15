@@ -1,7 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.module;
 
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
-import com.yungnickyoung.minecraft.yungsapi.autoregister.RegisterData;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -21,7 +21,7 @@ public class PlacementModifierTypeModuleForge {
                 .forEach(data -> registerPlacementModifierType(data, helper)));
     }
 
-    private static void registerPlacementModifierType(RegisterData data, RegisterEvent.RegisterHelper<PlacementModifierType<?>> helper) {
+    private static void registerPlacementModifierType(AutoRegisterField data, RegisterEvent.RegisterHelper<PlacementModifierType<?>> helper) {
         PlacementModifierType<?> placementModifierType = (PlacementModifierType<?>) data.object();
         helper.register(data.name(), placementModifierType);
         data.markProcessed();

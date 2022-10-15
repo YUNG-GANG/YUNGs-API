@@ -2,7 +2,7 @@ package com.yungnickyoung.minecraft.yungsapi.module;
 
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterSoundEvent;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
-import com.yungnickyoung.minecraft.yungsapi.autoregister.RegisterData;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import net.minecraft.core.Registry;
 import net.minecraft.sounds.SoundEvent;
 
@@ -16,7 +16,7 @@ public class SoundEventModuleFabric {
                 .forEach(SoundEventModuleFabric::register);
     }
 
-    private static void register(RegisterData data) {
+    private static void register(AutoRegisterField data) {
         AutoRegisterSoundEvent autoRegisterSoundEvent = (AutoRegisterSoundEvent) data.object();
         SoundEvent soundEvent = new SoundEvent(data.name());
         autoRegisterSoundEvent.setSupplier(() -> soundEvent);

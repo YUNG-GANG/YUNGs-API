@@ -1,7 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.module;
 
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
-import com.yungnickyoung.minecraft.yungsapi.autoregister.RegisterData;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
 
@@ -15,7 +15,7 @@ public class StructurePlacementTypeModuleFabric {
                 .forEach(StructurePlacementTypeModuleFabric::register);
     }
 
-    private static void register(RegisterData data) {
+    private static void register(AutoRegisterField data) {
         Registry.register(Registry.STRUCTURE_PLACEMENT_TYPE, data.name(), (StructurePlacementType<?>) data.object());
         data.markProcessed();
     }

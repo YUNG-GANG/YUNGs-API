@@ -1,7 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.module;
 
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
-import com.yungnickyoung.minecraft.yungsapi.autoregister.RegisterData;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -21,7 +21,7 @@ public class StructureTypeModuleForge {
                 .forEach(data -> registerStructureType(data, helper)));
     }
 
-    private static void registerStructureType(RegisterData data, RegisterEvent.RegisterHelper<StructureType<?>> helper) {
+    private static void registerStructureType(AutoRegisterField data, RegisterEvent.RegisterHelper<StructureType<?>> helper) {
         StructureType<?> structureType = (StructureType<?>) data.object();
         helper.register(data.name(), structureType);
         data.markProcessed();

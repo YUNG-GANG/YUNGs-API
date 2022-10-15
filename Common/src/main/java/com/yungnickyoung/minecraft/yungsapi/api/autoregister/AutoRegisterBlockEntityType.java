@@ -11,6 +11,20 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.function.Supplier;
 
+/**
+ * Wrapper for registering {@link BlockEntityType}s with AutoRegister.
+ * <br />
+ * Example usage:
+ * <pre>
+ * {@code
+ * @AutoRegister("icicle_block_entity")
+ * public static AutoRegisterBlockEntityType<IcicleBlockEntity> ICICLE = AutoRegisterBlockEntityType
+ *         .of(() -> AutoRegisterBlockEntityType.Builder
+ *                 .of(IcicleBlockEntity::new, BlockModule.ICICLE.get())
+ *                 .build());
+ * }
+ * </pre>
+ */
 public class AutoRegisterBlockEntityType <T extends BlockEntity> extends AutoRegisterEntry<BlockEntityType<T>> {
     public static <U extends BlockEntity> AutoRegisterBlockEntityType<U> of(Supplier<BlockEntityType<U>> blockSupplier) {
         return new AutoRegisterBlockEntityType<>(blockSupplier);

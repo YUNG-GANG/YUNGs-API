@@ -6,7 +6,6 @@ import java.util.ServiceLoader;
 
 public class Services {
     public static final IPlatformHelper PLATFORM = load(IPlatformHelper.class);
-    public static final IModulesLoader MODULES = load(IModulesLoader.class);
     public static final IAutoRegisterHelper AUTO_REGISTER = load(IAutoRegisterHelper.class);
     public static final IBlockEntityTypeHelper BLOCK_ENTITY_TYPE_HELPER = load(IBlockEntityTypeHelper.class);
 

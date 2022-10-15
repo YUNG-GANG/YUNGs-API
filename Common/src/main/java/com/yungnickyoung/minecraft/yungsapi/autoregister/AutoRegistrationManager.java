@@ -1,30 +1,45 @@
 package com.yungnickyoung.minecraft.yungsapi.autoregister;
 
+import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegister;
 import com.yungnickyoung.minecraft.yungsapi.services.Services;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AutoRegistrationManager {
-    public static final List<RegisterData> STRUCTURE_TYPES = new ArrayList<>();
-    public static final List<RegisterData> STRUCTURE_POOL_ELEMENT_TYPES = new ArrayList<>();
-    public static final List<RegisterData> STRUCTURE_PROCESSOR_TYPES = new ArrayList<>();
-    public static final List<RegisterData> STRUCTURE_PIECE_TYPES = new ArrayList<>();
-    public static final List<RegisterData> STRUCTURE_PLACEMENT_TYPES = new ArrayList<>();
-    public static final List<RegisterData> FEATURES = new ArrayList<>();
-    public static final List<RegisterData> PLACEMENT_MODIFIER_TYPES = new ArrayList<>();
-    public static final List<RegisterData> CRITERION_TRIGGERS = new ArrayList<>();
-    public static final List<RegisterData> BLOCKS = new ArrayList<>();
-    public static final List<RegisterData> ITEMS = new ArrayList<>();
-    public static final List<RegisterData> BLOCK_ENTITY_TYPES = new ArrayList<>();
-    public static final List<RegisterData> CREATIVE_MODE_TABS = new ArrayList<>();
-    public static final List<RegisterData> SOUND_EVENTS = new ArrayList<>();
-    public static final List<RegisterData> COMMANDS = new ArrayList<>();
+    public static final List<AutoRegisterField> STRUCTURE_TYPES = new ArrayList<>();
+    public static final List<AutoRegisterField> STRUCTURE_POOL_ELEMENT_TYPES = new ArrayList<>();
+    public static final List<AutoRegisterField> STRUCTURE_PROCESSOR_TYPES = new ArrayList<>();
+    public static final List<AutoRegisterField> STRUCTURE_PIECE_TYPES = new ArrayList<>();
+    public static final List<AutoRegisterField> STRUCTURE_PLACEMENT_TYPES = new ArrayList<>();
+    public static final List<AutoRegisterField> FEATURES = new ArrayList<>();
+    public static final List<AutoRegisterField> PLACEMENT_MODIFIER_TYPES = new ArrayList<>();
+    public static final List<AutoRegisterField> CRITERION_TRIGGERS = new ArrayList<>();
+    public static final List<AutoRegisterField> BLOCKS = new ArrayList<>();
+    public static final List<AutoRegisterField> ITEMS = new ArrayList<>();
+    public static final List<AutoRegisterField> BLOCK_ENTITY_TYPES = new ArrayList<>();
+    public static final List<AutoRegisterField> CREATIVE_MODE_TABS = new ArrayList<>();
+    public static final List<AutoRegisterField> SOUND_EVENTS = new ArrayList<>();
+    public static final List<AutoRegisterField> COMMANDS = new ArrayList<>();
 
-    public static void registerAnnotationsInPackage(String packageName) {
-        // Scan all mod files to check for AutoRegister annotated fields.
-        // Grab references to each of those fields so we can register them for the appropriate loader.
-        List<RegisterData> allAutoRegisterData = Services.AUTO_REGISTER.getAllAutoRegisterFieldsInPackage(packageName);
-        Services.AUTO_REGISTER.autoRegisterAllObjects(allAutoRegisterData);
+    /**
+     * Scans all {@link AutoRegister} annotated fields and prepares them for registration, independent of mod loader.
+     * Subsequently scans all {@link AutoRegister} annotated methods and invokes them.
+     *
+     * @param packageName Name of a package containing {@link AutoRegister} annotated fields and/or methods.
+     *                    When specifying a package, try to be as precise as possible,
+     *                    as all subpackages will also be recursively scanned.
+     */
+    public static void initAutoRegPackage(String packageName) {
+        // Scan package for AutoRegister annotated fields.
+        // References to each of these fields will be stored, so we can register them for the appropriate loader.
+        Services.AUTO_REGISTER.collectAllAutoRegisterFieldsInPackage(packageName);
+
+        // In Fabric, AutoRegister fields are registered.
+        // In Forge, AutoRegister events for handling registration are subscribed to.
+        Services.AUTO_REGISTER.processQueuedAutoRegEntries();
+
+        // AutoRegister methods are invoked
+        Services.AUTO_REGISTER.invokeAllAutoRegisterMethods(packageName);
     }
 }
