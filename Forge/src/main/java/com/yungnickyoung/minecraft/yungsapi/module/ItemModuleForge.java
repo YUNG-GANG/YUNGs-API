@@ -36,6 +36,7 @@ public class ItemModuleForge {
             BlockItem blockItem = new BlockItem(autoRegisterBlock.get(), autoRegisterBlock.getItemProperties().get());
             blockItem.setRegistryName(data.name());
             registry.register(blockItem);
+            data.markProcessed();
         }
     }
 

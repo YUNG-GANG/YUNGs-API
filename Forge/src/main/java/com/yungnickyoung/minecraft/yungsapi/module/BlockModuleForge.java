@@ -27,6 +27,6 @@ public class BlockModuleForge {
         Block block = autoRegisterBlock.get();
         block.setRegistryName(data.name());
         registry.register(block);
-        data.markProcessed();
+//        data.markProcessed(); Don't mark as processed, as this will be done by the Items module when checking for BlockItems
     }
 }
