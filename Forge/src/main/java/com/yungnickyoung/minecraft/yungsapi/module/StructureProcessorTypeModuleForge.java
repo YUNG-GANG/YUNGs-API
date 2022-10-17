@@ -11,15 +11,18 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
  * Registration of StructureProcessorTypes.
  */
 public class StructureProcessorTypeModuleForge {
-    public static void init() {
+    public static void processEntries() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(StructureProcessorTypeModuleForge::commonSetup);
     }
 
     private static void commonSetup(final FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> AutoRegistrationManager.STRUCTURE_PROCESSOR_TYPES.forEach(StructureProcessorTypeModuleForge::register));
+        event.enqueueWork(() -> AutoRegistrationManager.STRUCTURE_PROCESSOR_TYPES.stream()
+                .filter(data -> !data.processed())
+                .forEach(StructureProcessorTypeModuleForge::register));
     }
 
     private static void register(AutoRegisterField data) {
         Registry.register(Registry.STRUCTURE_PROCESSOR, data.name(),  (StructureProcessorType<?>) data.object());
+        data.markProcessed();
     }
 }

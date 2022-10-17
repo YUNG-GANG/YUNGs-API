@@ -1,5 +1,6 @@
 package com.yungnickyoung.minecraft.yungsapi.autoregister;
 
+import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegister;
 import com.yungnickyoung.minecraft.yungsapi.services.Services;
 
 import java.util.ArrayList;
@@ -22,15 +23,24 @@ public class AutoRegistrationManager {
     public static final List<AutoRegisterField> PARTICLE_TYPES = new ArrayList<>();
     public static final List<AutoRegisterField> SOUND_EVENTS = new ArrayList<>();
 
-    public static void preLoad() {
-        // Scan all mod files to check for AutoRegister annotated field.
-        // Then grab references to each of those fields, so we can register them for the appropriate loader.
-        Services.AUTO_REGISTER.prepareAllAutoRegisterFields();
-    }
+    /**
+     * Scans all {@link AutoRegister} annotated fields and prepares them for registration, independent of mod loader.
+     * Subsequently scans all {@link AutoRegister} annotated methods and invokes them.
+     *
+     * @param packageName Name of a package containing {@link AutoRegister} annotated fields and/or methods.
+     *                    When specifying a package, try to be as precise as possible,
+     *                    as all subpackages will also be recursively scanned.
+     */
+    public static void initAutoRegPackage(String packageName) {
+        // Scan package for AutoRegister annotated fields.
+        // References to each of these fields will be stored, so we can register them for the appropriate loader.
+        Services.AUTO_REGISTER.collectAllAutoRegisterFieldsInPackage(packageName);
 
-    public static void postLoad() {
-        // Invoke all AutoRegister annotated methods.
-        // These invocations are done in post-load because often times they rely on objects to be properly registered first.
-        Services.AUTO_REGISTER.invokeAllAutoRegisterMethods();
+        // In Fabric, AutoRegister fields are registered.
+        // In Forge, AutoRegister events for handling registration are subscribed to.
+        Services.AUTO_REGISTER.processQueuedAutoRegEntries();
+
+        // AutoRegister methods are invoked
+        Services.AUTO_REGISTER.invokeAllAutoRegisterMethods(packageName);
     }
 }

@@ -20,8 +20,10 @@ import java.util.function.Supplier;
 public class BiomeModuleForge {
     private static final Map<String, DeferredRegister<Biome>> registersByModId = new HashMap<>();
 
-    public static void init() {
-        AutoRegistrationManager.BIOMES.forEach(BiomeModuleForge::register);
+    public static void processEntries() {
+        AutoRegistrationManager.BIOMES.stream()
+                .filter(data -> !data.processed())
+                .forEach(BiomeModuleForge::register);
     }
 
     private static void register(AutoRegisterField data) {
@@ -45,5 +47,7 @@ public class BiomeModuleForge {
 
         ResourceKey<Biome> key = ResourceKey.create(Registry.BIOME_REGISTRY, data.name());
         autoRegisterBiome.setResourceKey(key);
+
+        data.markProcessed();
     }
 }

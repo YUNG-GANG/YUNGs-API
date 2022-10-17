@@ -9,11 +9,14 @@ import net.minecraft.world.level.levelgen.feature.StructureFeature;
  * Registration of structure features.
  */
 public class StructureFeatureModuleFabric {
-    public static void init() {
-        AutoRegistrationManager.STRUCTURE_FEATURES.forEach(StructureFeatureModuleFabric::register);
+    public static void processEntries() {
+        AutoRegistrationManager.STRUCTURE_FEATURES.stream()
+                .filter(data -> !data.processed())
+                .forEach(StructureFeatureModuleFabric::register);
     }
 
     private static void register(AutoRegisterField data) {
         Registry.register(Registry.STRUCTURE_FEATURE, data.name(), (StructureFeature<?>) data.object());
+        data.markProcessed();
     }
 }

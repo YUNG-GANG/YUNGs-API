@@ -12,8 +12,10 @@ import net.minecraft.world.level.biome.Biome;
  * Registration of Biomes.
  */
 public class BiomeModuleFabric {
-    public static void init() {
-        AutoRegistrationManager.BIOMES.forEach(BiomeModuleFabric::register);
+    public static void processEntries() {
+        AutoRegistrationManager.BIOMES.stream()
+                .filter(data -> !data.processed())
+                .forEach(BiomeModuleFabric::register);
     }
 
     private static void register(AutoRegisterField data) {
@@ -24,5 +26,6 @@ public class BiomeModuleFabric {
 
         // Register biome
         BuiltinRegistries.register(BuiltinRegistries.BIOME, key, biome);
+        data.markProcessed();
     }
 }

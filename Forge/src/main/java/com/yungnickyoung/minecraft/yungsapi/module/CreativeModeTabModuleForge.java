@@ -24,38 +24,42 @@ public class CreativeModeTabModuleForge {
      */
     private static final Map<String, AutoRegisterCreativeTab> initializedTabs = new HashMap<>();
 
-    public static void init() {
+    public static void processEntries() {
         // We subscribe to Register Event because it runs before Common Setup.
         // We subscribe to Block class because it runs before all other Register events, ensuring creative tabs will be initialized first.
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Block.class, EventPriority.HIGHEST, CreativeModeTabModuleForge::initializeTabs);
     }
 
     private static void initializeTabs(final RegistryEvent.Register<Block> event) {
-        AutoRegistrationManager.CREATIVE_MODE_TABS.forEach(data -> {
-            // Check cache to see if we already initialized this tab
-            ResourceLocation resourceLocation = data.name();
-            String name = String.format("%s.%s", resourceLocation.getNamespace(), resourceLocation.getPath());
-            if (initializedTabs.containsKey(name)) {
-                return;
-            }
+        AutoRegistrationManager.CREATIVE_MODE_TABS.stream()
+                .filter(data -> !data.processed())
+                .forEach(data -> {
+                    // Check cache to see if we already initialized this tab
+                    ResourceLocation resourceLocation = data.name();
+                    String name = String.format("%s.%s", resourceLocation.getNamespace(), resourceLocation.getPath());
+                    if (initializedTabs.containsKey(name)) {
+                        return;
+                    }
 
-            // Extract data
-            AutoRegisterCreativeTab autoRegisterCreativeTab = (AutoRegisterCreativeTab) data.object();
-            Supplier<ItemStack> itemStackSupplier = autoRegisterCreativeTab.getIconItemStackSupplier();
+                    // Extract data
+                    AutoRegisterCreativeTab autoRegisterCreativeTab = (AutoRegisterCreativeTab) data.object();
+                    Supplier<ItemStack> itemStackSupplier = autoRegisterCreativeTab.getIconItemStackSupplier();
 
-            // Create tab
-            CreativeModeTab creativeModeTab = new CreativeModeTab(name) {
-                @Override
-                public ItemStack makeIcon() {
-                    return itemStackSupplier.get();
-                }
-            };
+                    // Create tab
+                    CreativeModeTab creativeModeTab = new CreativeModeTab(name) {
+                        @Override
+                        public ItemStack makeIcon() {
+                            return itemStackSupplier.get();
+                        }
+                    };
 
-            // Update supplier to retrieve tab
-            autoRegisterCreativeTab.setSupplier(() -> creativeModeTab);
+                    // Update supplier to retrieve tab
+                    autoRegisterCreativeTab.setSupplier(() -> creativeModeTab);
 
-            // Add to cache
-            initializedTabs.put(name, autoRegisterCreativeTab);
-        });
+                    // Add to cache
+                    initializedTabs.put(name, autoRegisterCreativeTab);
+
+                    data.markProcessed();
+                });
     }
 }

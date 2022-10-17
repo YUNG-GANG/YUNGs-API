@@ -13,8 +13,10 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
  * Registration of EntityTypes.
  */
 public class EntityTypeModuleFabric {
-    public static void init() {
-        AutoRegistrationManager.ENTITY_TYPES.forEach(EntityTypeModuleFabric::register);
+    public static void processEntries() {
+        AutoRegistrationManager.ENTITY_TYPES.stream()
+                .filter(data -> !data.processed())
+                .forEach(EntityTypeModuleFabric::register);
     }
 
     @SuppressWarnings("unchecked")
@@ -30,5 +32,7 @@ public class EntityTypeModuleFabric {
             AttributeSupplier.Builder attributesBuilder = autoRegisterEntityType.getAttributesSupplier().get();
             FabricDefaultAttributeRegistry.register((EntityType<? extends LivingEntity>) entityType, attributesBuilder);
         }
+
+        data.markProcessed();
     }
 }

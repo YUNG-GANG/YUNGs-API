@@ -15,8 +15,10 @@ import net.minecraft.world.level.block.Block;
  */
 public class ItemModuleFabric {
 
-    public static void init() {
-        AutoRegistrationManager.ITEMS.forEach(ItemModuleFabric::register);
+    public static void processEntries() {
+        AutoRegistrationManager.ITEMS.stream()
+                .filter(data -> !data.processed())
+                .forEach(ItemModuleFabric::register);
     }
 
     private static void register(AutoRegisterField data) {
@@ -25,6 +27,7 @@ public class ItemModuleFabric {
 
         // Register item
         Registry.register(Registry.ITEM, data.name(), item);
+        data.markProcessed();
     }
 
     public static void registerBlockItem(ResourceLocation resourceLocation, Block block, Item.Properties itemProperties) {

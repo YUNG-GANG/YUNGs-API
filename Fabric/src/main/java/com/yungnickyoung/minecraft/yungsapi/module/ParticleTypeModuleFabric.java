@@ -10,8 +10,10 @@ import net.minecraft.core.particles.ParticleType;
  * Registration of ParticleTypes.
  */
 public class ParticleTypeModuleFabric {
-    public static void init() {
-        AutoRegistrationManager.PARTICLE_TYPES.forEach(ParticleTypeModuleFabric::register);
+    public static void processEntries() {
+        AutoRegistrationManager.PARTICLE_TYPES.stream()
+                .filter(data -> !data.processed())
+                .forEach(ParticleTypeModuleFabric::register);
     }
 
     private static void register(AutoRegisterField data) {
@@ -20,5 +22,6 @@ public class ParticleTypeModuleFabric {
 
         // Register
         Registry.register(Registry.PARTICLE_TYPE, data.name(), particleType);
+        data.markProcessed();
     }
 }

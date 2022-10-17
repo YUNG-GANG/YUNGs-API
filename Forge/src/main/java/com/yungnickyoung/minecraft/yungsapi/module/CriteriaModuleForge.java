@@ -11,15 +11,18 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
  * Registration of custom criteria triggers for advancements.
  */
 public class CriteriaModuleForge {
-    public static void init() {
+    public static void processEntries() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(CriteriaModuleForge::commonSetup);
     }
 
     private static void commonSetup(final FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> AutoRegistrationManager.CRITERION_TRIGGERS.forEach(CriteriaModuleForge::register));
+        event.enqueueWork(() -> AutoRegistrationManager.CRITERION_TRIGGERS.stream()
+                .filter(data -> !data.processed())
+                .forEach(CriteriaModuleForge::register));
     }
 
     private static void register(AutoRegisterField data) {
         CriteriaTriggersAccessor.getValues().put(data.name(), (CriterionTrigger<?>) data.object());
+        data.markProcessed();
     }
 }

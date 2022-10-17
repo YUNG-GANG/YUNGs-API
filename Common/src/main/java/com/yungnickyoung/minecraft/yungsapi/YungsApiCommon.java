@@ -1,11 +1,8 @@
 package com.yungnickyoung.minecraft.yungsapi;
 
-import com.yungnickyoung.minecraft.yungsapi.services.Services;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * API for YUNG's Minecraft mods.
@@ -16,9 +13,7 @@ public class YungsApiCommon {
     public static final String MOD_ID = "yungsapi";
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 
-    public static final Set<String> registeredModPackages = new HashSet<>();
-
     public static void init() {
-        Services.MODULES.loadModules();
+        AutoRegistrationManager.initAutoRegPackage("com.yungnickyoung.minecraft.yungsapi.module");
     }
 }

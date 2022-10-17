@@ -19,8 +19,10 @@ import java.util.function.Supplier;
 public class BlockEntityTypeModuleForge {
     private static final Map<String, DeferredRegister<BlockEntityType<?>>> registersByModId = new HashMap<>();
 
-    public static void init() {
-        AutoRegistrationManager.BLOCK_ENTITY_TYPES.forEach(BlockEntityTypeModuleForge::register);
+    public static void processEntries() {
+        AutoRegistrationManager.BLOCK_ENTITY_TYPES.stream()
+                .filter(data -> !data.processed())
+                .forEach(BlockEntityTypeModuleForge::register);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -42,5 +44,7 @@ public class BlockEntityTypeModuleForge {
 
         // Update the supplier to use the RegistryObject so that it will be properly updated later on
         autoRegisterBlockEntityType.setSupplier(registryObject);
+
+        data.markProcessed();
     }
 }

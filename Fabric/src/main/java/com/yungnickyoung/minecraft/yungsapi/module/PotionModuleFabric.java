@@ -11,8 +11,10 @@ import net.minecraft.world.item.alchemy.Potion;
  * Registration of Potions.
  */
 public class PotionModuleFabric {
-    public static void init() {
-        AutoRegistrationManager.POTIONS.forEach(PotionModuleFabric::register);
+    public static void processEntries() {
+        AutoRegistrationManager.POTIONS.stream()
+                .filter(data -> !data.processed())
+                .forEach(PotionModuleFabric::register);
     }
 
     private static void register(AutoRegisterField data) {
@@ -24,5 +26,6 @@ public class PotionModuleFabric {
 
         // Register mob effect
         Registry.register(Registry.POTION, data.name(), potion);
+        data.markProcessed();
     }
 }

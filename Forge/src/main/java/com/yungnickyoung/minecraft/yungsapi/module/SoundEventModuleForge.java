@@ -18,8 +18,10 @@ import java.util.Map;
 public class SoundEventModuleForge {
     private static final Map<String, DeferredRegister<SoundEvent>> registersByModId = new HashMap<>();
 
-    public static void init() {
-        AutoRegistrationManager.SOUND_EVENTS.forEach(SoundEventModuleForge::register);
+    public static void processEntries() {
+        AutoRegistrationManager.SOUND_EVENTS.stream()
+                .filter(data -> !data.processed())
+                .forEach(SoundEventModuleForge::register);
     }
 
     private static void register(AutoRegisterField data) {
@@ -40,5 +42,7 @@ public class SoundEventModuleForge {
 
         // Update the supplier to use the RegistryObject so that it will be properly updated later on
         autoRegisterSoundEvent.setSupplier(registryObject);
+
+        data.markProcessed();
     }
 }

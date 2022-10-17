@@ -10,8 +10,10 @@ import net.minecraft.sounds.SoundEvent;
  * Registration of SoundEvents.
  */
 public class SoundEventModuleFabric {
-    public static void init() {
-        AutoRegistrationManager.SOUND_EVENTS.forEach(SoundEventModuleFabric::register);
+    public static void processEntries() {
+        AutoRegistrationManager.SOUND_EVENTS.stream()
+                .filter(data -> !data.processed())
+                .forEach(SoundEventModuleFabric::register);
     }
 
     private static void register(AutoRegisterField data) {
@@ -21,5 +23,6 @@ public class SoundEventModuleFabric {
 
         // Register
         Registry.register(Registry.SOUND_EVENT, data.name(), soundEvent);
+        data.markProcessed();
     }
 }

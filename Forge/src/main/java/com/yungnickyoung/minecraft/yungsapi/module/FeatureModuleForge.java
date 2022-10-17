@@ -11,18 +11,20 @@ import net.minecraftforge.registries.IForgeRegistry;
  * Registration of features.
  */
 public class FeatureModuleForge {
-    public static void init() {
+    public static void processEntries() {
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Feature.class, FeatureModuleForge::registerFeatures);
     }
 
     private static void registerFeatures(RegistryEvent.Register<Feature<?>> event) {
-        IForgeRegistry<Feature<?>> registry = event.getRegistry();
-        AutoRegistrationManager.FEATURES.forEach((registerData) -> registerFeature(registry, registerData));
+        AutoRegistrationManager.FEATURES.stream()
+                .filter(data -> !data.processed())
+                .forEach((registerData) -> registerFeature(registerData, event.getRegistry()));
     }
 
-    private static void registerFeature(IForgeRegistry<Feature<?>> registry, AutoRegisterField data) {
+    private static void registerFeature(AutoRegisterField data, IForgeRegistry<Feature<?>> registry) {
         Feature<?> feature = ((Feature<?>) data.object());
         feature.setRegistryName(data.name());
         registry.register(feature);
+        data.markProcessed();
     }
 }

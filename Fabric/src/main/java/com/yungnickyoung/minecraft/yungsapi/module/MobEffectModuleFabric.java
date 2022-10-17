@@ -10,8 +10,10 @@ import net.minecraft.world.effect.MobEffect;
  * Registration of MobEffects.
  */
 public class MobEffectModuleFabric {
-    public static void init() {
-        AutoRegistrationManager.MOB_EFFECTS.forEach(MobEffectModuleFabric::register);
+    public static void processEntries() {
+        AutoRegistrationManager.MOB_EFFECTS.stream()
+                .filter(data -> !data.processed())
+                .forEach(MobEffectModuleFabric::register);
     }
 
     private static void register(AutoRegisterField data) {
@@ -20,5 +22,6 @@ public class MobEffectModuleFabric {
 
         // Register mob effect
         Registry.register(Registry.MOB_EFFECT, data.name(), mobEffect);
+        data.markProcessed();
     }
 }

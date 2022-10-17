@@ -5,8 +5,7 @@ import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegister;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterFieldRouter;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
-import com.yungnickyoung.minecraft.yungsapi.module.PostLoadModuleForge;
-import com.yungnickyoung.minecraft.yungsapi.module.PotionModuleForge;
+import com.yungnickyoung.minecraft.yungsapi.module.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.Potion;
@@ -21,33 +20,29 @@ import java.util.*;
 import java.util.function.Supplier;
 
 public class ForgeAutoRegisterHelper implements IAutoRegisterHelper {
-    List<ModFileScanData.AnnotationData> annotations;
-
     @Override
-    public void prepareAllAutoRegisterFields() {
-        Map<Type, String> classModIds = new HashMap<>(); // Map of class to namespace
+    public void collectAllAutoRegisterFieldsInPackage(String packageName) {
+        Map<Type, String> classToNamespaceMap = new HashMap<>(); // Map of class to namespace
 
         // Collect all annotations
-        if (this.annotations == null) {
-            this.annotations = ModList.get().getAllScanData().stream()
-                    .map(ModFileScanData::getAnnotations)
-                    .flatMap(Collection::stream)
-                    .filter(a -> a.annotationType().equals(Type.getType(AutoRegister.class)))
-                    .toList();
-        }
+        List<ModFileScanData.AnnotationData> annotations = ModList.get().getAllScanData().stream()
+                .map(ModFileScanData::getAnnotations)
+                .flatMap(Collection::stream)
+                .filter(a -> a.annotationType().equals(Type.getType(AutoRegister.class)))
+                .toList();
 
         // First pass -> gather all modIds from class-level annotations.
         // Used for naming fields.
         annotations.stream()
                 .filter(data -> data.targetType() == ElementType.TYPE)
-                .forEach(data -> classModIds.put(data.clazz(), (String) data.annotationData().get("value")));
+                .forEach(data -> classToNamespaceMap.put(data.clazz(), (String) data.annotationData().get("value")));
 
         // Second pass -> scrape all annotated fields & queue for registration
         annotations.stream()
                 .filter(data -> data.targetType() == ElementType.FIELD)
                 .forEach(data -> {
                     // Check mod ID
-                    String modId = classModIds.get(data.clazz());
+                    String modId = classToNamespaceMap.get(data.clazz());
                     if (modId == null) {
                         YungsApiCommon.LOGGER.error("Missing class AutoRegister annotation for field {}", data.memberName());
                         return;
@@ -85,23 +80,21 @@ public class ForgeAutoRegisterHelper implements IAutoRegisterHelper {
 
                     // Queue for registration
                     String name = (String) data.annotationData().get("value");
-                    AutoRegisterField registerData = new AutoRegisterField(o, new ResourceLocation(modId, name));
-                    AutoRegisterFieldRouter.queueField(registerData);
+                    AutoRegisterField autoRegisterField = new AutoRegisterField(o, new ResourceLocation(modId, name));
+                    AutoRegisterFieldRouter.queueField(autoRegisterField);
                 });
     }
 
     @Override
-    public void invokeAllAutoRegisterMethods() {
+    public void invokeAllAutoRegisterMethods(String packageName) {
         List<Method> methods = new ArrayList<>();
 
-        // Collect all annotations
-        if (this.annotations == null) {
-            this.annotations = ModList.get().getAllScanData().stream()
-                    .map(ModFileScanData::getAnnotations)
-                    .flatMap(Collection::stream)
-                    .filter(a -> a.annotationType().equals(Type.getType(AutoRegister.class)))
-                    .toList();
-        }
+        // Collect all AutoRegister annotations
+        List<ModFileScanData.AnnotationData> annotations = ModList.get().getAllScanData().stream()
+                .map(ModFileScanData::getAnnotations)
+                .flatMap(Collection::stream)
+                .filter(a -> a.annotationType().equals(Type.getType(AutoRegister.class)))
+                .toList();
 
         // Scan all annotated methods
         annotations.stream()
@@ -129,8 +122,27 @@ public class ForgeAutoRegisterHelper implements IAutoRegisterHelper {
                     methods.add(m);
                 });
 
-        PostLoadModuleForge.METHODS = methods;
+        PostLoadModuleForge.METHODS.addAll(methods);
         PostLoadModuleForge.init();
+    }
+
+    @Override
+    public void processQueuedAutoRegEntries() {
+        StructurePoolElementTypeModuleForge.processEntries();
+        CriteriaModuleForge.processEntries();
+        SoundEventModuleForge.processEntries();
+        BlockModuleForge.processEntries();
+        FeatureModuleForge.processEntries();
+        StructureFeatureModuleForge.processEntries();
+        CreativeModeTabModuleForge.processEntries();
+        ItemModuleForge.processEntries();
+        BlockEntityTypeModuleForge.processEntries();
+        StructureProcessorTypeModuleForge.processEntries();
+        BiomeModuleForge.processEntries();
+        EntityTypeModuleForge.processEntries();
+        MobEffectModuleForge.processEntries();
+        PotionModuleForge.processEntries();
+        ParticleTypeModuleForge.processEntries();
     }
 
     @Override

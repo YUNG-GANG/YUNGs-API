@@ -19,8 +19,10 @@ import java.util.function.Supplier;
 public class ParticleTypeModuleForge {
     private static final Map<String, DeferredRegister<ParticleType<?>>> registersByModId = new HashMap<>();
 
-    public static void init() {
-        AutoRegistrationManager.PARTICLE_TYPES.forEach(ParticleTypeModuleForge::register);
+    public static void processEntries() {
+        AutoRegistrationManager.PARTICLE_TYPES.stream()
+                .filter(data -> !data.processed())
+                .forEach(ParticleTypeModuleForge::register);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -42,5 +44,7 @@ public class ParticleTypeModuleForge {
 
         // Update the supplier to use the RegistryObject so that it will be properly updated later on
         autoRegisterParticleType.setSupplier(registryObject);
+
+        data.markProcessed();
     }
 }

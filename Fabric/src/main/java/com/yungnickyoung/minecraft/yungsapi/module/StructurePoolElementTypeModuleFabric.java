@@ -10,11 +10,14 @@ import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementTy
  * For more information, read about {@link com.yungnickyoung.minecraft.yungsapi.api.YungJigsawManager}
  */
 public class StructurePoolElementTypeModuleFabric {
-    public static void init() {
-        AutoRegistrationManager.STRUCTURE_POOL_ELEMENT_TYPES.forEach(StructurePoolElementTypeModuleFabric::register);
+    public static void processEntries() {
+        AutoRegistrationManager.STRUCTURE_POOL_ELEMENT_TYPES.stream()
+                .filter(data -> !data.processed())
+                .forEach(StructurePoolElementTypeModuleFabric::register);
     }
 
     private static void register(AutoRegisterField data) {
         Registry.register(Registry.STRUCTURE_POOL_ELEMENT, data.name(), (StructurePoolElementType<?>) data.object());
+        data.markProcessed();
     }
 }

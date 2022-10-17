@@ -22,4 +22,18 @@ public interface IPlatformHelper {
      * @return True if in a development environment, false otherwise.
      */
     boolean isDevelopmentEnvironment();
+
+    /**
+     * @return true if Forge is currently running.
+     */
+    default boolean isForge() {
+        return false;
+    }
+
+    /**
+     * @return true if Fabric is currently running.
+     */
+    default boolean isFabric() {
+        return false;
+    }
 }
