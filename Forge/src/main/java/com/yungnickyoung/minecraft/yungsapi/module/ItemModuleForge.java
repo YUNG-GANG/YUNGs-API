@@ -24,6 +24,10 @@ public class ItemModuleForge {
                 .filter(data -> !data.processed())
                 .forEach(data -> registerBlockItem(data, event.getRegistry()));
 
+        // Register BlockItems for leftover blocks that depend on other blocks.
+        // These will be things like Stairs, Slabs, Fences, Walls, etc.
+        BlockModuleForge.EXTRA_BLOCKS.forEach(extraBlockData -> registerExtraBlockItem(extraBlockData, event.getRegistry()));
+
         // Register items
         AutoRegistrationManager.ITEMS.stream()
                 .filter(data -> !data.processed())
@@ -38,6 +42,12 @@ public class ItemModuleForge {
             registry.register(blockItem);
             data.markProcessed();
         }
+    }
+
+    private static void registerExtraBlockItem(BlockModuleForge.ExtraBlockData extraBlockData, IForgeRegistry<Item> registry) {
+        BlockItem blockItem = new BlockItem(extraBlockData.block(), extraBlockData.itemProperties().get());
+        blockItem.setRegistryName(extraBlockData.block().getRegistryName());
+        registry.register(blockItem);
     }
 
     private static void registerItem(AutoRegisterField data, IForgeRegistry<Item> registry) {
