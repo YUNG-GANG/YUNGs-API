@@ -6,8 +6,10 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "yungsapi.refmap.json",
   "mixins": [
+    "BeardifierMixin",
     "MinecraftServerMixin",
     "ServerPlayerEntityTickMixin",
+    "accessor.BeardifierAccessor",
     "accessor.BoundingBoxAccessor",
     "accessor.CriteriaTriggersAccessor",
     "accessor.FeaturePoolElementAccessor",
