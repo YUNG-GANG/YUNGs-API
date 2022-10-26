@@ -7,6 +7,7 @@ import com.yungnickyoung.minecraft.yungsapi.module.StructurePoolElementTypeModul
 import com.yungnickyoung.minecraft.yungsapi.world.condition.ConditionContext;
 import com.yungnickyoung.minecraft.yungsapi.world.condition.StructureCondition;
 import com.yungnickyoung.minecraft.yungsapi.world.condition.StructureConditionType;
+import com.yungnickyoung.minecraft.yungsapi.world.terrainadaptation.EnhancedTerrainAdaptation;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
@@ -35,7 +36,8 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
                     ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("max_possible_depth").forGetter(element -> element.maxPossibleDepth),
                     Codec.BOOL.optionalFieldOf("is_priority", false).forGetter(element -> element.isPriority),
                     Codec.BOOL.optionalFieldOf("ignore_bounds", false).forGetter(element -> element.ignoreBounds),
-                    StructureConditionType.CONDITION_CODEC.optionalFieldOf("condition").forGetter(element -> element.condition)
+                    StructureConditionType.CONDITION_CODEC.optionalFieldOf("condition").forGetter(element -> element.condition),
+                    EnhancedTerrainAdaptation.CODEC.optionalFieldOf("enhanced_terrain_adaptation").forGetter(element -> element.enhancedTerrainAdaptation)
             ).apply(builder, YungJigsawSinglePoolElement::new));
 
     /**
@@ -76,10 +78,16 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
     public final boolean ignoreBounds;
 
     /**
-     * The condition required for this piece to spawn.
+     * Optional condition required for this piece to spawn.
      * Can be any {@link StructureCondition}, including compound conditions ({@link AnyOfCondition}, {@link AllOfCondition}
      */
     public final Optional<StructureCondition> condition;
+
+    /**
+     * Optional enhanced terrain adaptation specific to this piece.
+     * Takes precedent over the structure's enhanced terrain adaptation, if specified.
+     */
+    public final Optional<EnhancedTerrainAdaptation> enhancedTerrainAdaptation;
 
     public YungJigsawSinglePoolElement(
             Either<ResourceLocation, StructureTemplate> resourceLocation,
@@ -91,7 +99,8 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
             Optional<Integer> maxPossibleDepth,
             boolean isPriority,
             boolean ignoreBounds,
-            Optional<StructureCondition> condition
+            Optional<StructureCondition> condition,
+            Optional<EnhancedTerrainAdaptation> enhancedTerrainAdaptation
     ) {
         super(resourceLocation, processors, projection);
         this.maxCount = maxCount;
@@ -101,6 +110,7 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
         this.isPriority = isPriority;
         this.ignoreBounds = ignoreBounds;
         this.condition = condition;
+        this.enhancedTerrainAdaptation = enhancedTerrainAdaptation;
     }
 
     public StructurePoolElementType<?> getType() {
@@ -133,5 +143,13 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
                 this.minRequiredDepth.isPresent() ? "" + minRequiredDepth.get() : "N/A",
                 this.maxPossibleDepth.isPresent() ? "" + maxPossibleDepth.get() : "N/A",
                 this.isPriority);
+    }
+
+    public EnhancedTerrainAdaptation getEnhancedTerrainAdaptation() {
+        return this.enhancedTerrainAdaptation.get();
+    }
+
+    public boolean hasEnhancedTerrainAdaptation() {
+        return this.enhancedTerrainAdaptation.isPresent();
     }
 }

@@ -10,7 +10,7 @@ import com.yungnickyoung.minecraft.yungsapi.world.structure.YungJigsawStructure;
  * For use with {@link YungJigsawStructure}.
  */
 public enum EnhancedTerrainAdaptation implements StringRepresentable {
-    NONE("none", false, false, 24, 12),
+    NONE("none", false, false, 0, 0),
     CARVED_TOP_NO_BEARD_SMALL("carved_top_no_beard_small", true, false, 12, 6),
     CARVED_TOP_NO_BEARD_LARGE("carved_top_no_beard_large", true, false, 24, 12);
 
