@@ -103,7 +103,8 @@ public class YungJigsawStructure extends Structure {
             // Additional behavior
             int enhancedEdgeBuffer = switch (structure.enhancedTerrainAdaptation) {
                 case NONE -> 0;
-                case CARVED_TOP_NO_BEARD -> 12;
+                case CARVED_TOP_NO_BEARD_SMALL -> 6;
+                case CARVED_TOP_NO_BEARD_LARGE -> 12;
                 default -> throw new IncompatibleClassChangeError();
             };
             return structure.maxDistanceFromCenter + enhancedEdgeBuffer > 128
