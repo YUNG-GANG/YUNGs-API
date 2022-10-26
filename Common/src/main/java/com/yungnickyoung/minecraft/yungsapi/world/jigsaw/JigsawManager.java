@@ -484,7 +484,7 @@ public class JigsawManager {
 
                         // Validate conditions for this piece, if applicable
                         if (chosenPiece instanceof YungJigsawSinglePoolElement yungJigsawPiece) {
-                            ConditionContext ctx = new ConditionContext(adjustedCandidateBoundingBox.minY(), adjustedCandidateBoundingBox.maxY());
+                            ConditionContext ctx = new ConditionContext(adjustedCandidateBoundingBox.minY(), adjustedCandidateBoundingBox.maxY(), depth);
                             if (!yungJigsawPiece.passesConditions(ctx)) {
                                 continue; // Abort this piece & rotation if it doesn't pass conditions check
                             }

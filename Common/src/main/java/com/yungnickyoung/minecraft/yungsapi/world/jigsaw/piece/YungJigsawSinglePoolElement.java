@@ -4,9 +4,7 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.module.StructurePoolElementTypeModule;
-import com.yungnickyoung.minecraft.yungsapi.world.condition.ConditionContext;
-import com.yungnickyoung.minecraft.yungsapi.world.condition.StructureCondition;
-import com.yungnickyoung.minecraft.yungsapi.world.condition.StructureConditionType;
+import com.yungnickyoung.minecraft.yungsapi.world.condition.*;
 import com.yungnickyoung.minecraft.yungsapi.world.terrainadaptation.EnhancedTerrainAdaptation;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -16,8 +14,6 @@ import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementTy
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
-import com.yungnickyoung.minecraft.yungsapi.world.condition.AnyOfCondition;
-import com.yungnickyoung.minecraft.yungsapi.world.condition.AllOfCondition;
 
 import java.util.Optional;
 
@@ -36,7 +32,7 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
                     ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("max_possible_depth").forGetter(element -> element.maxPossibleDepth),
                     Codec.BOOL.optionalFieldOf("is_priority", false).forGetter(element -> element.isPriority),
                     Codec.BOOL.optionalFieldOf("ignore_bounds", false).forGetter(element -> element.ignoreBounds),
-                    StructureConditionType.CONDITION_CODEC.optionalFieldOf("condition").forGetter(element -> element.condition),
+                    StructureConditionType.CONDITION_CODEC.optionalFieldOf("condition", StructureCondition.ALWAYS_TRUE).forGetter(element -> element.condition),
                     EnhancedTerrainAdaptation.CODEC.optionalFieldOf("enhanced_terrain_adaptation").forGetter(element -> element.enhancedTerrainAdaptation)
             ).apply(builder, YungJigsawSinglePoolElement::new));
 
@@ -55,12 +51,17 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
     /**
      * The minimum required depth (in jigsaw pieces) from the structure start
      * at which this piece can spawn.
+     *
+     * @deprecated Use {@link DepthCondition} instead.
      */
+    @Deprecated
     public final Optional<Integer> minRequiredDepth;
 
     /**
      * The maximum allowed depth (in jigsaw pieces) from the structure start
      * at which this piece will no longer spawn.
+     *
+     * @deprecated Use {@link DepthCondition} instead.
      */
     public final Optional<Integer> maxPossibleDepth;
 
@@ -79,9 +80,10 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
 
     /**
      * Optional condition required for this piece to spawn.
-     * Can be any {@link StructureCondition}, including compound conditions ({@link AnyOfCondition}, {@link AllOfCondition}
+     * Can be any {@link StructureCondition}, including compound conditions
+     * ({@link AnyOfCondition}, {@link AllOfCondition})
      */
-    public final Optional<StructureCondition> condition;
+    public final StructureCondition condition;
 
     /**
      * Optional enhanced terrain adaptation specific to this piece.
@@ -99,7 +101,7 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
             Optional<Integer> maxPossibleDepth,
             boolean isPriority,
             boolean ignoreBounds,
-            Optional<StructureCondition> condition,
+            StructureCondition condition,
             Optional<EnhancedTerrainAdaptation> enhancedTerrainAdaptation
     ) {
         super(resourceLocation, processors, projection);
@@ -132,7 +134,7 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
     }
 
     public boolean passesConditions(ConditionContext ctx) {
-        return this.condition.isEmpty() || this.condition.get().passes(ctx);
+        return this.condition.passes(ctx);
     }
 
     public String toString() {

@@ -6,6 +6,7 @@ package com.yungnickyoung.minecraft.yungsapi.world.condition;
  */
 public record ConditionContext(
         int pieceMinY,
-        int pieceMaxY
+        int pieceMaxY,
+        int depth
 ) {
 }

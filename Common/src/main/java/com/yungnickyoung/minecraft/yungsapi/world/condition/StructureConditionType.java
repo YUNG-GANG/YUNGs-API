@@ -32,9 +32,11 @@ public interface StructureConditionType<C extends StructureCondition> {
             .dispatch("type", StructureCondition::type, StructureConditionType::codec);
 
     /* Types. Add any new types here! */
-    StructureConditionType<AltitudeCondition> ALTITUDE = register("altitude", AltitudeCondition.CODEC);
+    StructureConditionType<AlwaysTrueCondition> ALWAYS_TRUE = register("always_true", AlwaysTrueCondition.CODEC);
     StructureConditionType<AnyOfCondition> ANY_OF = register("any_of", AnyOfCondition.CODEC);
     StructureConditionType<AllOfCondition> ALL_OF = register("all_of", AllOfCondition.CODEC);
+    StructureConditionType<AltitudeCondition> ALTITUDE = register("altitude", AltitudeCondition.CODEC);
+    StructureConditionType<DepthCondition> DEPTH = register("depth", DepthCondition.CODEC);
 
     /**
      * Utility method for registering StructureConditionTypes.
