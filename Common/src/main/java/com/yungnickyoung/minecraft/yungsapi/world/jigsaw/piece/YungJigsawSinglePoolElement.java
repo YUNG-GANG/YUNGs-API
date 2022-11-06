@@ -37,16 +37,16 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
             ).apply(builder, YungJigsawSinglePoolElement::new));
 
     /**
-     * The maximum possible number of pieces with this name.
-     * If this setting is used, the 'name' MUST be specified.
-     */
-    public final Optional<Integer> maxCount;
-
-    /**
      * The name of this piece.
      * Solely used to uniquely identify pieces for the sake of tracking max_count.
      */
     public final Optional<String> name;
+
+    /**
+     * The maximum possible number of pieces with this name.
+     * If this setting is used, the 'name' MUST be specified.
+     */
+    public final Optional<Integer> maxCount;
 
     /**
      * The minimum required depth (in jigsaw pieces) from the structure start
