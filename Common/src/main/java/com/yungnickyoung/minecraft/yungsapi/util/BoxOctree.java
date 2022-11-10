@@ -113,6 +113,23 @@ public class BoxOctree {
         }
     }
 
+    public void removeBox(AABB axisAlignedBB) {
+        if (!childrenOctants.isEmpty()) {
+            for (BoxOctree octree : childrenOctants) {
+                if (octree.boundaryIntersectsFuzzy(axisAlignedBB)) {
+                    octree.removeBox(axisAlignedBB);
+                }
+            }
+        } else {
+            for (AABB innerBox : innerBoxes) {
+                if (innerBox.equals(axisAlignedBB)) {
+                    innerBoxes.remove(innerBox);
+                    return;
+                }
+            }
+        }
+    }
+
     public boolean boundaryIntersectsFuzzy(AABB axisAlignedBB) {
         return boundary.inflate(axisAlignedBB.getSize() / 2).intersects(axisAlignedBB);
     }

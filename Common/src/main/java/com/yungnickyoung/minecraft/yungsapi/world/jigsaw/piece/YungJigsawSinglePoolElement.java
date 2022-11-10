@@ -33,7 +33,8 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
                     Codec.BOOL.optionalFieldOf("is_priority", false).forGetter(element -> element.isPriority),
                     Codec.BOOL.optionalFieldOf("ignore_bounds", false).forGetter(element -> element.ignoreBounds),
                     StructureConditionType.CONDITION_CODEC.optionalFieldOf("condition", StructureCondition.ALWAYS_TRUE).forGetter(element -> element.condition),
-                    EnhancedTerrainAdaptation.CODEC.optionalFieldOf("enhanced_terrain_adaptation").forGetter(element -> element.enhancedTerrainAdaptation)
+                    EnhancedTerrainAdaptation.CODEC.optionalFieldOf("enhanced_terrain_adaptation").forGetter(element -> element.enhancedTerrainAdaptation),
+                    Codec.BOOL.optionalFieldOf("deadend_adjustment", false).forGetter(element -> element.deadendAdjustment)
             ).apply(builder, YungJigsawSinglePoolElement::new));
 
     /**
@@ -91,6 +92,25 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
      */
     public final Optional<EnhancedTerrainAdaptation> enhancedTerrainAdaptation;
 
+    /**
+     * Whether this piece should apply dead end adjustments.
+     * If enabled, this piece has the possibility of being converted into one of its fallback pieces under certain conditions:
+     * <ul>
+     *     <li>This piece has one or more jigsaw blocks in addition to the one required to connect to its parent piece.</li>
+     *     <li>This piece is not able to generate any other pieces from itself, including encased pieces.
+     *     This could be due to either overlap with other pieces or reaching the max depth.</li>
+     * </ul>
+     * If both of these conditions are met, then a piece marked for deadend adjustments will be replaced with
+     * an appropriate piece from its fallback pool instead.
+     * <br />
+     * <p>
+     * <b>Note that at least one of the fallback pool elements MUST be a "true" terminator, i.e. have NO jigsaw pieces
+     * except the one required for connection to its parent piece.</b> If all of your fallback pieces have more than one
+     * jigsaw block, your structure's generation may get stuck in an infinite loop!
+     * </p>
+     */
+    public final boolean deadendAdjustment;
+
     public YungJigsawSinglePoolElement(
             Either<ResourceLocation, StructureTemplate> resourceLocation,
             Holder<StructureProcessorList> processors,
@@ -102,7 +122,8 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
             boolean isPriority,
             boolean ignoreBounds,
             StructureCondition condition,
-            Optional<EnhancedTerrainAdaptation> enhancedTerrainAdaptation
+            Optional<EnhancedTerrainAdaptation> enhancedTerrainAdaptation,
+            boolean deadendAdjustment
     ) {
         super(resourceLocation, processors, projection);
         this.maxCount = maxCount;
@@ -113,6 +134,7 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
         this.ignoreBounds = ignoreBounds;
         this.condition = condition;
         this.enhancedTerrainAdaptation = enhancedTerrainAdaptation;
+        this.deadendAdjustment = deadendAdjustment;
     }
 
     public StructurePoolElementType<?> getType() {
@@ -153,5 +175,9 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
 
     public boolean hasEnhancedTerrainAdaptation() {
         return this.enhancedTerrainAdaptation.isPresent();
+    }
+
+    public boolean deadendAdjustment() {
+        return this.deadendAdjustment;
     }
 }

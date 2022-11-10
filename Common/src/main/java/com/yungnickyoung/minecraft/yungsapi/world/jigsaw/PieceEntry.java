@@ -1,7 +1,10 @@
 package com.yungnickyoung.minecraft.yungsapi.world.jigsaw;
 
 import com.yungnickyoung.minecraft.yungsapi.util.BoxOctree;
+import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.YungJigsawSinglePoolElement;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
+import net.minecraft.world.level.levelgen.structure.pools.JigsawJunction;
+import net.minecraft.world.phys.AABB;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.ArrayList;
@@ -11,17 +14,22 @@ import java.util.Objects;
 public class PieceEntry {
     private final PoolElementStructurePiece piece;
     private final MutableObject<BoxOctree> boxOctree;
+    private final AABB pieceAabb;
     private final int depth;
     private final List<PieceEntry> childEntries = new ArrayList<>();
     private final PieceEntry parentEntry;
     private final JigsawManager.PieceContext sourcePieceContext;
+    private final JigsawJunction parentJunction;
 
-    public PieceEntry(PoolElementStructurePiece piece, MutableObject<BoxOctree> boxOctree, int depth, PieceEntry parentEntry, JigsawManager.PieceContext sourcePieceContext) {
+    public PieceEntry(PoolElementStructurePiece piece,MutableObject<BoxOctree> boxOctree, AABB pieceAabb, int depth,
+                      PieceEntry parentEntry, JigsawManager.PieceContext sourcePieceContext, JigsawJunction parentJunction) {
         this.piece = piece;
         this.boxOctree = boxOctree;
+        this.pieceAabb = pieceAabb;
         this.depth = depth;
         this.parentEntry = parentEntry;
         this.sourcePieceContext = sourcePieceContext;
+        this.parentJunction = parentJunction;
     }
 
     public void addChildEntry(PieceEntry childEntry) {
@@ -50,6 +58,19 @@ public class PieceEntry {
 
     public JigsawManager.PieceContext getSourcePieceContext() {
         return sourcePieceContext;
+    }
+
+    public AABB getPieceAabb() {
+        return pieceAabb;
+    }
+
+    public JigsawJunction getParentJunction() {
+        return parentJunction;
+    }
+
+    public boolean hasDeadendAdjustment() {
+        return this.piece.getElement() instanceof YungJigsawSinglePoolElement yungElement
+                && yungElement.deadendAdjustment();
     }
 
     @Override
