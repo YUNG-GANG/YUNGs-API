@@ -35,6 +35,7 @@ public interface StructureConditionType<C extends StructureCondition> {
     StructureConditionType<AlwaysTrueCondition> ALWAYS_TRUE = register("always_true", AlwaysTrueCondition.CODEC);
     StructureConditionType<AnyOfCondition> ANY_OF = register("any_of", AnyOfCondition.CODEC);
     StructureConditionType<AllOfCondition> ALL_OF = register("all_of", AllOfCondition.CODEC);
+    StructureConditionType<NotCondition> NOT = register("not", NotCondition.CODEC);
     StructureConditionType<AltitudeCondition> ALTITUDE = register("altitude", AltitudeCondition.CODEC);
     StructureConditionType<DepthCondition> DEPTH = register("depth", DepthCondition.CODEC);
 
