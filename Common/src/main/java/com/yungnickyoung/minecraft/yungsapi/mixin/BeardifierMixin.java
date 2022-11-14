@@ -1,12 +1,12 @@
 package com.yungnickyoung.minecraft.yungsapi.mixin;
 
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.BeardifierAccessor;
-import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.YungJigsawSinglePoolElement;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawSinglePoolElement;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.YungJigsawStructure;
-import com.yungnickyoung.minecraft.yungsapi.world.terrainadaptation.EnhancedTerrainAdaptation;
-import com.yungnickyoung.minecraft.yungsapi.world.terrainadaptation.beardifier.EnhancedBeardifierData;
-import com.yungnickyoung.minecraft.yungsapi.world.terrainadaptation.beardifier.EnhancedBeardifierRigid;
-import com.yungnickyoung.minecraft.yungsapi.world.terrainadaptation.beardifier.EnhancedJigsawJunction;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.EnhancedTerrainAdaptation;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.beardifier.EnhancedBeardifierData;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.beardifier.EnhancedBeardifierRigid;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.beardifier.EnhancedJigsawJunction;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;

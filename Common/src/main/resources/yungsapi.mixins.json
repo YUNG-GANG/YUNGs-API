@@ -14,6 +14,7 @@
     "accessor.CriteriaTriggersAccessor",
     "accessor.FeaturePoolElementAccessor",
     "accessor.ListPoolElementAccessor",
+    "accessor.SinglePoolElementAccessor",
     "accessor.StructureTemplatePoolAccessor"
   ],
   "injectors": {

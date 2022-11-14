@@ -2,7 +2,7 @@ package com.yungnickyoung.minecraft.yungsapi.module;
 
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegister;
-import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.*;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.*;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType;
 
 @AutoRegister(YungsApiCommon.MOD_ID)
