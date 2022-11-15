@@ -68,7 +68,7 @@ public class TransformAction extends StructureAction {
                 new YungJigsawSinglePoolElement(newTemplate, ((SinglePoolElementAccessor)old).getProcessors(),
                         old.getProjection(), old.name, old.maxCount, old.minRequiredDepth, old.maxPossibleDepth,
                         old.isPriority, old.ignoreBounds, old.condition, old.enhancedTerrainAdaptation,
-                        old.deadendAdjustment, old.modifiers),
+                        old.deadendPool, old.modifiers),
                 targetPieceEntry.getPiece().getPosition(),
                 targetPieceEntry.getPiece().getGroundLevelDelta(),
                 targetPieceEntry.getPiece().getRotation(),

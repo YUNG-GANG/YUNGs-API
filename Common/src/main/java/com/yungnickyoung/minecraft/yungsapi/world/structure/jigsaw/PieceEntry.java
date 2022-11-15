@@ -72,9 +72,9 @@ public class PieceEntry {
         return parentJunction;
     }
 
-    public boolean hasDeadendAdjustment() {
+    public boolean hasDeadendPool() {
         return this.piece.getElement() instanceof YungJigsawSinglePoolElement yungElement
-                && yungElement.deadendAdjustment();
+                && yungElement.hasDeadendPool();
     }
 
     @Override

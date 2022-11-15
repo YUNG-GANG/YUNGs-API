@@ -174,7 +174,7 @@ public class BlockStateRandomizer {
      * Randomly select a BlockState from this BlockSetSelector.
      * The RandomSource provided should be one used in generation of your structure or feature,
      * to ensure reproducibility for the same world seed.
-     * Enforces conditions via the ConditionContext passed in.
+     * Enforces conditions via the StructureContext passed in.
      */
     public BlockState get(RandomSource randomSource, StructureContext ctx) {
         float target = randomSource.nextFloat();

@@ -2,6 +2,7 @@ package com.yungnickyoung.minecraft.yungsapi.world.structure.context;
 
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.PieceEntry;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public class StructureContext {
     private final int pieceMaxY;
     private final int depth;
     private final BlockPos pos;
+    private final Rotation rotation;
     private final StructureTemplateManager structureTemplateManager;
     private final List<PieceEntry> pieces;
     private final PieceEntry pieceEntry;
@@ -28,6 +30,7 @@ public class StructureContext {
         this.structureTemplateManager = builder.structureTemplateManager;
         this.pieces = builder.pieces;
         this.pieceEntry = builder.pieceEntry;
+        this.rotation = builder.rotation;
     }
 
     public int pieceMinY() {
@@ -44,6 +47,10 @@ public class StructureContext {
 
     public BlockPos pos() {
         return pos;
+    }
+
+    public Rotation rotation() {
+        return rotation;
     }
 
     public StructureTemplateManager structureTemplateManager() {
@@ -63,6 +70,7 @@ public class StructureContext {
         private int pieceMaxY = 0;
         private int depth = 0;
         private BlockPos pos = null;
+        private Rotation rotation = null;
         private StructureTemplateManager structureTemplateManager = null;
         private List<PieceEntry> pieces = null;
         private PieceEntry pieceEntry = null;
@@ -87,6 +95,11 @@ public class StructureContext {
 
         public Builder pos(BlockPos pos) {
             this.pos = pos;
+            return this;
+        }
+
+        public Builder rotation(Rotation rotation) {
+            this.rotation = rotation;
             return this;
         }
 

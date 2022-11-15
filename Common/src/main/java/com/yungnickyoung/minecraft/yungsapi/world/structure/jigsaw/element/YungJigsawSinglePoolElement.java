@@ -38,7 +38,7 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
                     Codec.BOOL.optionalFieldOf("ignore_bounds", false).forGetter(element -> element.ignoreBounds),
                     StructureConditionType.CONDITION_CODEC.optionalFieldOf("condition", StructureCondition.ALWAYS_TRUE).forGetter(element -> element.condition),
                     EnhancedTerrainAdaptation.CODEC.optionalFieldOf("enhanced_terrain_adaptation").forGetter(element -> element.enhancedTerrainAdaptation),
-                    Codec.BOOL.optionalFieldOf("deadend_adjustment", false).forGetter(element -> element.deadendAdjustment),
+                    ResourceLocation.CODEC.optionalFieldOf("deadend_pool").forGetter(element -> element.deadendPool),
                     StructureModifier.CODEC.listOf().optionalFieldOf("modifiers", new ArrayList<>()).forGetter(element -> element.modifiers)
             ).apply(builder, YungJigsawSinglePoolElement::new));
 
@@ -97,8 +97,6 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
      */
     public final Optional<EnhancedTerrainAdaptation> enhancedTerrainAdaptation;
 
-    public final List<StructureModifier> modifiers;
-
     /**
      * Whether this piece should apply dead end adjustments.
      * If enabled, this piece has the possibility of being converted into one of its fallback pieces under certain conditions:
@@ -116,7 +114,9 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
      * jigsaw block, your structure's generation may get stuck in an infinite loop!
      * </p>
      */
-    public final boolean deadendAdjustment;
+    public final Optional<ResourceLocation> deadendPool;
+
+    public final List<StructureModifier> modifiers;
 
     public YungJigsawSinglePoolElement(
             Either<ResourceLocation, StructureTemplate> resourceLocation,
@@ -130,7 +130,7 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
             boolean ignoreBounds,
             StructureCondition condition,
             Optional<EnhancedTerrainAdaptation> enhancedTerrainAdaptation,
-            boolean deadendAdjustment,
+            Optional<ResourceLocation> deadendPool,
             List<StructureModifier> modifiers
     ) {
         super(resourceLocation, processors, projection);
@@ -142,7 +142,7 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
         this.ignoreBounds = ignoreBounds;
         this.condition = condition;
         this.enhancedTerrainAdaptation = enhancedTerrainAdaptation;
-        this.deadendAdjustment = deadendAdjustment;
+        this.deadendPool = deadendPool;
         this.modifiers = modifiers;
     }
 
@@ -186,8 +186,12 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
         return this.enhancedTerrainAdaptation.isPresent();
     }
 
-    public boolean deadendAdjustment() {
-        return this.deadendAdjustment;
+    public ResourceLocation getDeadendPool() {
+        return this.deadendPool.get();
+    }
+
+    public boolean hasDeadendPool() {
+        return this.deadendPool.isPresent();
     }
 
     public boolean hasModifiers() {

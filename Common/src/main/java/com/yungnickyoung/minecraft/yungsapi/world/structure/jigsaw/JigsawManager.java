@@ -124,7 +124,7 @@ public class JigsawManager {
             maxStructureBounds.addBox(AABB.of(pieceBoundingBox)); // Add start piece to our structure's bounds
 
             // Create placer + initial entry
-            Assembler assembler = new Assembler(registry, maxDepth, chunkGenerator, structureManager, pieces, worldgenRandom, maxY, minY);
+            Assembler assembler = new Assembler(registry, maxDepth, chunkGenerator, structureManager, pieces, worldgenRandom, maxY, minY, useExpansionHack, levelHeightAccessor);
             PieceEntry startPieceEntry = new PieceEntry(startPiece, new MutableObject<>(maxStructureBounds), null, 0, null, null, null);
             pieces.add(startPieceEntry);
 
@@ -134,7 +134,7 @@ public class JigsawManager {
             // Assemble the structure
             while (!assembler.unprocessedPieceEntries.isEmpty()) {
                 PieceEntry entry = assembler.unprocessedPieceEntries.removeFirst();
-                assembler.processPieceEntry(entry, useExpansionHack, levelHeightAccessor, generationContext.randomState());
+                assembler.processPieceEntry(entry, generationContext.randomState());
             }
 
             // Final modifications
@@ -144,6 +144,8 @@ public class JigsawManager {
                         PoolElementStructurePiece piece = pieceEntry.getPiece();
                         StructureContext structureContext = new StructureContext.Builder()
                                 .pos(piece.getPosition())
+                                .rotation(piece.getRotation())
+                                .depth(pieceEntry.getDepth())
                                 .structureTemplateManager(structureManager)
                                 .pieceEntry(pieceEntry)
                                 .pieces(pieces)
@@ -181,6 +183,8 @@ public class JigsawManager {
         private final List<PieceEntry> pieces;
         private final RandomSource rand;
         public final Deque<PieceEntry> unprocessedPieceEntries = Queues.newArrayDeque();
+        private final boolean useExpansionHack;
+        private final LevelHeightAccessor levelHeightAccessor;
 
         // Additional, non-vanilla behavior
         private final Map<String, Integer> pieceCounts;
@@ -196,7 +200,9 @@ public class JigsawManager {
                 List<PieceEntry> pieces,
                 RandomSource rand,
                 Optional<Integer> maxY,
-                Optional<Integer> minY
+                Optional<Integer> minY,
+                boolean useExpansionHack,
+                LevelHeightAccessor levelHeightAccessor
         ) {
             this.poolRegistry = poolRegistry;
             this.maxDepth = maxDepth;
@@ -204,6 +210,8 @@ public class JigsawManager {
             this.structureTemplateManager = structureTemplateManager;
             this.pieces = pieces;
             this.rand = rand;
+            this.useExpansionHack = useExpansionHack;
+            this.levelHeightAccessor = levelHeightAccessor;
 
             // Initialize piece counts
             this.pieceCounts = new HashMap<>();
@@ -212,29 +220,18 @@ public class JigsawManager {
             this.minY = minY;
         }
 
-        public void processPieceEntry(
-                PieceEntry pieceEntry,
-                boolean useExpansionHack,
-                LevelHeightAccessor levelHeightAccessor,
-                RandomState randomState
-        ) {
-            processPieceEntry(pieceEntry, useExpansionHack, levelHeightAccessor, randomState, false, true);
+        public void processPieceEntry(PieceEntry pieceEntry, RandomState randomState) {
+            processPieceEntry(pieceEntry, randomState, false, true);
         }
 
         public void processPieceEntry(
                 PieceEntry pieceEntry,
-                boolean useExpansionHack,
-                LevelHeightAccessor levelHeightAccessor,
                 RandomState randomState,
                 boolean forceUseFallback,
                 boolean doDeadendCheck
         ) {
             // Collect data from params regarding piece to process
             PoolElementStructurePiece piece = pieceEntry.getPiece();
-            int depth = pieceEntry.getDepth();
-            BoundingBox pieceBoundingBox = piece.getBoundingBox();
-            int pieceMinY = pieceBoundingBox.minY();
-            MutableObject<BoxOctree> parentOctree = new MutableObject<>();
 
             // Get list of all jigsaw blocks in this piece
             List<StructureTemplate.StructureBlockInfo> pieceJigsawBlocks = piece.getElement().getShuffledJigsawBlocks(
@@ -246,71 +243,28 @@ public class JigsawManager {
             boolean generatedAtLeastOneChildPiece = false;
 
             for (StructureTemplate.StructureBlockInfo jigsawBlockInfo : pieceJigsawBlocks) {
-                // Gather jigsaw block information
-                Direction direction = JigsawBlock.getFrontFacing(jigsawBlockInfo.state);
-                BlockPos jigsawBlockPos = jigsawBlockInfo.pos;
-                BlockPos jigsawBlockTargetPos = jigsawBlockPos.relative(direction);
-
-                // Get the jigsaw block's piece pool
+                // Get the jigsaw block's target pool
                 ResourceLocation targetPoolId = new ResourceLocation(jigsawBlockInfo.nbt.getString("pool"));
-                Optional<StructureTemplatePool> poolOptional = this.poolRegistry.getOptional(targetPoolId);
-
-                // Only continue if our pool exists and is not empty.
-                // The only allowed empty pool is minecraft:empty.
-                if (poolOptional.isEmpty() || (poolOptional.get().size() == 0 && !Objects.equals(targetPoolId, Pools.EMPTY.location()))) {
-                    YungsApiCommon.LOGGER.warn("Empty or nonexistent pool: {}", targetPoolId);
-                    continue;
-                }
-
-                StructureTemplatePool targetPool = poolOptional.get();
+                Optional<StructureTemplatePool> targetPool = getPoolFromId(targetPoolId);
+                if (targetPool.isEmpty()) continue;
 
                 // Get the jigsaw block's fallback pool (defined in the pool's JSON)
-                ResourceLocation targetPoolFallbackId = targetPool.getFallback();
-                Optional<StructureTemplatePool> fallbackPoolOptional = this.poolRegistry.getOptional(targetPoolFallbackId);
+                ResourceLocation fallbackPoolId = targetPool.get().getFallback();
+                Optional<StructureTemplatePool> fallbackPool = getPoolFromId(fallbackPoolId);
+                if (fallbackPool.isEmpty()) continue;
 
-                // Only continue if the fallback pool exists and is not empty.
-                // The only allowed empty pool is minecraft:empty.
-                if (fallbackPoolOptional.isEmpty() || (fallbackPoolOptional.get().size() == 0 && !Objects.equals(targetPoolFallbackId, Pools.EMPTY.location()))) {
-                    YungsApiCommon.LOGGER.warn("Empty or nonexistent fallback pool: {}", targetPoolFallbackId);
-                    continue;
-                }
-
-                StructureTemplatePool fallbackPool = fallbackPoolOptional.get();
-
-                // Adjustments for if the target block position is inside the current piece
-                boolean isTargetInsideCurrentPiece = pieceBoundingBox.isInside(jigsawBlockTargetPos);
-                MutableObject<BoxOctree> octreeToUse;
-                if (isTargetInsideCurrentPiece) {
-                    octreeToUse = parentOctree;
-                    if (parentOctree.getValue() == null) {
-                        parentOctree.setValue(new BoxOctree(AABB.of(pieceBoundingBox)));
-                    }
-                } else {
-                    octreeToUse = pieceEntry.getBoxOctree();
-                }
-
+                PieceContext pieceContext = createPieceContextForJigsawBlock(jigsawBlockInfo, pieceEntry, randomState);
                 StructurePoolElement newlyGeneratedPiece = null;
-                PieceContext pieceContext = new PieceContext(
-                        new ObjectArrayList<>(((StructureTemplatePoolAccessor) targetPool).getRawTemplates()),
-                        useExpansionHack,
-                        jigsawBlockInfo,
-                        jigsawBlockTargetPos,
-                        pieceMinY,
-                        jigsawBlockPos,
-                        octreeToUse,
-                        pieceEntry,
-                        depth,
-                        levelHeightAccessor,
-                        randomState);
 
                 // Attempt to place a piece from the target pool
-                if (depth != this.maxDepth && !forceUseFallback) {
+                if (pieceEntry.getDepth() != this.maxDepth && !forceUseFallback) {
+                    pieceContext.candidatePoolElements = new ObjectArrayList<>(((StructureTemplatePoolAccessor) targetPool.get()).getRawTemplates());
                     newlyGeneratedPiece = this.processList(pieceContext);
                 }
 
                 // If no pieces in the target pool could be placed, try the fallback pool
                 if (newlyGeneratedPiece == null) {
-                    pieceContext.candidatePoolElements = new ObjectArrayList<>(((StructureTemplatePoolAccessor) fallbackPool).getRawTemplates());
+                    pieceContext.candidatePoolElements = new ObjectArrayList<>(((StructureTemplatePoolAccessor) fallbackPool.get()).getRawTemplates());
                     newlyGeneratedPiece = this.processList(pieceContext);
                 }
 
@@ -324,18 +278,68 @@ public class JigsawManager {
                convert this piece to a dead end.
                This is accomplished by re-processing its parent piece, but force using the fallback pool.
              */
-            if (pieceEntry.hasDeadendAdjustment() && !generatedAtLeastOneChildPiece && doDeadendCheck && pieceJigsawBlocks.size() > 1) {
-                // Replace this piece with one from its fallback pool
+            if (pieceEntry.hasDeadendPool() && !generatedAtLeastOneChildPiece && doDeadendCheck && pieceJigsawBlocks.size() > 1) {
+                // Get deadend pool from id
+                ResourceLocation deadendPoolId = ((YungJigsawSinglePoolElement) piece.getElement()).getDeadendPool();
+                Optional<StructureTemplatePool> deadendPool = this.poolRegistry.getOptional(deadendPoolId);
+                if (deadendPool.isEmpty()) {
+                    YungsApiCommon.LOGGER.error("Unable to find deadend pool {} for element {}", deadendPoolId, piece.getElement());
+                    return;
+                }
+
                 PieceEntry parentEntry = pieceEntry.getParentEntry();
-                PieceContext sourceContext = pieceEntry.getSourcePieceContext();
+                PieceContext newContext = pieceEntry.getSourcePieceContext().copy();
+                newContext.candidatePoolElements = new ObjectArrayList<>(((StructureTemplatePoolAccessor) deadendPool.get()).getRawTemplates());;
                 AABB pieceAabb = pieceEntry.getPieceAabb();
                 if (parentEntry != null && pieceAabb != null) {
                     parentEntry.getPiece().getJunctions().remove(pieceEntry.getParentJunction());
                     pieceEntry.getBoxOctree().getValue().removeBox(pieceAabb);
                     this.pieces.remove(pieceEntry);
-                    this.processPieceEntry(parentEntry, useExpansionHack, levelHeightAccessor, randomState, true, false);
+                    this.processList(newContext);
                 }
             }
+        }
+
+        private Optional<StructureTemplatePool> getPoolFromId(ResourceLocation id) {
+            Optional<StructureTemplatePool> pool = this.poolRegistry.getOptional(id);
+
+            // Check if pool is empty. The only allowed empty pool is minecraft:empty.
+            if (pool.isEmpty() || (pool.get().size() == 0 && !Objects.equals(id, Pools.EMPTY.location()))) {
+                YungsApiCommon.LOGGER.warn("Empty or nonexistent pool: {}", id);
+                return Optional.empty();
+            }
+
+            return pool;
+        }
+
+        private PieceContext createPieceContextForJigsawBlock(StructureTemplate.StructureBlockInfo jigsawBlockInfo, PieceEntry pieceEntry, RandomState randomState) {
+            BoundingBox pieceBoundingBox = pieceEntry.getPiece().getBoundingBox();
+            MutableObject<BoxOctree> pieceOctree = pieceEntry.getBoxOctree();
+            MutableObject<BoxOctree> parentOctree = new MutableObject<>();
+
+            // Gather jigsaw block information
+            Direction direction = JigsawBlock.getFrontFacing(jigsawBlockInfo.state);
+            BlockPos jigsawBlockTargetPos = jigsawBlockInfo.pos.relative(direction);
+
+            // Adjustments for if the target block position is inside the current piece
+            boolean isTargetInsideCurrentPiece = pieceBoundingBox.isInside(jigsawBlockTargetPos);
+            if (isTargetInsideCurrentPiece) {
+                pieceOctree = parentOctree;
+                if (parentOctree.getValue() == null) {
+                    parentOctree.setValue(new BoxOctree(AABB.of(pieceBoundingBox)));
+                }
+            }
+
+            return new PieceContext(
+                    null,
+                    jigsawBlockInfo,
+                    jigsawBlockTargetPos,
+                    pieceBoundingBox.minY(),
+                    jigsawBlockInfo.pos,
+                    pieceOctree,
+                    pieceEntry,
+                    pieceEntry.getDepth(),
+                    randomState);
         }
 
         /**
@@ -465,7 +469,7 @@ public class JigsawManager {
                     // Not sure on this - personally, I never enable useExpansionHack.
                     BoundingBox tempCandidateBoundingBox = chosenPoolElement.getBoundingBox(this.structureTemplateManager, BlockPos.ZERO, rotation);
                     int candidateHeightAdjustments = 0;
-                    if (context.useExpansionHack && tempCandidateBoundingBox.getYSpan() <= 16) {
+                    if (this.useExpansionHack && tempCandidateBoundingBox.getYSpan() <= 16) {
                         candidateHeightAdjustments = candidateJigsawBlocks.stream().mapToInt((pieceCandidateJigsawBlock) -> {
                             if (!tempCandidateBoundingBox.isInside(pieceCandidateJigsawBlock.pos.relative(JigsawBlock.getFrontFacing(pieceCandidateJigsawBlock.state)))) {
                                 return 0;
@@ -505,7 +509,7 @@ public class JigsawManager {
                             adjustedCandidatePieceMinY = context.pieceMinY + candidateJigsawYOffsetNeeded;
                         } else {
                             if (surfaceHeight == -1) {
-                                surfaceHeight = this.chunkGenerator.getFirstFreeHeight(context.jigsawBlockPos.getX(), context.jigsawBlockPos.getZ(), Heightmap.Types.WORLD_SURFACE_WG, context.levelHeightAccessor, context.randomState);
+                                surfaceHeight = this.chunkGenerator.getFirstFreeHeight(context.jigsawBlockPos.getX(), context.jigsawBlockPos.getZ(), Heightmap.Types.WORLD_SURFACE_WG, levelHeightAccessor, context.randomState);
                             }
 
                             adjustedCandidatePieceMinY = surfaceHeight - candidateJigsawBlockRelativeY;
@@ -547,21 +551,6 @@ public class JigsawManager {
                             }
                         }
 
-                        // Validate conditions for this piece, if applicable
-                        if (chosenPoolElement instanceof YungJigsawSinglePoolElement yungSingleElement) {
-                            StructureContext ctx = new StructureContext.Builder()
-                                    .pieceMinY(adjustedCandidateBoundingBox.minY())
-                                    .pieceMaxY(adjustedCandidateBoundingBox.maxY())
-                                    .depth(context.depth)
-                                    .build();
-                            if (!yungSingleElement.passesConditions(ctx)) {
-                                continue; // Abort this piece & rotation if it doesn't pass conditions check
-                            }
-                        }
-
-                        // At this point we are locked in for adding this piece, so add its box to the structure's
-                        context.boxOctree.getValue().addBox(aabb);
-
                         // Determine ground level delta for this new piece
                         int newPieceGroundLevelDelta = piece.getGroundLevelDelta();
                         int groundLevelDelta;
@@ -571,16 +560,6 @@ public class JigsawManager {
                             groundLevelDelta = chosenPoolElement.getGroundLevelDelta();
                         }
 
-                        // Create new piece
-                        PoolElementStructurePiece newPiece = new PoolElementStructurePiece(
-                                this.structureTemplateManager,
-                                chosenPoolElement,
-                                adjustedCandidateJigsawBlockRelativePos,
-                                groundLevelDelta,
-                                rotation,
-                                adjustedCandidateBoundingBox
-                        );
-
                         // Determine actual y-value for the new jigsaw block
                         int candidateJigsawBlockY;
                         if (isPieceRigid) {
@@ -589,19 +568,49 @@ public class JigsawManager {
                             candidateJigsawBlockY = adjustedCandidatePieceMinY + candidateJigsawBlockRelativeY;
                         } else {
                             if (surfaceHeight == -1) {
-                                surfaceHeight = this.chunkGenerator.getFirstFreeHeight(context.jigsawBlockPos.getX(), context.jigsawBlockPos.getZ(), Heightmap.Types.WORLD_SURFACE_WG, context.levelHeightAccessor, context.randomState);
+                                surfaceHeight = this.chunkGenerator.getFirstFreeHeight(context.jigsawBlockPos.getX(), context.jigsawBlockPos.getZ(), Heightmap.Types.WORLD_SURFACE_WG, levelHeightAccessor, context.randomState);
                             }
 
                             candidateJigsawBlockY = surfaceHeight + candidateJigsawYOffsetNeeded / 2;
                         }
 
-                        // Add the junction to the existing piece
+                        // Create new piece info
+                        PoolElementStructurePiece newPiece = new PoolElementStructurePiece(
+                                this.structureTemplateManager,
+                                chosenPoolElement,
+                                adjustedCandidateJigsawBlockRelativePos,
+                                groundLevelDelta,
+                                rotation,
+                                adjustedCandidateBoundingBox);
+
                         JigsawJunction newJunctionOnParent = new JigsawJunction(
                                 context.jigsawBlockTargetPos.getX(),
                                 candidateJigsawBlockY - jigsawBlockRelativeY + newPieceGroundLevelDelta,
                                 context.jigsawBlockTargetPos.getZ(),
                                 candidateJigsawYOffsetNeeded,
                                 candidatePlacementBehavior);
+
+                        PieceEntry newPieceEntry = new PieceEntry(newPiece, context.boxOctree, aabb,
+                                context.depth + 1, context.pieceEntry, context.copy(), newJunctionOnParent);
+
+                        // Validate conditions for this piece, if applicable
+                        if (chosenPoolElement instanceof YungJigsawSinglePoolElement yungSingleElement) {
+                            StructureContext ctx = new StructureContext.Builder()
+                                    .structureTemplateManager(this.structureTemplateManager)
+                                    .pieces(this.pieces)
+                                    .pieceEntry(newPieceEntry)
+                                    .pos(adjustedCandidateJigsawBlockRelativePos)
+                                    .rotation(rotation)
+                                    .pieceMinY(adjustedCandidateBoundingBox.minY())
+                                    .pieceMaxY(adjustedCandidateBoundingBox.maxY())
+                                    .depth(context.depth + 1)
+                                    .build();
+                            if (!yungSingleElement.passesConditions(ctx)) {
+                                continue; // Abort this piece & rotation if it doesn't pass conditions check
+                            }
+                        }
+
+                        // Add the junction to the existing piece
                         piece.addJunction(newJunctionOnParent);
 
                         // Add the junction to the new piece
@@ -614,9 +623,10 @@ public class JigsawManager {
                                         piece.getElement().getProjection())
                         );
 
+                        // Add the new piece's box to the structure's
+                        context.boxOctree.getValue().addBox(aabb);
+
                         // Add the piece
-                        PieceEntry newPieceEntry = new PieceEntry(newPiece, context.boxOctree, aabb,
-                                context.depth + 1, context.pieceEntry, context.copy(), newJunctionOnParent);
                         this.pieces.add(newPieceEntry);
                         context.pieceEntry.addChildEntry(newPieceEntry);
 
@@ -656,7 +666,6 @@ public class JigsawManager {
 
     public static class PieceContext {
         public ObjectArrayList<Pair<StructurePoolElement, Integer>> candidatePoolElements;
-        public boolean useExpansionHack;
         public StructureTemplate.StructureBlockInfo jigsawBlock;
         public BlockPos jigsawBlockTargetPos;
         public int pieceMinY;
@@ -664,11 +673,9 @@ public class JigsawManager {
         public MutableObject<BoxOctree> boxOctree;
         public PieceEntry pieceEntry;
         public int depth;
-        public LevelHeightAccessor levelHeightAccessor;
         public RandomState randomState;
 
         public PieceContext(ObjectArrayList<Pair<StructurePoolElement, Integer>> candidatePoolElements,
-                            boolean useExpansionHack,
                             StructureTemplate.StructureBlockInfo jigsawBlock,
                             BlockPos jigsawBlockTargetPos,
                             int pieceMinY,
@@ -676,10 +683,8 @@ public class JigsawManager {
                             MutableObject<BoxOctree> boxOctree,
                             PieceEntry pieceEntry,
                             int depth,
-                            LevelHeightAccessor levelHeightAccessor,
                             RandomState randomState) {
             this.candidatePoolElements = candidatePoolElements;
-            this.useExpansionHack = useExpansionHack;
             this.jigsawBlock = jigsawBlock;
             this.jigsawBlockTargetPos = jigsawBlockTargetPos;
             this.pieceMinY = pieceMinY;
@@ -687,13 +692,12 @@ public class JigsawManager {
             this.boxOctree = boxOctree;
             this.pieceEntry = pieceEntry;
             this.depth = depth;
-            this.levelHeightAccessor = levelHeightAccessor;
             this.randomState = randomState;
         }
 
         public PieceContext copy() {
-            return new PieceContext(candidatePoolElements, useExpansionHack, jigsawBlock, jigsawBlockTargetPos,
-                    pieceMinY, jigsawBlockPos, boxOctree, pieceEntry, depth, levelHeightAccessor, randomState);
+            return new PieceContext(candidatePoolElements, jigsawBlock, jigsawBlockTargetPos,
+                    pieceMinY, jigsawBlockPos, boxOctree, pieceEntry, depth, randomState);
         }
     }
 }
