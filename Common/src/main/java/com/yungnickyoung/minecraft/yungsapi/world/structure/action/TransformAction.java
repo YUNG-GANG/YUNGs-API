@@ -9,6 +9,7 @@ import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.SinglePoolElementAcce
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.PieceEntry;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawSinglePoolElement;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
@@ -30,7 +31,10 @@ public class TransformAction extends StructureAction {
 
     public static final Codec<TransformAction> CODEC = RecordCodecBuilder.create((builder) -> builder
             .group(
-                    TEMPLATE_CODEC.listOf().fieldOf("output").forGetter(action -> action.output))
+                    TEMPLATE_CODEC.listOf().fieldOf("output").forGetter(action -> action.output),
+                    Codec.INT.optionalFieldOf("x_offset", 0).forGetter(action -> action.xOffset),
+                    Codec.INT.optionalFieldOf("y_offset", 0).forGetter(action -> action.yOffset),
+                    Codec.INT.optionalFieldOf("z_offset", 0).forGetter(action -> action.zOffset))
             .apply(builder, TransformAction::new));
 
     /**
@@ -45,8 +49,20 @@ public class TransformAction extends StructureAction {
 
     private final List<Either<ResourceLocation, StructureTemplate>> output;
 
-    public TransformAction(List<Either<ResourceLocation, StructureTemplate>> output) {
+    private final int xOffset;
+
+    private final int yOffset;
+
+    private final int zOffset;
+
+    public TransformAction(List<Either<ResourceLocation, StructureTemplate>> output,
+                           int xOffset,
+                           int yOffset,
+                           int zOffset) {
         this.output = output;
+        this.xOffset = xOffset;
+        this.yOffset = yOffset;
+        this.zOffset = zOffset;
     }
 
     @Override
@@ -63,13 +79,19 @@ public class TransformAction extends StructureAction {
                 targetPieceEntry.getPiece().getPosition().getY(),
                 targetPieceEntry.getPiece().getPosition().getX());
         Either<ResourceLocation, StructureTemplate> newTemplate = this.output.get(rand.nextInt(this.output.size()));
+
+        // Determine new piece position
+        BlockPos offset = new BlockPos(this.xOffset, this.yOffset, this.zOffset);
+        offset.rotate(targetPieceEntry.getPiece().getRotation());
+        BlockPos newPos = targetPieceEntry.getPiece().getPosition().offset(offset);
+
         PoolElementStructurePiece newPiece = new PoolElementStructurePiece(
                 ctx.structureTemplateManager(),
                 new YungJigsawSinglePoolElement(newTemplate, ((SinglePoolElementAccessor)old).getProcessors(),
                         old.getProjection(), old.name, old.maxCount, old.minRequiredDepth, old.maxPossibleDepth,
                         old.isPriority, old.ignoreBounds, old.condition, old.enhancedTerrainAdaptation,
                         old.deadendPool, old.modifiers),
-                targetPieceEntry.getPiece().getPosition(),
+                newPos,
                 targetPieceEntry.getPiece().getGroundLevelDelta(),
                 targetPieceEntry.getPiece().getRotation(),
                 targetPieceEntry.getPiece().getBoundingBox()
