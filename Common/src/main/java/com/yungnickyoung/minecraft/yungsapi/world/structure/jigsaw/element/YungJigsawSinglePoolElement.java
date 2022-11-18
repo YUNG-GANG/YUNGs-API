@@ -93,7 +93,7 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
 
     /**
      * Optional enhanced terrain adaptation specific to this piece.
-     * Takes precedent over the structure's enhanced terrain adaptation, if specified.
+     * Takes priority over the structure's enhanced terrain adaptation if specified.
      */
     public final Optional<EnhancedTerrainAdaptation> enhancedTerrainAdaptation;
 

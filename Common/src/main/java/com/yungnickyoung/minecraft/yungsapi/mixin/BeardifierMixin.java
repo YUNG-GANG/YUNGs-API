@@ -1,8 +1,8 @@
 package com.yungnickyoung.minecraft.yungsapi.mixin;
 
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.BeardifierAccessor;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawSinglePoolElement;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.YungJigsawStructure;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawSinglePoolElement;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.EnhancedTerrainAdaptation;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.beardifier.EnhancedBeardifierData;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.beardifier.EnhancedBeardifierRigid;
@@ -10,8 +10,6 @@ import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.be
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
-import net.minecraft.Util;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.levelgen.Beardifier;
@@ -19,11 +17,10 @@ import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawJunction;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -36,33 +33,6 @@ import java.util.List;
  */
 @Mixin(Beardifier.class)
 public class BeardifierMixin implements EnhancedBeardifierData {
-    @Shadow
-    @Final
-    private static int BEARD_KERNEL_SIZE;
-    @Shadow
-    @Final
-    public static int BEARD_KERNEL_RADIUS;
-    @Unique
-    private static final int BEARD_KERNEL_SIZE_SMALL = 24;
-
-    @Unique
-    private static final int BEARD_KERNEL_RADIUS_SMALL = BEARD_KERNEL_SIZE_SMALL / 2;
-
-    @Unique
-    private static final double BEARD_SMALL_DISTANCE = 4.0;
-
-    @Unique
-    private static final float[] BEARD_KERNEL_SMALL = Util.make(new float[BEARD_KERNEL_SIZE_SMALL * BEARD_KERNEL_SIZE_SMALL * BEARD_KERNEL_SIZE_SMALL], (kernel) -> {
-        for (int z = 0; z < BEARD_KERNEL_SIZE_SMALL; ++z) {
-            for (int x = 0; x < BEARD_KERNEL_SIZE_SMALL; ++x) {
-                for (int y = 0; y < BEARD_KERNEL_SIZE_SMALL; ++y) {
-                    kernel[z * BEARD_KERNEL_SIZE_SMALL * BEARD_KERNEL_SIZE_SMALL + x * BEARD_KERNEL_SIZE_SMALL + y] =
-                            (float) yungsapi_computeBeardContributionSmall(x - BEARD_KERNEL_RADIUS_SMALL, y - BEARD_KERNEL_RADIUS_SMALL, z - BEARD_KERNEL_RADIUS_SMALL);
-                }
-            }
-        }
-    });
-
     @Unique
     private ObjectListIterator<EnhancedJigsawJunction> enhancedJunctionIterator;
     @Unique
@@ -74,51 +44,76 @@ public class BeardifierMixin implements EnhancedBeardifierData {
         ObjectList<EnhancedJigsawJunction> enhancedJunctionList = new ObjectArrayList<>(10);
         int minX = chunkPos.getMinBlockX();
         int minZ = chunkPos.getMinBlockZ();
-        structureManager
-                .startsForStructure(chunkPos, structure -> structure instanceof YungJigsawStructure)
-                .forEach(structureStart -> {
-                    EnhancedTerrainAdaptation enhancedTerrainAdaptation = ((YungJigsawStructure) structureStart.getStructure()).enhancedTerrainAdaptation;
-                    int kernelRadius = enhancedTerrainAdaptation.getKernelRadius();
-                    List<StructurePiece> structurePieces = structureStart.getPieces().stream()
-                            .filter(structurePiece -> structurePiece.isCloseToChunk(chunkPos, kernelRadius))
-                            .toList();
-                    for (StructurePiece structurePiece : structurePieces) {
-                        if (structurePiece instanceof PoolElementStructurePiece poolElementPiece) {
-                            StructureTemplatePool.Projection projection = poolElementPiece.getElement().getProjection();
+        List<StructureStart> structureStarts = structureManager.startsForStructure(chunkPos, structure -> structure instanceof YungJigsawStructure);
+        for (StructureStart structureStart : structureStarts) {
+            EnhancedTerrainAdaptation structureTerrainAdaptation = ((YungJigsawStructure) structureStart.getStructure()).enhancedTerrainAdaptation;
 
-                            // Check if piece overrides terrain adaptation
-                            EnhancedTerrainAdaptation pieceTerrainAdaptation = enhancedTerrainAdaptation;
-                            if (poolElementPiece.getElement() instanceof YungJigsawSinglePoolElement yungElement && yungElement.hasEnhancedTerrainAdaptation()) {
-                                pieceTerrainAdaptation = yungElement.getEnhancedTerrainAdaptation();
-                            }
+            // Determine max kernel radius in the structure.
+            // Both the structure itself and any pieces may specify an enhanced terrain adaptation, so we must
+            // check everything.
+            int kernelRadius = structureTerrainAdaptation.getKernelRadius();
+            for (StructurePiece structurePiece : structureStart.getPieces()) {
+                if (structurePiece instanceof PoolElementStructurePiece poolPiece
+                        && poolPiece.getElement() instanceof YungJigsawSinglePoolElement yungElement
+                        && yungElement.hasEnhancedTerrainAdaptation()) {
+                    kernelRadius = Math.max(kernelRadius, yungElement.getEnhancedTerrainAdaptation().getKernelRadius());
+                }
+            }
 
-                            // If still no terrain adaptation for this piece, we can abort
-                            if (pieceTerrainAdaptation == EnhancedTerrainAdaptation.NONE) continue;
+            int maxKernelRadius = kernelRadius;
+            if (maxKernelRadius <= 0) {
+                continue;
+            }
 
-                            // Add rigid for piece
-                            if (projection == StructureTemplatePool.Projection.RIGID) {
-                                enhancedBeardifierRigidList.add(
-                                        new EnhancedBeardifierRigid(
-                                                poolElementPiece.getBoundingBox(),
-                                                pieceTerrainAdaptation,
-                                                poolElementPiece.getGroundLevelDelta()));
-                            }
-                            // Add rigid for each junction
-                            for (JigsawJunction jigsawJunction : poolElementPiece.getJunctions()) {
-                                int sourceX = jigsawJunction.getSourceX();
-                                int sourceZ = jigsawJunction.getSourceZ();
-                                if (sourceX > minX - kernelRadius && sourceZ > minZ - kernelRadius && sourceX < minX + 15 + kernelRadius && sourceZ < minZ + 15 + kernelRadius) {
-                                    enhancedJunctionList.add(new EnhancedJigsawJunction(jigsawJunction, pieceTerrainAdaptation));
-                                }
-                            }
-                        } else if (enhancedTerrainAdaptation != EnhancedTerrainAdaptation.NONE) {
-                            enhancedBeardifierRigidList.add(new EnhancedBeardifierRigid(
-                                    structurePiece.getBoundingBox(),
-                                    enhancedTerrainAdaptation,
-                                    0));
+            // Use max kernel radius to get list of potentially relevant pieces for this chunk
+            List<StructurePiece> nearbyPieces = structureStart.getPieces().stream()
+                    .filter(structurePiece -> structurePiece.isCloseToChunk(chunkPos, maxKernelRadius))
+                    .toList();
+
+            for (StructurePiece nearbyPiece : nearbyPieces) {
+                if (nearbyPiece instanceof PoolElementStructurePiece poolElementPiece) {
+                    StructureTemplatePool.Projection projection = poolElementPiece.getElement().getProjection();
+
+                    // Check if piece overrides terrain adaptation
+                    EnhancedTerrainAdaptation pieceTerrainAdaptation = structureTerrainAdaptation;
+                    if (poolElementPiece.getElement() instanceof YungJigsawSinglePoolElement yungElement && yungElement.hasEnhancedTerrainAdaptation()) {
+                        pieceTerrainAdaptation = yungElement.getEnhancedTerrainAdaptation();
+                    }
+
+                    // If no terrain adaptation for this piece, we can abort
+                    if (pieceTerrainAdaptation == EnhancedTerrainAdaptation.NONE) continue;
+
+                    int pieceKernelRadius = pieceTerrainAdaptation.getKernelRadius();
+
+                    // Add rigid for piece
+                    if (projection == StructureTemplatePool.Projection.RIGID) {
+                        enhancedBeardifierRigidList.add(
+                                new EnhancedBeardifierRigid(
+                                        poolElementPiece.getBoundingBox(),
+                                        pieceTerrainAdaptation,
+                                        poolElementPiece.getGroundLevelDelta()
+                                )
+                        );
+                    }
+                    // Add rigid for each junction
+                    for (JigsawJunction jigsawJunction : poolElementPiece.getJunctions()) {
+                        int sourceX = jigsawJunction.getSourceX();
+                        int sourceZ = jigsawJunction.getSourceZ();
+                        if (sourceX > minX - pieceKernelRadius
+                                && sourceZ > minZ - pieceKernelRadius
+                                && sourceX < minX + 15 + pieceKernelRadius
+                                && sourceZ < minZ + 15 + pieceKernelRadius) {
+                            enhancedJunctionList.add(new EnhancedJigsawJunction(jigsawJunction, pieceTerrainAdaptation));
                         }
                     }
-                });
+                } else if (structureTerrainAdaptation != EnhancedTerrainAdaptation.NONE) {
+                    enhancedBeardifierRigidList.add(new EnhancedBeardifierRigid(
+                            nearbyPiece.getBoundingBox(),
+                            structureTerrainAdaptation,
+                            0));
+                }
+            }
+        }
 
         Beardifier beardifier = new Beardifier(((BeardifierAccessor) cir.getReturnValue()).getPieceIterator(), ((BeardifierAccessor) cir.getReturnValue()).getJunctionIterator());
         ((EnhancedBeardifierData) beardifier).setEnhancedRigidIterator(enhancedBeardifierRigidList.iterator());
@@ -143,30 +138,22 @@ public class BeardifierMixin implements EnhancedBeardifierData {
             // If within the bounding box, all of these are simply 0
             int xDistanceToBoundingBox = Math.max(0, Math.max(boundingBox.minX() - x, x - boundingBox.maxX()));
             int zDistanceToBoundingBox = Math.max(0, Math.max(boundingBox.minZ() - z, z - boundingBox.maxZ()));
-            int yDistanceToBoundingBox = switch (enhancedTerrainAdaptation) {
-                case NONE -> 0;
-                case CARVED_TOP_NO_BEARD_SMALL, CARVED_TOP_NO_BEARD_LARGE ->
-                        Math.max(0, Math.max(adjustedMinY - y, y - boundingBox.maxY()));
-                default -> throw new IncompatibleClassChangeError();
-            };
-
+            int yDistanceToBoundingBox = 0;
+            if (enhancedTerrainAdaptation != EnhancedTerrainAdaptation.NONE) {
+                yDistanceToBoundingBox = Math.max(0, Math.max(adjustedMinY - y, y - boundingBox.maxY()));
+            }
             int yDistanceToAdjustedBottom = y - adjustedMinY;
-            double densityFactor = switch (rigid.enhancedTerrainAdaptation()) {
-                case NONE -> 0;
-                case CARVED_TOP_NO_BEARD_SMALL -> yungsapi_getBeardContributionSmall(xDistanceToBoundingBox,
+
+            // Calculate density factor and add to density value
+            double densityFactor = 0;
+            if (enhancedTerrainAdaptation != EnhancedTerrainAdaptation.NONE) {
+                densityFactor = enhancedTerrainAdaptation.computeDensityFactor(
+                        xDistanceToBoundingBox,
                         yDistanceToBoundingBox,
                         zDistanceToBoundingBox,
-                        yDistanceToAdjustedBottom,
-                        enhancedTerrainAdaptation.carves(),
-                        enhancedTerrainAdaptation.beards()) * 0.8D;
-                case CARVED_TOP_NO_BEARD_LARGE -> yungsapi_getBeardContribution(xDistanceToBoundingBox,
-                        yDistanceToBoundingBox,
-                        zDistanceToBoundingBox,
-                        yDistanceToAdjustedBottom,
-                        enhancedTerrainAdaptation.carves(),
-                        enhancedTerrainAdaptation.beards()) * 0.8D;
-                default -> throw new IncompatibleClassChangeError();
-            };
+                        yDistanceToAdjustedBottom
+                ) * 0.8D;
+            }
 
             density += densityFactor;
         }
@@ -180,12 +167,12 @@ public class BeardifierMixin implements EnhancedBeardifierData {
             int xDistanceToJunction = x - jigsawJunction.getSourceX();
             int yDistanceToJunction = y - jigsawJunction.getSourceGroundY();
             int zDistanceToJunction = z - jigsawJunction.getSourceZ();
-            density += yungsapi_getBeardContribution(xDistanceToJunction,
+            density += enhancedTerrainAdaptation.computeDensityFactor(
+                    xDistanceToJunction,
                     yDistanceToJunction,
                     zDistanceToJunction,
-                    yDistanceToJunction,
-                    enhancedTerrainAdaptation.carves(),
-                    enhancedTerrainAdaptation.beards()) * 0.4D;
+                    yDistanceToJunction
+            ) * 0.4D;
         }
         this.enhancedJunctionIterator.back(Integer.MAX_VALUE);
 
@@ -210,93 +197,5 @@ public class BeardifierMixin implements EnhancedBeardifierData {
     @Override
     public void setEnhancedJunctionIterator(ObjectListIterator<EnhancedJigsawJunction> enhancedJunctionIterator) {
         this.enhancedJunctionIterator = enhancedJunctionIterator;
-    }
-
-    @Unique
-    private static double yungsapi_getBeardContribution(
-            int xDistanceToBoundingBox,
-            int yDistanceToBoundingBox,
-            int zDistanceToBoundingBox,
-            int yDistanceToAdjustedBottom,
-            boolean doCarving,
-            boolean doBearding
-    ) {
-        int kernelX = xDistanceToBoundingBox + BEARD_KERNEL_RADIUS;
-        int kernelY = yDistanceToBoundingBox + BEARD_KERNEL_RADIUS;
-        int kernelZ = zDistanceToBoundingBox + BEARD_KERNEL_RADIUS;
-        if (yungsapi_isInKernelRange(kernelX) && yungsapi_isInKernelRange(kernelY) && yungsapi_isInKernelRange(kernelZ)) {
-            // Get kernel value for this distance.
-            // Returns a value from 0 (far from box) to 1 (within box)
-            float kernelValue = BeardifierAccessor.getBEARD_KERNEL()[kernelZ * BEARD_KERNEL_SIZE * BEARD_KERNEL_SIZE + kernelX * BEARD_KERNEL_SIZE + kernelY];
-
-            double actualYDistanceToAdjustedBottom = (double) yDistanceToAdjustedBottom + 0.5;
-            double squaredDistance = Mth.lengthSquared(xDistanceToBoundingBox, actualYDistanceToAdjustedBottom, zDistanceToBoundingBox);
-
-            /* Calculate multiplier for final noise value.
-             * The closer we are to the box, the greater amplitude (i.e. more negative number).
-             * If we are above the bounding box bottom, the multiplier is negative, and therefore contributes to carving.
-             * If we are below the bounding box bottom, the multiplier is positive, and therefore contributes to solid terrain.
-             */
-            double multiplier = -actualYDistanceToAdjustedBottom * Mth.fastInvSqrt(squaredDistance / 2.0) / 2.0;
-            if (multiplier > 0 && !doBearding) return 0;
-            if (multiplier < 0 && !doCarving) return 0;
-            return multiplier * kernelValue;
-        } else {
-            return 0;
-        }
-    }
-
-    @Unique
-    private static double yungsapi_getBeardContributionSmall(
-            int xDistanceToBoundingBox,
-            int yDistanceToBoundingBox,
-            int zDistanceToBoundingBox,
-            int yDistanceToAdjustedBottom,
-            boolean doCarving,
-            boolean doBearding
-    ) {
-        int kernelX = xDistanceToBoundingBox + BEARD_KERNEL_RADIUS_SMALL;
-        int kernelY = yDistanceToBoundingBox + BEARD_KERNEL_RADIUS_SMALL;
-        int kernelZ = zDistanceToBoundingBox + BEARD_KERNEL_RADIUS_SMALL;
-        if (yungsapi_isInSmallKernelRange(kernelX) && yungsapi_isInSmallKernelRange(kernelY) && yungsapi_isInSmallKernelRange(kernelZ)) {
-            // Get kernel value for this distance.
-            // Returns a value from 0 (far from box) to 1 (within box)
-            float kernelValue = BEARD_KERNEL_SMALL[kernelZ * BEARD_KERNEL_SIZE_SMALL * BEARD_KERNEL_SIZE_SMALL + kernelX * BEARD_KERNEL_SIZE_SMALL + kernelY];
-
-            double actualYDistanceToAdjustedBottom = (double) yDistanceToAdjustedBottom + 0.5;
-            double squaredDistance = Mth.lengthSquared(xDistanceToBoundingBox, actualYDistanceToAdjustedBottom, zDistanceToBoundingBox);
-
-            /* Calculate multiplier for final noise value.
-             * The closer we are to the box, the greater amplitude (i.e. more negative number).
-             * If we are above the bounding box bottom, the multiplier is negative, and therefore contributes to carving.
-             * If we are below the bounding box bottom, the multiplier is positive, and therefore contributes to solid terrain.
-             */
-            double multiplier = -actualYDistanceToAdjustedBottom * Mth.fastInvSqrt(squaredDistance / 2.0) / 2.0;
-            if (multiplier > 0 && !doBearding) return 0;
-            if (multiplier < 0 && !doCarving) return 0;
-            return multiplier * kernelValue;
-        } else {
-            return 0;
-        }
-    }
-
-    @Unique
-    private static boolean yungsapi_isInKernelRange(int i) {
-        return i >= 0 && i < BEARD_KERNEL_SIZE;
-    }
-
-    @Unique
-    private static boolean yungsapi_isInSmallKernelRange(int i) {
-        return i >= 0 && i < BEARD_KERNEL_SIZE_SMALL;
-    }
-
-    @Unique
-    private static double yungsapi_computeBeardContributionSmall(int x, int y, int z) {
-        return yungsapi_computeBeardContributionSmall(x, (double) y + 0.5D, z);
-    }
-
-    private static double yungsapi_computeBeardContributionSmall(int x, double y, int z) {
-        double squaredDistance = Mth.lengthSquared(x, y, z);
-        return Math.pow(Math.E, -squaredDistance / BEARD_SMALL_DISTANCE);
     }
 }
