@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.api.YungJigsawManager;
 import com.yungnickyoung.minecraft.yungsapi.module.StructureTypeModule;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.EnhancedTerrainAdaptation;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.EnhancedTerrainAdaptationType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -40,7 +41,7 @@ public class YungJigsawStructure extends Structure {
                     Codec.intRange(1, MAX_TOTAL_STRUCTURE_RADIUS).fieldOf("max_distance_from_center").forGetter(structure -> structure.maxDistanceFromCenter),
                     Codec.INT.optionalFieldOf("max_y").forGetter(structure -> structure.maxY),
                     Codec.INT.optionalFieldOf("min_y").forGetter(structure -> structure.minY),
-                    EnhancedTerrainAdaptation.CODEC.optionalFieldOf("enhanced_terrain_adaptation", EnhancedTerrainAdaptation.NONE).forGetter(structure -> structure.enhancedTerrainAdaptation))
+                    EnhancedTerrainAdaptationType.ADAPTATION_CODEC.optionalFieldOf("enhanced_terrain_adaptation", EnhancedTerrainAdaptation.NONE).forGetter(structure -> structure.enhancedTerrainAdaptation))
             .apply(builder, YungJigsawStructure::new))
             .flatXmap(verifyRange(), verifyRange())
             .codec();
@@ -101,12 +102,7 @@ public class YungJigsawStructure extends Structure {
             }
 
             // Additional behavior
-            int enhancedEdgeBuffer = switch (structure.enhancedTerrainAdaptation) {
-                case NONE -> 0;
-                case CARVED_TOP_NO_BEARD_SMALL -> 6;
-                case CARVED_TOP_NO_BEARD_LARGE -> 12;
-                default -> throw new IncompatibleClassChangeError();
-            };
+            int enhancedEdgeBuffer = structure.enhancedTerrainAdaptation.getKernelRadius();
             return structure.maxDistanceFromCenter + enhancedEdgeBuffer > 128
                     ? DataResult.error("YUNG Structure size including terrain adaptation must not exceed 128")
                     : DataResult.success(structure);

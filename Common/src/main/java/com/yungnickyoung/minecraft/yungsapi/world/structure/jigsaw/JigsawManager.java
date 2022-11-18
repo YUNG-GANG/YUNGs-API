@@ -494,8 +494,8 @@ public class JigsawManager {
                         BoundingBox rotatedCandidateBoundingBox = chosenPoolElement.getBoundingBox(this.structureTemplateManager, candidateJigsawBlockRelativePos, rotation);
 
                         // Determine if candidate is rigid
-                        StructureTemplatePool.Projection candidatePlacementBehavior = chosenPoolElement.getProjection();
-                        boolean isCandidateRigid = candidatePlacementBehavior == StructureTemplatePool.Projection.RIGID;
+                        StructureTemplatePool.Projection candidateProjection = chosenPoolElement.getProjection();
+                        boolean isCandidateRigid = candidateProjection == StructureTemplatePool.Projection.RIGID;
 
                         // Determine how much the candidate jigsaw block is off in the y direction.
                         // This will be needed to offset the candidate piece so that the jigsaw blocks line up properly.
@@ -588,7 +588,7 @@ public class JigsawManager {
                                 candidateJigsawBlockY - jigsawBlockRelativeY + newPieceGroundLevelDelta,
                                 context.jigsawBlockTargetPos.getZ(),
                                 candidateJigsawYOffsetNeeded,
-                                candidatePlacementBehavior);
+                                candidateProjection);
 
                         PieceEntry newPieceEntry = new PieceEntry(newPiece, context.boxOctree, aabb,
                                 context.depth + 1, context.pieceEntry, context.copy(), newJunctionOnParent);

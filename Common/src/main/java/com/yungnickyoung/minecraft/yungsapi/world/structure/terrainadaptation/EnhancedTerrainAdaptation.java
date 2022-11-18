@@ -1,31 +1,27 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation;
 
-import com.mojang.serialization.Codec;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.YungJigsawStructure;
 import net.minecraft.Util;
 import net.minecraft.util.Mth;
-import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.YungJigsawStructure;
 
 /**
  * Extra alternatives to vanilla's {@link TerrainAdjustment}.
  * For use with {@link YungJigsawStructure}.
  */
-public enum EnhancedTerrainAdaptation implements StringRepresentable {
-    NONE("none", false, false, 0, 0),
-    CARVED_TOP_NO_BEARD_SMALL("carved_top_no_beard_small", true, false, 12, 6),
-    CARVED_TOP_NO_BEARD_LARGE("carved_top_no_beard_large", true, false, 24, 16);
+public abstract class EnhancedTerrainAdaptation {
+    public static final EnhancedTerrainAdaptation NONE = new NoneAdaptation();
 
-    public static final Codec<EnhancedTerrainAdaptation> CODEC = StringRepresentable.fromEnum(EnhancedTerrainAdaptation::values);
-    private final String id;
-    private final boolean doCarving;
-    private final boolean doBearding;
-    private final int kernelSize;
-    private final int kernelDistance;
-    private final float[] kernelValues;
+    protected final boolean doCarving;
+    protected final boolean doBearding;
+    protected final int kernelSize;
+    protected final int kernelDistance;
+    protected final float[] kernelValues;
 
-    EnhancedTerrainAdaptation(String id, boolean doCarving, boolean doBearding, int kernelSize, int kernelDistance) {
-        this.id = id;
+    abstract public EnhancedTerrainAdaptationType<?> type();
+
+
+    EnhancedTerrainAdaptation(int kernelSize, int kernelDistance, boolean doCarving, boolean doBearding) {
         this.doCarving = doCarving;
         this.doBearding = doBearding;
         this.kernelSize = kernelSize;
@@ -44,10 +40,6 @@ public enum EnhancedTerrainAdaptation implements StringRepresentable {
                 }
             }
         });
-    }
-
-    public String getSerializedName() {
-        return this.id;
     }
 
     public boolean carves() {
@@ -85,9 +77,9 @@ public enum EnhancedTerrainAdaptation implements StringRepresentable {
         int kernelX = xDistanceToBoundingBox + beardKernelRadius;
         int kernelY = yDistanceToBoundingBox + beardKernelRadius;
         int kernelZ = zDistanceToBoundingBox + beardKernelRadius;
-        if (isInKernelRange(kernelX, this.getKernelSize())
-                && isInKernelRange(kernelY, this.getKernelSize())
-                && isInKernelRange(kernelZ, this.getKernelSize())) {
+        if (isInKernelRange(kernelX, beardKernelSize)
+                && isInKernelRange(kernelY, beardKernelSize)
+                && isInKernelRange(kernelZ, beardKernelSize)) {
             // Get kernel value for this distance.
             // Returns a value from 0 (far from box) to 1 (within box)
             float kernelValue = this.getKernelValues()[kernelZ * beardKernelSize * beardKernelSize + kernelX * beardKernelSize + kernelY];
