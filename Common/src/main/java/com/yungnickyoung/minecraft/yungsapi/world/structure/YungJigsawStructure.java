@@ -131,6 +131,7 @@ public class YungJigsawStructure extends Structure {
         );
     }
 
+    // TODO - fix this to be specific to each individual enhanced terrain adaptation somehow
     @Override
     public BoundingBox adjustBoundingBox(BoundingBox boundingBox) {
         BoundingBox adjustedBox = super.adjustBoundingBox(boundingBox);

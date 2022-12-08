@@ -70,6 +70,7 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
      *
      * @deprecated Use {@link DepthCondition} instead.
      */
+    @Deprecated
     public final Optional<Integer> maxPossibleDepth;
 
     /**
