@@ -226,7 +226,7 @@ public class OpenSimplex2S implements INoiseLibrary {
         // Identify which octant of the cube we're in. This determines which cell
         // in the other cubic lattice we're in, and also narrows down one point on each.
         int xht = (int)(xri + 0.5), yht = (int)(yri + 0.5), zht = (int)(zri + 0.5);
-        int index = (xht << 0) | (yht << 1) | (zht << 2);
+        int index = (xht) | (yht << 1) | (zht << 2);
 
         // Point contributions
         double value = 0;
@@ -277,7 +277,7 @@ public class OpenSimplex2S implements INoiseLibrary {
                 if ((i & 2) != 0) { i1 = 2; j1 = 1; } else { i1 = 0; j1 = 1; }
                 if ((i & 4) != 0) { i2 = 1; j2 = 2; } else { i2 = 1; j2 = 0; }
             }
-            LOOKUP_2D[i * 4 + 0] = new LatticePoint2D(0, 0);
+            LOOKUP_2D[i * 4] = new LatticePoint2D(0, 0);
             LOOKUP_2D[i * 4 + 1] = new LatticePoint2D(1, 1);
             LOOKUP_2D[i * 4 + 2] = new LatticePoint2D(i1, j1);
             LOOKUP_2D[i * 4 + 3] = new LatticePoint2D(i2, j2);
@@ -285,7 +285,7 @@ public class OpenSimplex2S implements INoiseLibrary {
 
         for (int i = 0; i < 8; i++) {
             int i1, j1, k1, i2, j2, k2;
-            i1 = (i >> 0) & 1; j1 = (i >> 1) & 1; k1 = (i >> 2) & 1;
+            i1 = (i) & 1; j1 = (i >> 1) & 1; k1 = (i >> 2) & 1;
             i2 = i1 ^ 1; j2 = j1 ^ 1; k2 = k1 ^ 1;
 
             // The two points within this octant, one from each of the two cubic half-lattices.
@@ -422,8 +422,9 @@ public class OpenSimplex2S implements INoiseLibrary {
             new Grad2(-0.130526192220052,  0.99144486137381)
         };
         Grad2[] grad2XBeforeY = new Grad2[grad2.length];
-        for (int i = 0; i < grad2.length; i++) {
-            grad2[i].dx /= N2; grad2[i].dy /= N2;
+        for (Grad2 value : grad2) {
+            value.dx /= N2;
+            value.dy /= N2;
         }
         for (int i = 0; i < PSIZE; i++) {
             GRADIENTS_2D[i] = grad2[i % grad2.length];
@@ -480,8 +481,10 @@ public class OpenSimplex2S implements INoiseLibrary {
             new Grad3( 3.0862664687972017,  1.1721513422464978,  0.0),
             new Grad3( 1.1721513422464978,  3.0862664687972017,  0.0)
         };
-        for (int i = 0; i < grad3.length; i++) {
-            grad3[i].dx /= N3; grad3[i].dy /= N3; grad3[i].dz /= N3;
+        for (Grad3 value : grad3) {
+            value.dx /= N3;
+            value.dy /= N3;
+            value.dz /= N3;
         }
         for (int i = 0; i < PSIZE; i++) {
             GRADIENTS_3D[i] = grad3[i % grad3.length];

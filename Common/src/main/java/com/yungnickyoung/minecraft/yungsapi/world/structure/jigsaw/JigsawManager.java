@@ -289,7 +289,7 @@ public class JigsawManager {
 
                 PieceEntry parentEntry = pieceEntry.getParentEntry();
                 PieceContext newContext = pieceEntry.getSourcePieceContext().copy();
-                newContext.candidatePoolElements = new ObjectArrayList<>(((StructureTemplatePoolAccessor) deadendPool.get()).getRawTemplates());;
+                newContext.candidatePoolElements = new ObjectArrayList<>(((StructureTemplatePoolAccessor) deadendPool.get()).getRawTemplates());
                 AABB pieceAabb = pieceEntry.getPieceAabb();
                 if (parentEntry != null && pieceAabb != null) {
                     parentEntry.getPiece().getJunctions().remove(pieceEntry.getParentJunction());

@@ -1,7 +1,6 @@
 package com.yungnickyoung.minecraft.yungsapi.codec;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
