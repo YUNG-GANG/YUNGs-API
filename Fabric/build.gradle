@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '0.13-SNAPSHOT'
+    id 'fabric-loom' version '1.0-SNAPSHOT'
     id 'idea'
 }
 
@@ -19,9 +19,9 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
     implementation("org.reflections:reflections:0.10.2")
     include("org.reflections:reflections:0.10.2")
-    implementation("org.javassist:javassist:3.28.0-GA")
-    include("org.javassist:javassist:3.28.0-GA")
-    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
+    implementation('org.javassist:javassist:3.29.2-GA')
+    include('org.javassist:javassist:3.29.2-GA')
+    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
     compileOnly project(":Common")
 }
 

@@ -21,4 +21,4 @@ issueTrackerURL="https://github.com/yungnickyoung/YUNGs-Api/issues"
 [[dependencies.yungsapi]]
     modId="forge"
     mandatory=true
-    versionRange="[43.1.1,)"
+    versionRange="[43.2,)"
