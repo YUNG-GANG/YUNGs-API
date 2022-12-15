@@ -108,7 +108,7 @@ public class JigsawManager {
             AABB aABB = new AABB(
                     pieceCenterX - structureBoundingBoxRadius, pieceCenterY - structureBoundingBoxRadius, pieceCenterZ - structureBoundingBoxRadius,
                     pieceCenterX + structureBoundingBoxRadius + 1, pieceCenterY + structureBoundingBoxRadius + 1, pieceCenterZ + structureBoundingBoxRadius + 1);
-            Placer placer = new Placer(registry, config.getMaxDepth(), pieceFactory, chunkGenerator, structureManager, pieces, worldgenRandom);
+            Placer placer = new Placer(registry, config.getMaxDepth(), pieceFactory, chunkGenerator, structureManager, pieces, worldgenRandom, levelHeightAccessor);
             PieceState startPieceEntry = new PieceState(
                     startPiece,
                     new MutableObject<>(
@@ -127,7 +127,7 @@ public class JigsawManager {
             // Place the structure
             while (!placer.placing.isEmpty()) {
                 PieceState entry = placer.placing.removeFirst();
-                placer.processPiece(entry.piece, entry.free, entry.depth, doBoundaryAdjustments, levelHeightAccessor);
+                placer.processPiece(entry.piece, entry.free, entry.depth, doBoundaryAdjustments);
             }
             pieces.forEach(structurePiecesBuilder::addPiece);
         });
@@ -149,6 +149,7 @@ public class JigsawManager {
         private final int maxDepth;
         private final JigsawPlacement.PieceFactory pieceFactory;
         private final ChunkGenerator chunkGenerator;
+        private final LevelHeightAccessor levelHeightAccessor;
         private final StructureManager structureManager;
         private final List<? super PoolElementStructurePiece> pieces;
         private final Random rand;
@@ -157,7 +158,6 @@ public class JigsawManager {
         // Additional behavior
         private final Map<String, Integer> pieceCounts;
         private final Map<String, Integer> maxPieceCounts;
-        private final int maxY;
 
         public Placer(
             Registry<StructureTemplatePool> patternRegistry,
@@ -166,26 +166,26 @@ public class JigsawManager {
             ChunkGenerator chunkGenerator,
             StructureManager structureManager,
             List<? super PoolElementStructurePiece> pieces,
-            Random rand
+            Random rand,
+            LevelHeightAccessor levelHeightAccessor
         ) {
             this.patternRegistry = patternRegistry;
             this.maxDepth = maxDepth;
             this.pieceFactory = pieceFactory;
             this.chunkGenerator = chunkGenerator;
+            this.levelHeightAccessor = levelHeightAccessor;
             this.structureManager = structureManager;
             this.pieces = pieces;
             this.rand = rand;
             this.pieceCounts = new HashMap<>();
             this.maxPieceCounts = new HashMap<>();
-            this.maxY = 255;
         }
 
         public void processPiece(
                 PoolElementStructurePiece piece,
                 MutableObject<VoxelShape> voxelShape,
                 int depth,
-                boolean doBoundaryAdjustments,
-                LevelHeightAccessor levelHeightAccessor
+                boolean doBoundaryAdjustments
         ) {
             // Collect data from params regarding piece to process
             StructurePoolElement pieceBlueprint = piece.getElement();
@@ -240,12 +240,12 @@ public class JigsawManager {
 
                 // Process the pool pieces, randomly choosing different pieces from the pool to spawn
                 if (depth != this.maxDepth) {
-                    StructurePoolElement generatedPiece = this.processList(new ArrayList<>(((StructureTemplatePoolAccessor)poolOptional.get()).getRawTemplates()), doBoundaryAdjustments, jigsawBlock, jigsawBlockTargetPos, pieceMinY, jigsawBlockPos, pieceVoxelShape, piece, depth, levelHeightAccessor);
+                    StructurePoolElement generatedPiece = this.processList(new ArrayList<>(((StructureTemplatePoolAccessor)poolOptional.get()).getRawTemplates()), doBoundaryAdjustments, jigsawBlock, jigsawBlockTargetPos, pieceMinY, jigsawBlockPos, pieceVoxelShape, piece, depth);
                     if (generatedPiece != null) continue; // Stop here since we've already generated the piece
                 }
 
                 // Process the fallback pieces in the event none of the pool pieces work
-                this.processList(new ArrayList<>(((StructureTemplatePoolAccessor)fallbackOptional.get()).getRawTemplates()), doBoundaryAdjustments, jigsawBlock, jigsawBlockTargetPos, pieceMinY, jigsawBlockPos, pieceVoxelShape, piece, depth, levelHeightAccessor);
+                this.processList(new ArrayList<>(((StructureTemplatePoolAccessor)fallbackOptional.get()).getRawTemplates()), doBoundaryAdjustments, jigsawBlock, jigsawBlockTargetPos, pieceMinY, jigsawBlockPos, pieceVoxelShape, piece, depth);
             }
         }
 
@@ -263,8 +263,7 @@ public class JigsawManager {
             BlockPos jigsawBlockPos,
             MutableObject<VoxelShape> pieceVoxelShape,
             PoolElementStructurePiece piece,
-            int depth,
-            LevelHeightAccessor levelHeightAccessor
+            int depth
         ) {
             StructureTemplatePool.Projection piecePlacementBehavior = piece.getElement().getProjection();
             boolean isPieceRigid = piecePlacementBehavior == StructureTemplatePool.Projection.RIGID;
@@ -372,7 +371,7 @@ public class JigsawManager {
                             adjustedCandidatePieceMinY = pieceMinY + candidateJigsawYOffsetNeeded;
                         } else {
                             if (surfaceHeight == -1) {
-                                surfaceHeight = this.chunkGenerator.getFirstFreeHeight(jigsawBlockPos.getX(), jigsawBlockPos.getZ(), Heightmap.Types.WORLD_SURFACE_WG, levelHeightAccessor);
+                                surfaceHeight = this.chunkGenerator.getFirstFreeHeight(jigsawBlockPos.getX(), jigsawBlockPos.getZ(), Heightmap.Types.WORLD_SURFACE_WG, this.levelHeightAccessor);
                             }
 
                             adjustedCandidatePieceMinY = surfaceHeight - candidateJigsawBlockRelativeY;
@@ -392,7 +391,7 @@ public class JigsawManager {
                         }
 
                         // Prevent pieces from spawning above max Y
-                        if (adjustedCandidateBoundingBox.maxY() > this.maxY) {
+                        if (adjustedCandidateBoundingBox.maxY() > this.levelHeightAccessor.getMaxBuildHeight()) {
                             continue;
                         }
 
@@ -430,7 +429,7 @@ public class JigsawManager {
                             candidateJigsawBlockY = adjustedCandidatePieceMinY + candidateJigsawBlockRelativeY;
                         } else {
                             if (surfaceHeight == -1) {
-                                surfaceHeight = this.chunkGenerator.getFirstFreeHeight(jigsawBlockPos.getX(), jigsawBlockPos.getZ(), Heightmap.Types.WORLD_SURFACE_WG, levelHeightAccessor);
+                                surfaceHeight = this.chunkGenerator.getFirstFreeHeight(jigsawBlockPos.getX(), jigsawBlockPos.getZ(), Heightmap.Types.WORLD_SURFACE_WG, this.levelHeightAccessor);
                             }
 
                             candidateJigsawBlockY = surfaceHeight + candidateJigsawYOffsetNeeded / 2;
