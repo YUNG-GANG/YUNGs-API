@@ -5,6 +5,7 @@ import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
@@ -51,12 +52,8 @@ public class CreativeModeTabModuleForge {
         Supplier<ItemStack> itemStackSupplier = autoRegisterCreativeTab.getIconItemStackSupplier();
 
         // Create tab
-        CreativeModeTab creativeModeTab = new CreativeModeTab(name) {
-            @Override
-            public ItemStack makeIcon() {
-                return itemStackSupplier.get();
-            }
-        };
+
+        CreativeModeTab creativeModeTab = CreativeModeTab.builder(null, -1).title(Component.translatable(name)).icon(itemStackSupplier).build();
 
         // Update supplier to retrieve tab
         autoRegisterCreativeTab.setSupplier(() -> creativeModeTab);
