@@ -13,7 +13,9 @@ import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJ
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.Util;
 import net.minecraft.core.*;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.Pools;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelHeightAccessor;
@@ -55,7 +57,7 @@ public class JigsawManager {
         WorldgenRandom worldgenRandom = generationContext.random();
 
         // Get jigsaw pool registry
-        Registry<StructureTemplatePool> registry = registryAccess.registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY);
+        Registry<StructureTemplatePool> registry = registryAccess.registryOrThrow(Registries.TEMPLATE_POOL);
 
         // Get a random orientation for starting piece
         Rotation rotation = Rotation.getRandom(worldgenRandom);
@@ -244,14 +246,13 @@ public class JigsawManager {
 
             for (StructureTemplate.StructureBlockInfo jigsawBlockInfo : pieceJigsawBlocks) {
                 // Get the jigsaw block's target pool
-                ResourceLocation targetPoolId = new ResourceLocation(jigsawBlockInfo.nbt.getString("pool"));
+                ResourceKey<StructureTemplatePool> targetPoolId = ResourceKey.create(Registries.TEMPLATE_POOL, new ResourceLocation(jigsawBlockInfo.nbt.getString("pool")));
                 Optional<StructureTemplatePool> targetPool = getPoolFromId(targetPoolId);
                 if (targetPool.isEmpty()) continue;
 
                 // Get the jigsaw block's fallback pool (defined in the pool's JSON)
-                ResourceLocation fallbackPoolId = targetPool.get().getFallback();
-                Optional<StructureTemplatePool> fallbackPool = getPoolFromId(fallbackPoolId);
-                if (fallbackPool.isEmpty()) continue;
+                Holder<StructureTemplatePool> fallbackPool = targetPool.get().getFallback();
+                if (!fallbackPool.isBound()) continue;
 
                 PieceContext pieceContext = createPieceContextForJigsawBlock(jigsawBlockInfo, pieceEntry, randomState);
                 StructurePoolElement newlyGeneratedPiece = null;
@@ -264,7 +265,7 @@ public class JigsawManager {
 
                 // If no pieces in the target pool could be placed, try the fallback pool
                 if (newlyGeneratedPiece == null) {
-                    pieceContext.candidatePoolElements = new ObjectArrayList<>(((StructureTemplatePoolAccessor) fallbackPool.get()).getRawTemplates());
+                    pieceContext.candidatePoolElements = new ObjectArrayList<>(((StructureTemplatePoolAccessor) fallbackPool).getRawTemplates());
                     newlyGeneratedPiece = this.processList(pieceContext);
                 }
 
@@ -300,7 +301,7 @@ public class JigsawManager {
             }
         }
 
-        private Optional<StructureTemplatePool> getPoolFromId(ResourceLocation id) {
+        private Optional<StructureTemplatePool> getPoolFromId(ResourceKey<StructureTemplatePool> id) {
             Optional<StructureTemplatePool> pool = this.poolRegistry.getOptional(id);
 
             // Check if pool is empty. The only allowed empty pool is minecraft:empty.
@@ -476,7 +477,7 @@ public class JigsawManager {
                             }
                             ResourceLocation candidateTargetPool = new ResourceLocation(pieceCandidateJigsawBlock.nbt.getString("pool"));
                             Optional<StructureTemplatePool> candidateTargetPoolOptional = this.poolRegistry.getOptional(candidateTargetPool);
-                            Optional<StructureTemplatePool> candidateTargetFallbackOptional = candidateTargetPoolOptional.flatMap((StructureTemplatePool) -> this.poolRegistry.getOptional(StructureTemplatePool.getFallback()));
+                            Optional<StructureTemplatePool> candidateTargetFallbackOptional = candidateTargetPoolOptional.map(StructureTemplatePool::getFallback).filter(Holder::isBound).map(Holder::value);
                             int tallestCandidateTargetPoolPieceHeight = candidateTargetPoolOptional.map((structureTemplatePool) -> structureTemplatePool.getMaxSize(this.structureTemplateManager)).orElse(0);
                             int tallestCandidateTargetFallbackPieceHeight = candidateTargetFallbackOptional.map((structureTemplatePool) -> structureTemplatePool.getMaxSize(this.structureTemplateManager)).orElse(0);
                             return Math.max(tallestCandidateTargetPoolPieceHeight, tallestCandidateTargetFallbackPieceHeight);

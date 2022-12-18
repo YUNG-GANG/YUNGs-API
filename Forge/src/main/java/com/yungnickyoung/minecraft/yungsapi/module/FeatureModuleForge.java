@@ -3,6 +3,8 @@ package com.yungnickyoung.minecraft.yungsapi.module;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.RegisterEvent;
@@ -16,7 +18,7 @@ public class FeatureModuleForge {
     }
 
     private static void registerFeatures(RegisterEvent event) {
-        event.register(Registry.FEATURE_REGISTRY, helper -> AutoRegistrationManager.FEATURES.stream()
+        event.register(Registries.FEATURE, helper -> AutoRegistrationManager.FEATURES.stream()
                 .filter(data -> !data.processed())
                 .forEach(data -> registerFeature(data, helper)));
     }

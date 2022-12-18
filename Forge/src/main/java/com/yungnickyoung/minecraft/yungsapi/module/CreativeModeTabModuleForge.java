@@ -4,6 +4,7 @@ import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterCreativ
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
@@ -32,7 +33,7 @@ public class CreativeModeTabModuleForge {
     }
 
     private static void initializeTabs(final RegisterEvent event) {
-        event.register(Registry.BLOCK_REGISTRY, helper -> AutoRegistrationManager.CREATIVE_MODE_TABS.stream()
+        event.register(Registries.BLOCK, helper -> AutoRegistrationManager.CREATIVE_MODE_TABS.stream()
                 .filter(data -> !data.processed())
                 .forEach(CreativeModeTabModuleForge::initializeTab));
     }

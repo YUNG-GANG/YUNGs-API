@@ -6,7 +6,10 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryCodecs;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement.ExclusionZone;
@@ -17,7 +20,7 @@ import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement
 public class EnhancedExclusionZone {
     public static final Codec<EnhancedExclusionZone> CODEC = RecordCodecBuilder.create(builder -> builder
             .group(
-                    RegistryCodecs.homogeneousList(Registry.STRUCTURE_SET_REGISTRY, StructureSet.DIRECT_CODEC)
+                    RegistryCodecs.homogeneousList(Registries.STRUCTURE_SET, StructureSet.DIRECT_CODEC)
                             .fieldOf("other_set")
                             .forGetter(zone -> zone.otherSet),
                     Codec.intRange(1, 16)
@@ -33,9 +36,9 @@ public class EnhancedExclusionZone {
         this.chunkCount = chunkCount;
     }
 
-    public boolean isPlacementForbidden(ChunkGenerator chunkGenerator, RandomState randomState, long seed, int x, int z) {
+    public boolean isPlacementForbidden(ChunkGeneratorStructureState state, int x, int z) {
         for (Holder<StructureSet> holder : this.otherSet) {
-            if (chunkGenerator.hasStructureChunkInRange(holder, randomState, seed, x, z, this.chunkCount)) {
+            if (state.hasStructureChunkInRange(holder, x, z, this.chunkCount)) {
                 return true;
             }
         }

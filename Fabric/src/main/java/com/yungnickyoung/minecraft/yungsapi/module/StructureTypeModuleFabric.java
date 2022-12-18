@@ -3,6 +3,7 @@ package com.yungnickyoung.minecraft.yungsapi.module;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 
 /**
@@ -16,7 +17,7 @@ public class StructureTypeModuleFabric {
     }
 
     private static void register(AutoRegisterField data) {
-        Registry.register(Registry.STRUCTURE_TYPES, data.name(), (StructureType<?>) data.object());
+        Registry.register(BuiltInRegistries.STRUCTURE_TYPE, data.name(), (StructureType<?>) data.object());
         data.markProcessed();
     }
 }

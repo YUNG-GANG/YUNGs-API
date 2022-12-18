@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import net.minecraft.Util;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.util.RandomSource;
@@ -21,7 +22,7 @@ public class ItemRandomizer {
     public static final Codec<ItemRandomizer> CODEC = RecordCodecBuilder.create((instance) -> instance
             .group(
                     Entry.CODEC.listOf().fieldOf("entries").forGetter((randomizer) -> randomizer.entries),
-                    Registry.ITEM.byNameCodec().fieldOf("defaultItem").forGetter((randomizer) -> randomizer.defaultItem))
+                    BuiltInRegistries.ITEM.byNameCodec().fieldOf("defaultItem").forGetter((randomizer) -> randomizer.defaultItem))
             .apply(instance, ItemRandomizer::new));
 
     /**
@@ -41,13 +42,13 @@ public class ItemRandomizer {
         CompoundTag compoundTag = new CompoundTag();
 
         // Save default blockstate
-        compoundTag.putInt("defaultItemId", Registry.ITEM.getId(this.defaultItem));
+        compoundTag.putInt("defaultItemId", BuiltInRegistries.ITEM.getId(this.defaultItem));
 
         // Save entries
         ListTag entriesTag = Util.make(new ListTag(), (tag) -> {
             this.entries.forEach((entry) -> {
                 CompoundTag entryTag = new CompoundTag();
-                entryTag.putInt("entryItemId", Registry.ITEM.getId(entry.item));
+                entryTag.putInt("entryItemId", BuiltInRegistries.ITEM.getId(entry.item));
                 entryTag.putFloat("entryChance", entry.probability);
                 tag.add(entryTag);
             });
@@ -58,13 +59,13 @@ public class ItemRandomizer {
     }
 
     public ItemRandomizer(CompoundTag compoundTag) {
-        this.defaultItem = Registry.ITEM.byId(compoundTag.getInt("defaultItemId"));
+        this.defaultItem = BuiltInRegistries.ITEM.byId(compoundTag.getInt("defaultItemId"));
         this.entries = new ArrayList<>();
 
         ListTag entriesTag = compoundTag.getList("entries", 10);
         entriesTag.forEach(entryTag -> {
             CompoundTag entryCompoundTag = ((CompoundTag) entryTag);
-            Item item = Registry.ITEM.byId(entryCompoundTag.getInt("entryItemId"));
+            Item item = BuiltInRegistries.ITEM.byId(entryCompoundTag.getInt("entryItemId"));
             float chance = entryCompoundTag.getFloat("entryChance");
             this.addItem(item, chance);
         });
@@ -186,7 +187,7 @@ public class ItemRandomizer {
     public static class Entry {
         public static Codec<Entry> CODEC = RecordCodecBuilder.create(instance -> instance
                 .group(
-                        Registry.ITEM.byNameCodec().fieldOf("item").forGetter((entry) -> entry.item),
+                        BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter((entry) -> entry.item),
                         Codec.floatRange(0.0F, 1.0F).fieldOf("probability").forGetter(entry -> entry.probability))
                 .apply(instance, Entry::new));
 

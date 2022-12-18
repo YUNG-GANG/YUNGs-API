@@ -5,6 +5,7 @@ import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterItem;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -19,7 +20,7 @@ public class ItemModuleForge {
     }
 
     private static void registerItems(RegisterEvent event) {
-        event.register(Registry.ITEM_REGISTRY, helper -> {
+        event.register(Registries.ITEM, helper -> {
             // Register BlockItems
             AutoRegistrationManager.BLOCKS.forEach(data -> registerBlockItem(data, helper));
 

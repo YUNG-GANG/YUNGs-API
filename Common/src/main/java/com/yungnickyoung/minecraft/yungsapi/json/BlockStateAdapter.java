@@ -6,6 +6,7 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -81,7 +82,7 @@ public class BlockStateAdapter extends TypeAdapter<BlockState> {
         }
 
         try {
-            blockState = Registry.BLOCK.get(new ResourceLocation(blockString)).defaultBlockState();
+            blockState = BuiltInRegistries.BLOCK.get(new ResourceLocation(blockString)).defaultBlockState();
         } catch (Exception e) {
             YungsApiCommon.LOGGER.error("JSON: Unable to read block '{}': {}", blockString, e.toString());
             YungsApiCommon.LOGGER.error("Using air instead...");
@@ -117,7 +118,7 @@ public class BlockStateAdapter extends TypeAdapter<BlockState> {
                 if (property.getName().equals(key)) {
                     T val = property.getValue(value).orElse(null);
                     if (val == null) {
-                        YungsApiCommon.LOGGER.error("JSON: Found null for property {} for block {}", property, Registry.BLOCK.getId(block));
+                        YungsApiCommon.LOGGER.error("JSON: Found null for property {} for block {}", property, BuiltInRegistries.BLOCK.getId(block));
                         continue;
                     }
                     blockState = blockState.setValue(property, val);
@@ -127,7 +128,7 @@ public class BlockStateAdapter extends TypeAdapter<BlockState> {
             }
 
             if (!found) {
-                YungsApiCommon.LOGGER.error("JSON: Unable to find property {} for block {}", key, Registry.BLOCK.getId(block));
+                YungsApiCommon.LOGGER.error("JSON: Unable to find property {} for block {}", key, BuiltInRegistries.BLOCK.getId(block));
             }
         }
 
