@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw;
+package com.yungnickyoung.minecraft.yungsapi.world.jigsaw;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
@@ -7,9 +7,9 @@ import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.BoundingBoxAccessor;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.StructureTemplatePoolAccessor;
 import com.yungnickyoung.minecraft.yungsapi.util.BoxOctree;
+import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.IMaxCountJigsawPoolElement;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.IMaxCountJigsawPoolElement;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawSinglePoolElement;
+import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.YungJigsawSinglePoolElement;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.Util;
 import net.minecraft.core.*;
@@ -232,6 +232,7 @@ public class JigsawManager {
         ) {
             // Collect data from params regarding piece to process
             PoolElementStructurePiece piece = pieceEntry.getPiece();
+            MutableObject<BoxOctree> parentOctree = new MutableObject<>();
 
             // Get list of all jigsaw blocks in this piece
             List<StructureTemplate.StructureBlockInfo> pieceJigsawBlocks = piece.getElement().getShuffledJigsawBlocks(
@@ -253,7 +254,7 @@ public class JigsawManager {
                 Optional<StructureTemplatePool> fallbackPool = getPoolFromId(fallbackPoolId);
                 if (fallbackPool.isEmpty()) continue;
 
-                PieceContext pieceContext = createPieceContextForJigsawBlock(jigsawBlockInfo, pieceEntry, randomState);
+                PieceContext pieceContext = createPieceContextForJigsawBlock(jigsawBlockInfo, pieceEntry, randomState, parentOctree);
                 StructurePoolElement newlyGeneratedPiece = null;
 
                 // Attempt to place a piece from the target pool
@@ -312,10 +313,14 @@ public class JigsawManager {
             return pool;
         }
 
-        private PieceContext createPieceContextForJigsawBlock(StructureTemplate.StructureBlockInfo jigsawBlockInfo, PieceEntry pieceEntry, RandomState randomState) {
+        private PieceContext createPieceContextForJigsawBlock(
+                StructureTemplate.StructureBlockInfo jigsawBlockInfo,
+                PieceEntry pieceEntry,
+                RandomState randomState,
+                MutableObject<BoxOctree> parentOctree
+        ) {
             BoundingBox pieceBoundingBox = pieceEntry.getPiece().getBoundingBox();
             MutableObject<BoxOctree> pieceOctree = pieceEntry.getBoxOctree();
-            MutableObject<BoxOctree> parentOctree = new MutableObject<>();
 
             // Gather jigsaw block information
             Direction direction = JigsawBlock.getFrontFacing(jigsawBlockInfo.state);

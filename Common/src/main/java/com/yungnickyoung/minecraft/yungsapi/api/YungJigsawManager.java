@@ -1,7 +1,11 @@
 package com.yungnickyoung.minecraft.yungsapi.api;
 
-import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.JigsawManager;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.*;
+import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.JigsawManager;
+import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.MaxCountFeaturePoolElement;
+import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.MaxCountLegacySinglePoolElement;
+import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.MaxCountListPoolElement;
+import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.MaxCountSinglePoolElement;
+import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.YungJigsawSinglePoolElement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;

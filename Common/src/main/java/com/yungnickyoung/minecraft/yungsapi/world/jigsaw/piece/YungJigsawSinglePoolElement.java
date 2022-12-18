@@ -1,10 +1,14 @@
-package com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element;
+package com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.module.StructurePoolElementTypeModule;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.condition.*;
+import com.yungnickyoung.minecraft.yungsapi.world.condition.AllOfCondition;
+import com.yungnickyoung.minecraft.yungsapi.world.condition.AnyOfCondition;
+import com.yungnickyoung.minecraft.yungsapi.world.condition.DepthCondition;
+import com.yungnickyoung.minecraft.yungsapi.world.condition.StructureCondition;
+import com.yungnickyoung.minecraft.yungsapi.world.condition.StructureConditionType;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.modifier.StructureModifier;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.EnhancedTerrainAdaptation;

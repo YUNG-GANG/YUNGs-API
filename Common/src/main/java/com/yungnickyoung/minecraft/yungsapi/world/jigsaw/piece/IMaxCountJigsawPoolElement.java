@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element;
+package com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece;
 
 /**
  * Interface for Jigsaw pool elements w/ a maxCount setting.

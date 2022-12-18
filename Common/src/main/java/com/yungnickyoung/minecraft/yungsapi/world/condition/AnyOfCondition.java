@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.yungsapi.world.structure.condition;
+package com.yungnickyoung.minecraft.yungsapi.world.condition;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -7,30 +7,30 @@ import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureCon
 import java.util.List;
 
 /**
- * Compound condition that only passes if all member conditions pass.
+ * Compound condition that passes if any of its member conditions pass.
  */
-public class AllOfCondition extends StructureCondition {
-    public static final Codec<AllOfCondition> CODEC = RecordCodecBuilder.create((builder) -> builder
+public class AnyOfCondition extends StructureCondition {
+    public static final Codec<AnyOfCondition> CODEC = RecordCodecBuilder.create((builder) -> builder
             .group(
                     StructureConditionType.CONDITION_CODEC.listOf().fieldOf("conditions").forGetter(condition -> condition.conditions)
-            ).apply(builder, AllOfCondition::new));
+            ).apply(builder, AnyOfCondition::new));
 
     /**
      * List of member conditions.
      */
     private final List<StructureCondition> conditions;
 
-    public AllOfCondition(List<StructureCondition> conditions) {
+    public AnyOfCondition(List<StructureCondition> conditions) {
         this.conditions = conditions;
     }
 
     @Override
     public StructureConditionType<?> type() {
-        return StructureConditionType.ALL_OF;
+        return StructureConditionType.ANY_OF;
     }
 
     @Override
     public boolean passes(StructureContext ctx) {
-        return conditions.stream().allMatch(condition -> condition.passes(ctx));
+        return conditions.stream().anyMatch(condition -> condition.passes(ctx));
     }
 }

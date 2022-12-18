@@ -6,8 +6,8 @@ import com.yungnickyoung.minecraft.yungsapi.json.BlockStateRandomizerAdapter;
 import com.yungnickyoung.minecraft.yungsapi.json.BlockStateAdapter;
 import com.yungnickyoung.minecraft.yungsapi.json.ItemAdapter;
 import com.yungnickyoung.minecraft.yungsapi.json.ItemRandomizerAdapter;
-import com.yungnickyoung.minecraft.yungsapi.api.world.randomize.BlockStateRandomizer;
-import com.yungnickyoung.minecraft.yungsapi.api.world.randomize.ItemRandomizer;
+import com.yungnickyoung.minecraft.yungsapi.world.BlockStateRandomizer;
+import com.yungnickyoung.minecraft.yungsapi.world.ItemRandomizer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.state.BlockState;
 

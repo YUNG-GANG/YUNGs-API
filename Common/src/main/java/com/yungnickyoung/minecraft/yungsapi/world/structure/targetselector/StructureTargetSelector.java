@@ -1,7 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure.targetselector;
 
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.PieceEntry;
+import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.PieceEntry;
 
 import java.util.Optional;
 

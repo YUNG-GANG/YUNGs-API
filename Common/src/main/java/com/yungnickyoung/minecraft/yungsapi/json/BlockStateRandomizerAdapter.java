@@ -4,7 +4,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import com.yungnickyoung.minecraft.yungsapi.api.world.randomize.BlockStateRandomizer;
+import com.yungnickyoung.minecraft.yungsapi.world.BlockStateRandomizer;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.io.IOException;

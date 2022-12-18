@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.yungsapi.world.structure.processor;
+package com.yungnickyoung.minecraft.yungsapi.world.processor;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;

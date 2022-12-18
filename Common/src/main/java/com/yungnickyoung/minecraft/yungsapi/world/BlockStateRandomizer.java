@@ -1,11 +1,11 @@
-package com.yungnickyoung.minecraft.yungsapi.api.world.randomize;
+package com.yungnickyoung.minecraft.yungsapi.world;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.condition.StructureCondition;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.condition.StructureConditionType;
+import com.yungnickyoung.minecraft.yungsapi.world.condition.StructureCondition;
+import com.yungnickyoung.minecraft.yungsapi.world.condition.StructureConditionType;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;

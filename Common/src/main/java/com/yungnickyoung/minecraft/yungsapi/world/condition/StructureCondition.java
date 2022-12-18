@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.yungsapi.world.structure.condition;
+package com.yungnickyoung.minecraft.yungsapi.world.condition;
 
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 

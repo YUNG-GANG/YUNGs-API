@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element;
+package com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;

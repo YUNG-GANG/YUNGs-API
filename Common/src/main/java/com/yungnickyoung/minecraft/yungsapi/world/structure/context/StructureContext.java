@@ -1,6 +1,6 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure.context;
 
-import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.PieceEntry;
+import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.PieceEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;

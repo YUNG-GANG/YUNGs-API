@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.yungsapi.api.world.randomize;
+package com.yungnickyoung.minecraft.yungsapi.world;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

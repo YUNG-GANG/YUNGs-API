@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element;
+package com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
