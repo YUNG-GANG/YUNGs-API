@@ -8,12 +8,12 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 @Mixin(value = MinecraftServer.class, priority = 500)
 public class MinecraftServerMixin {
     @ModifyConstant(method = "prepareLevels", constant = @Constant(intValue = 11, ordinal = 0))
-    private static int fastSpawn(int constant) {
+    private static int yungsapi_fastSpawn(int constant) {
         return 0;
     }
 
     @ModifyConstant(method = "prepareLevels", constant = @Constant(intValue = 441, ordinal = 0))
-    private static int fastSpawn2(int constant) {
+    private static int yungsapi_fastSpawn2(int constant) {
         return 0;
     }
 }

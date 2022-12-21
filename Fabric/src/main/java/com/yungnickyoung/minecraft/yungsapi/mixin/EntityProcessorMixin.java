@@ -47,8 +47,8 @@ public class EntityProcessorMixin {
     @Inject(
             method = "placeInWorld",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplate;placeEntities(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Mirror;Lnet/minecraft/world/level/block/Rotation;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/levelgen/structure/BoundingBox;Z)V"))
-    private void processEntities(ServerLevelAccessor serverLevelAccessor, BlockPos structurePiecePos, BlockPos structurePieceBottomCenterPos, StructurePlaceSettings structurePlaceSettings, RandomSource randomSource, int i, CallbackInfoReturnable<Boolean> cir) {
-        for (StructureTemplate.StructureEntityInfo entityInfo : processEntityInfos(serverLevelAccessor, structurePiecePos, structurePieceBottomCenterPos, structurePlaceSettings, this.entityInfoList)) {
+    private void yungsapi_processEntities(ServerLevelAccessor serverLevelAccessor, BlockPos structurePiecePos, BlockPos structurePieceBottomCenterPos, StructurePlaceSettings structurePlaceSettings, RandomSource randomSource, int i, CallbackInfoReturnable<Boolean> cir) {
+        for (StructureTemplate.StructureEntityInfo entityInfo : yungsapi_processEntityInfos(serverLevelAccessor, structurePiecePos, structurePieceBottomCenterPos, structurePlaceSettings, this.entityInfoList)) {
             BlockPos blockPos = entityInfo.blockPos;
             if (structurePlaceSettings.getBoundingBox() == null || structurePlaceSettings.getBoundingBox().isInside(blockPos)) {
                 CompoundTag compoundTag = entityInfo.nbt.copy();
@@ -59,7 +59,7 @@ public class EntityProcessorMixin {
                 listTag.add(DoubleTag.valueOf(vec3d.z));
                 compoundTag.put("Pos", listTag);
                 compoundTag.remove("UUID");
-                getEntity(serverLevelAccessor, compoundTag).ifPresent((entity) -> {
+                yungsapi_getEntity(serverLevelAccessor, compoundTag).ifPresent((entity) -> {
                     float f = entity.mirror(structurePlaceSettings.getMirror());
                     f += entity.getYRot() - entity.rotate(structurePlaceSettings.getRotation());
                     entity.moveTo(vec3d.x, vec3d.y, vec3d.z, f, entity.getXRot());
@@ -76,20 +76,20 @@ public class EntityProcessorMixin {
 
     /**
      * Cancel spawning entities.
-     * This behavior is recreated in {@link #processEntities}
+     * This behavior is recreated in {@link #yungsapi_processEntities}
      */
     @Inject(
             method = "placeEntities",
             at = @At(value = "HEAD"),
             cancellable = true)
-    private void cancelPlaceEntities(ServerLevelAccessor serverLevelAccessor, BlockPos blockPos, Mirror mirror, Rotation rotation, BlockPos blockPos2, @Nullable BoundingBox boundingBox, boolean bl, CallbackInfo ci) {
+    private void yungsapi_cancelPlaceEntities(ServerLevelAccessor serverLevelAccessor, BlockPos blockPos, Mirror mirror, Rotation rotation, BlockPos blockPos2, @Nullable BoundingBox boundingBox, boolean bl, CallbackInfo ci) {
         ci.cancel();
     }
 
     /**
      * Applies placement data and {@link StructureEntityProcessor}s to entities in a structure.
      */
-    private List<StructureTemplate.StructureEntityInfo> processEntityInfos(ServerLevelAccessor serverLevelAccessor,
+    private List<StructureTemplate.StructureEntityInfo> yungsapi_processEntityInfos(ServerLevelAccessor serverLevelAccessor,
                                                                            BlockPos structurePiecePos,
                                                                            BlockPos structurePieceBottomCenterPos,
                                                                            StructurePlaceSettings structurePlaceSettings,
@@ -121,7 +121,7 @@ public class EntityProcessorMixin {
         return processedEntities;
     }
 
-    private static Optional<Entity> getEntity(ServerLevelAccessor serverLevelAccessor, CompoundTag compoundTag) {
+    private static Optional<Entity> yungsapi_getEntity(ServerLevelAccessor serverLevelAccessor, CompoundTag compoundTag) {
         try {
             return EntityType.create(compoundTag, serverLevelAccessor.getLevel());
         } catch (Exception exception) {

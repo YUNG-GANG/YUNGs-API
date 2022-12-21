@@ -24,7 +24,7 @@ public abstract class ServerPlayerEntityTickMixin extends Player {
      * Triggers custom criteria.
      */
     @Inject(method = "tick", at = @At("HEAD"))
-    private void injectMethod(CallbackInfo info) {
+    private void yungsapi_tickCriteria(CallbackInfo info) {
         if (this.tickCount % 20 == 0) {
             CriteriaModule.SAFE_STRUCTURE_LOCATION.trigger(this);
         }
