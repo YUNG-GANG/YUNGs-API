@@ -7,6 +7,10 @@ import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 
+/**
+ * Big ugly thing that adds AutoRegisterEntry's to their proper lists for processing.
+ * TODO: make not ugly
+ */
 public class AutoRegisterFieldRouter {
     public static void queueField(AutoRegisterField registerData) {
         if (registerData.object() instanceof StructureFeature<?>) {
@@ -39,6 +43,8 @@ public class AutoRegisterFieldRouter {
             AutoRegistrationManager.PARTICLE_TYPES.add(registerData);
         } else if (registerData.object() instanceof AutoRegisterSoundEvent) {
             AutoRegistrationManager.SOUND_EVENTS.add(registerData);
+        } else if (registerData.object() instanceof AutoRegisterCommand) {
+            AutoRegistrationManager.COMMANDS.add(registerData);
         }
     }
 }

@@ -45,7 +45,12 @@ public class FabricAutoRegisterHelper implements IAutoRegisterHelper {
                             o = field.get(null);
                         } catch (IllegalAccessException e) {
                             // Impossible?
+                            YungsApiCommon.LOGGER.error("Unable to get value for field {}. This shouldn't happen!", name);
                             throw new RuntimeException(e);
+                        } catch (NullPointerException e) {
+                            String message = String.format("Attempted to 'get' Field with null object. " +
+                                    "Did you forget to include a 'static' modifier for field '%s'?", name);
+                            throw new RuntimeException(message);
                         }
                         ResourceLocation resourceLocation = new ResourceLocation(modId, name);
                         AutoRegisterField autoRegisterField = new AutoRegisterField(o, resourceLocation);
@@ -74,6 +79,10 @@ public class FabricAutoRegisterHelper implements IAutoRegisterHelper {
                     } catch (IllegalAccessException | InvocationTargetException e) {
                         YungsApiCommon.LOGGER.error("Unable to invoke method {} - make sure it's static and has no args!", method.getName());
                         throw new RuntimeException(e);
+                    } catch (NullPointerException e) {
+                        String message = String.format("Attempted to invoke AutoRegister method with null object. " +
+                                "Did you forget to include a 'static' modifier for method '%s'?", method.getName());
+                        throw new RuntimeException(message);
                     }
                 }));
     }
@@ -95,6 +104,7 @@ public class FabricAutoRegisterHelper implements IAutoRegisterHelper {
         MobEffectModuleFabric.processEntries();
         PotionModuleFabric.processEntries();
         ParticleTypeModuleFabric.processEntries();
+        CommandModuleFabric.processEntries();
     }
 
     @Override

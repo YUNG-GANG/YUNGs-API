@@ -29,6 +29,11 @@ public class PostLoadModuleForge {
                     YungsApiCommon.LOGGER.error("Unable to invoke AutoRegister method {}", m.getName());
                     YungsApiCommon.LOGGER.error("Make sure the method is static and has no parameters!");
                     throw new RuntimeException(e);
+                } catch (NullPointerException e) {
+                    String message = String.format("Attempted to invoke AutoRegister method with null object. " +
+                            "Did you forget to include a 'static' modifier for method '%s'?", m.getName());
+                    YungsApiCommon.LOGGER.error(message);
+                    throw new RuntimeException(message);
                 }
             });
         });

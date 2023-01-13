@@ -22,6 +22,7 @@ public class AutoRegistrationManager {
     public static final List<AutoRegisterField> POTIONS = new ArrayList<>();
     public static final List<AutoRegisterField> PARTICLE_TYPES = new ArrayList<>();
     public static final List<AutoRegisterField> SOUND_EVENTS = new ArrayList<>();
+    public static final List<AutoRegisterField> COMMANDS = new ArrayList<>();
 
     /**
      * Scans all {@link AutoRegister} annotated fields and prepares them for registration, independent of mod loader.

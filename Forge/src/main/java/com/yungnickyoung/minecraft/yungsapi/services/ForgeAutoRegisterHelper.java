@@ -74,8 +74,12 @@ public class ForgeAutoRegisterHelper implements IAutoRegisterHelper {
                         o = f.get(null);
                     } catch (IllegalAccessException e) {
                         // Impossible?
-                        YungsApiCommon.LOGGER.error("Unable to get value for fields {}. This shouldn't happen!", data.memberName());
+                        YungsApiCommon.LOGGER.error("Unable to get value for field {}. This shouldn't happen!", data.memberName());
                         throw new RuntimeException(e);
+                    } catch (NullPointerException e) {
+                        String message = String.format("Attempted to 'get' Field with null object. " +
+                                "Did you forget to include a 'static' modifier for field '%s'?", data.memberName());
+                        throw new RuntimeException(message);
                     }
 
                     // Queue for registration
@@ -143,6 +147,7 @@ public class ForgeAutoRegisterHelper implements IAutoRegisterHelper {
         MobEffectModuleForge.processEntries();
         PotionModuleForge.processEntries();
         ParticleTypeModuleForge.processEntries();
+        CommandModuleForge.processEntries();
     }
 
     @Override
