@@ -9,5 +9,5 @@ import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
  * Equivalent to vanilla's {@link Beardifier.Rigid}, but with an {@link EnhancedTerrainAdaptation} instead of
  * vanilla's {@link TerrainAdjustment}.
  */
-public record EnhancedBeardifierRigid(BoundingBox box, EnhancedTerrainAdaptation enhancedTerrainAdaptation, int groundLevelDelta) {
+public record EnhancedBeardifierRigid(BoundingBox pieceBoundingBox, EnhancedTerrainAdaptation pieceTerrainAdaptation, int pieceGroundLevelDelta) {
 }

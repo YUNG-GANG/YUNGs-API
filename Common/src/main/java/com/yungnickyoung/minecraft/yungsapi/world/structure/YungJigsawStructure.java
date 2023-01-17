@@ -20,6 +20,7 @@ import net.minecraft.world.level.levelgen.heightproviders.HeightProvider;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
+import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 
 import java.util.Optional;
@@ -91,20 +92,26 @@ public class YungJigsawStructure extends Structure {
 
     private static Function<YungJigsawStructure, DataResult<YungJigsawStructure>> verifyRange() {
         return structure -> {
-            // Vanilla behavior
+            if (structure.terrainAdaptation() != TerrainAdjustment.NONE && structure.enhancedTerrainAdaptation != EnhancedTerrainAdaptation.NONE) {
+                return DataResult.error("YUNG Structure cannot use both vanilla terrain_adaptation and enhanced_terrain_adaptation");
+            }
+
+            // Vanilla boundary check
             int vanillaEdgeBuffer = switch (structure.terrainAdaptation()) {
                 case NONE -> 0;
                 case BURY, BEARD_THIN, BEARD_BOX -> 12;
-                default -> throw new IncompatibleClassChangeError();
             };
             if (structure.maxDistanceFromCenter + vanillaEdgeBuffer > 128) {
                 return DataResult.error("YUNG Structure size including terrain adaptation must not exceed 128");
             }
 
-            // Additional behavior
+            // Enhanced boundary check.
+            // Note that it's still possible to have structure overflow issues if one of the structure's pieces
+            // has its own enhanced_terrain_adaptation with an even bigger kernel radius than that of the
+            // rest of the structure!
             int enhancedEdgeBuffer = structure.enhancedTerrainAdaptation.getKernelRadius();
             return structure.maxDistanceFromCenter + enhancedEdgeBuffer > 128
-                    ? DataResult.error("YUNG Structure size including terrain adaptation must not exceed 128")
+                    ? DataResult.error("YUNG Structure size including enhanced terrain adaptation must not exceed 128")
                     : DataResult.success(structure);
         };
     }
@@ -131,12 +138,10 @@ public class YungJigsawStructure extends Structure {
         );
     }
 
-    // TODO - fix this to be specific to each individual enhanced terrain adaptation somehow
     @Override
     public BoundingBox adjustBoundingBox(BoundingBox boundingBox) {
-        BoundingBox adjustedBox = super.adjustBoundingBox(boundingBox);
-        adjustedBox = this.enhancedTerrainAdaptation != EnhancedTerrainAdaptation.NONE ? boundingBox.inflatedBy(12) : adjustedBox;
-        return adjustedBox;
+        return super.adjustBoundingBox(boundingBox)
+                .inflatedBy(this.enhancedTerrainAdaptation.getKernelRadius());
     }
 
     @Override

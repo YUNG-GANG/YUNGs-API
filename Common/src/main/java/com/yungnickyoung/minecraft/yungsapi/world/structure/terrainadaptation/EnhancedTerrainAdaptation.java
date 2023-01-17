@@ -6,40 +6,73 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
 
 /**
- * Extra alternatives to vanilla's {@link TerrainAdjustment}.
- * For use with {@link YungJigsawStructure}.
+ * Extra alternatives to vanilla's {@link TerrainAdjustment}, for use with {@link YungJigsawStructure}.
+ * Uses a 3-D kernel matrix to smoothly generate noise values for use when generating terrain arround structures.
  */
 public abstract class EnhancedTerrainAdaptation {
     public static final EnhancedTerrainAdaptation NONE = new NoneAdaptation();
 
-    protected final boolean doCarving;
-    protected final boolean doBearding;
-    protected final int kernelSize;
-    protected final int kernelDistance;
-    protected final float[] kernelValues;
+    /**
+     * Whether blocks above a structure piece's bounding box y-value should be carved.
+     * Used to give structures some space when they generate within terrain, such as for villages and ancient cities.
+     **/
+    private final boolean doCarving;
+
+    /**
+     * Whether blocks below a structure piece's bounding box y-value should be solid.
+     * Used to ensure pieces like village houses don't spawn floating in air.
+     */
+    private final boolean doBearding;
+
+    /**
+     * The length of each dimension in the kernel.
+     **/
+    private final int kernelSize;
+
+    /**
+     * Determines how smoothly kernel values transition from 0 to 1 across the kernel.
+     * This is analogous to the standard deviation in Gaussian blur functions.
+     */
+    private final int kernelDistance;
+
+    /**
+     * 3-dimensional kernel for smoothing terrain.
+     * Values will vary from near-zero along the edges, to near-1 in the middle.
+     * These values are used as noise to modify the noise density at specific positions during terrain generation.
+     */
+    private final float[] kernel;
 
     abstract public EnhancedTerrainAdaptationType<?> type();
 
-
     EnhancedTerrainAdaptation(int kernelSize, int kernelDistance, boolean doCarving, boolean doBearding) {
-        this.doCarving = doCarving;
-        this.doBearding = doBearding;
         this.kernelSize = kernelSize;
         this.kernelDistance = kernelDistance;
+        this.doCarving = doCarving;
+        this.doBearding = doBearding;
         int kernelRadius = this.getKernelRadius();
-        this.kernelValues = Util.make(new float[kernelSize * kernelSize * kernelSize], (kernel) -> {
-            for (int z = 0; z < kernelSize; ++z) {
-                for (int x = 0; x < kernelSize; ++x) {
-                    for (int y = 0; y < kernelSize; ++y) {
-                        kernel[z * kernelSize * kernelSize + x * kernelSize + y] = (float) computeBeardContribution(
-                                x - kernelRadius,
-                                y - kernelRadius,
-                                z - kernelRadius,
-                                kernelDistance);
+        this.kernel = Util.make(new float[kernelSize * kernelSize * kernelSize], (kernel) -> {
+            for (int x = 0; x < kernelSize; ++x) {
+                for (int y = 0; y < kernelSize; ++y) {
+                    for (int z = 0; z < kernelSize; ++z) {
+                        int i = index(x, y, z);
+                        double kernelX = x - kernelRadius;
+                        double kernelY = y - kernelRadius + 0.5;
+                        double kernelZ = z - kernelRadius;
+                        kernel[i] = computeKernelValue(kernelX, kernelY, kernelZ);
                     }
                 }
             }
         });
+    }
+
+    /**
+     * Computes the kernel value for a given x-, y-, and z-distance.
+     *
+     * @return A value from 0 to 1.0.
+     */
+    private float computeKernelValue(double xDistance, double yDistance, double zDistance) {
+        double squaredDistance = Mth.lengthSquared(xDistance, yDistance, zDistance);
+        return (float) Math.pow(Math.E, -squaredDistance / this.kernelDistance);
     }
 
     public boolean carves() {
@@ -62,35 +95,50 @@ public abstract class EnhancedTerrainAdaptation {
         return this.kernelDistance;
     }
 
-    public float[] getKernelValues() {
-        return this.kernelValues;
+    public float[] getKernel() {
+        return this.kernel;
     }
 
+    /**
+     * Computes the noise density factor at a single location given the provided values.
+     *
+     * @param xDistance            Distance in the x-axis
+     * @param yDistance            Distance in the y-axis
+     * @param zDistance            Distance in the z-axis
+     * @param yDistanceToBeardBase Distance in the y-axis to the beard base,
+     *                             the point at which carving and bearding meet
+     * @return Noise density factor due to enhanced terrain adaptation
+     */
     public double computeDensityFactor(
-            int xDistanceToBoundingBox,
-            int yDistanceToBoundingBox,
-            int zDistanceToBoundingBox,
-            int yDistanceToAdjustedBottom
+            int xDistance,
+            int yDistance,
+            int zDistance,
+            int yDistanceToBeardBase
     ) {
-        int beardKernelSize = this.getKernelSize();
-        int beardKernelRadius = this.getKernelRadius();
-        int kernelX = xDistanceToBoundingBox + beardKernelRadius;
-        int kernelY = yDistanceToBoundingBox + beardKernelRadius;
-        int kernelZ = zDistanceToBoundingBox + beardKernelRadius;
-        if (isInKernelRange(kernelX, beardKernelSize)
-                && isInKernelRange(kernelY, beardKernelSize)
-                && isInKernelRange(kernelZ, beardKernelSize)) {
+        int kernelRadius = this.getKernelRadius();
+        int kernelX = xDistance + kernelRadius;
+        int kernelY = yDistance + kernelRadius;
+        int kernelZ = zDistance + kernelRadius;
+        if (isInKernelRange(kernelX) && isInKernelRange(kernelY) && isInKernelRange(kernelZ)) {
             // Get kernel value for this distance.
-            // Returns a value from 0 (far from box) to 1 (within box)
-            float kernelValue = this.getKernelValues()[kernelZ * beardKernelSize * beardKernelSize + kernelX * beardKernelSize + kernelY];
+            // Returns a value from 0 (high distance) to 1 (zero distance)
+            int i = index(kernelX, kernelY, kernelZ);
+            float kernelValue = this.getKernel()[i];
 
-            double actualYDistanceToAdjustedBottom = (double) yDistanceToAdjustedBottom + 0.5;
-            double squaredDistance = Mth.lengthSquared(xDistanceToBoundingBox, actualYDistanceToAdjustedBottom, zDistanceToBoundingBox);
+            double actualYDistanceToAdjustedBottom = (double) yDistanceToBeardBase + 0.5;
+
+            // Calculate squared distance from point to bottom of piece bounding box.
+            // We use the bottom of the box as our target since that is the y-position that determines bearding vs carving.
+            double squaredDistance = Mth.lengthSquared(xDistance, actualYDistanceToAdjustedBottom, zDistance);
 
             /* Calculate multiplier for final noise value.
-             * The closer we are to the box, the greater amplitude (i.e. more negative number).
-             * If we are above the bounding box bottom, the multiplier is negative, and therefore contributes to carving.
-             * If we are below the bounding box bottom, the multiplier is positive, and therefore contributes to solid terrain.
+             * The closer we are (i.e. smaller distance), the greater the amplitude (i.e. more negative number).
+             *
+             * If we are above the beard base (i.e. yDistanceToBeardBase is positive),
+             * then the multiplier is negative, and therefore contributes to carving.
+             *
+             * If we are below the beard base (i.e. yDistanceToBeardBase is negative),
+             * then the multiplier is positive, and therefore contributes to solid terrain.
              */
             double multiplier = -actualYDistanceToAdjustedBottom * Mth.fastInvSqrt(squaredDistance / 2.0) / 2.0;
             if (multiplier > 0 && !this.beards()) return 0;
@@ -101,16 +149,11 @@ public abstract class EnhancedTerrainAdaptation {
         }
     }
 
-    private static boolean isInKernelRange(int i, int beardKernelSize) {
-        return i >= 0 && i < beardKernelSize;
+    private boolean isInKernelRange(int i) {
+        return i >= 0 && i < this.kernelSize;
     }
 
-    private static double computeBeardContribution(int x, int y, int z, double beardDistance) {
-        return computeBeardContribution(x, (double) y + 0.5D, z, beardDistance);
-    }
-
-    private static double computeBeardContribution(int x, double y, int z, double beardDistance) {
-        double squaredDistance = Mth.lengthSquared(x, y, z);
-        return Math.pow(Math.E, -squaredDistance / beardDistance);
+    private int index(int x, int y, int z) {
+        return z * this.kernelSize * this.kernelSize + x * this.kernelSize + y;
     }
 }

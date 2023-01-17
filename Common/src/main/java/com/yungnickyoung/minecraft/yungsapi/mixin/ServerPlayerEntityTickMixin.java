@@ -21,7 +21,7 @@ public abstract class ServerPlayerEntityTickMixin extends Player {
     }
 
     /**
-     * Triggers custom criteria.
+     * Checks for custom triggers.
      */
     @Inject(method = "tick", at = @At("HEAD"))
     private void yungsapi_tickCriteria(CallbackInfo info) {

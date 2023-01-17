@@ -16,7 +16,7 @@ public class NoneAdaptation extends EnhancedTerrainAdaptation {
     }
 
     @Override
-    public double computeDensityFactor(int xDistanceToBoundingBox, int yDistanceToBoundingBox, int zDistanceToBoundingBox, int yDistanceToAdjustedBottom) {
+    public double computeDensityFactor(int xDistance, int yDistance, int zDistance, int yDistanceToBeardBase) {
         return 0;
     }
 }
