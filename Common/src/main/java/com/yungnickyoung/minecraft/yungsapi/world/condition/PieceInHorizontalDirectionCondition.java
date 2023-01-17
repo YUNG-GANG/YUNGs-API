@@ -20,10 +20,10 @@ import java.util.List;
 /**
  * Searches a specified number of blocks from a given position in a specified direction and checks for a structure piece.
  * Passes if a structure piece is found matching one of the entries from the given list.
- * Note that "yungsapi:*" is an acceptable entry for matching any piece.
+ * Note that "all" is an acceptable entry for matching any piece.
  */
 public class PieceInHorizontalDirectionCondition extends StructureCondition {
-    private static final ResourceLocation ALL = new ResourceLocation(YungsApiCommon.MOD_ID, "all");
+    private static final ResourceLocation WILDCARD = new ResourceLocation(YungsApiCommon.MOD_ID, "all");
 
     public static final Codec<PieceInHorizontalDirectionCondition> CODEC = RecordCodecBuilder.create((builder) -> builder
             .group(
@@ -53,7 +53,7 @@ public class PieceInHorizontalDirectionCondition extends StructureCondition {
         this.range = range;
         this.rotation = rotation;
         if (matchPieces.isEmpty()) {
-            matchPieces.add(ALL); // No pieces specified -> match all pieces
+            matchPieces.add(WILDCARD); // No pieces specified -> match all pieces
         }
     }
 
@@ -102,7 +102,7 @@ public class PieceInHorizontalDirectionCondition extends StructureCondition {
                 // Iterate our target pieces and check for a match with otherPiece
                 for (ResourceLocation matchPieceId : matchPieces) {
                     StructureTemplate structureTemplate = templateManager.getOrCreate(matchPieceId);
-                    if (otherStructureTemplate == structureTemplate || matchPieceId.equals(ALL)) {
+                    if (otherStructureTemplate == structureTemplate || matchPieceId.getPath().equals("all")) {
                         // This is one of the pieces we're searching for, so we test its bounding box
                         BoundingBox searchBox = new BoundingBox(
                                 piece.getBoundingBox().minX() - negX,
