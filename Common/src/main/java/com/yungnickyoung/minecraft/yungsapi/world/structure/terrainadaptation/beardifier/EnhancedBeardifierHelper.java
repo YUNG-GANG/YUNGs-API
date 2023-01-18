@@ -131,7 +131,7 @@ public class EnhancedBeardifierHelper {
         while (data.getEnhancedRigidIterator() != null && data.getEnhancedRigidIterator().hasNext()) {
             EnhancedBeardifierRigid rigid = data.getEnhancedRigidIterator().next();
             BoundingBox pieceBoundingBox = rigid.pieceBoundingBox();
-            int adjustedPieceMinY = pieceBoundingBox.minY() + rigid.pieceGroundLevelDelta();
+            int adjustedPieceMinY = pieceBoundingBox.minY();
             EnhancedTerrainAdaptation pieceTerrainAdaptation = rigid.pieceTerrainAdaptation();
 
             /* Get the distance from the pieceBoundingBox along each axis.
