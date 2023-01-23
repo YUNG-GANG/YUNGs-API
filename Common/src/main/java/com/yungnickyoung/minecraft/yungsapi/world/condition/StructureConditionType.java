@@ -39,6 +39,7 @@ public interface StructureConditionType<C extends StructureCondition> {
     StructureConditionType<AltitudeCondition> ALTITUDE = register("altitude", AltitudeCondition.CODEC);
     StructureConditionType<DepthCondition> DEPTH = register("depth", DepthCondition.CODEC);
     StructureConditionType<PieceInRangeCondition> PIECE_IN_RANGE = register("piece_in_range", PieceInRangeCondition.CODEC);
+    StructureConditionType<ModLoadedCondition> MOD_LOADED = register("mod_loaded", ModLoadedCondition.CODEC);
     StructureConditionType<PieceInHorizontalDirectionCondition> PIECE_IN_HORIZONTAL_DIRECTION = register("piece_in_horizontal_direction", PieceInHorizontalDirectionCondition.CODEC);
 
     /**

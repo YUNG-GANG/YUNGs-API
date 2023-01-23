@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.world.jigsaw;
 
 import com.yungnickyoung.minecraft.yungsapi.util.BoxOctree;
+import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.assembler.PieceContext;
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.YungJigsawSinglePoolElement;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawJunction;
@@ -18,11 +19,11 @@ public class PieceEntry {
     private final int depth;
     private final List<PieceEntry> childEntries = new ArrayList<>();
     private final PieceEntry parentEntry;
-    private final JigsawManager.PieceContext sourcePieceContext;
+    private final PieceContext sourcePieceContext;
     private final JigsawJunction parentJunction;
 
-    public PieceEntry(PoolElementStructurePiece piece,MutableObject<BoxOctree> boxOctree, AABB pieceAabb, int depth,
-                      PieceEntry parentEntry, JigsawManager.PieceContext sourcePieceContext, JigsawJunction parentJunction) {
+    public PieceEntry(PoolElementStructurePiece piece, MutableObject<BoxOctree> boxOctree, AABB pieceAabb, int depth,
+                      PieceEntry parentEntry, PieceContext sourcePieceContext, JigsawJunction parentJunction) {
         this.piece = piece;
         this.boxOctree = boxOctree;
         this.pieceAabb = pieceAabb;
@@ -60,7 +61,7 @@ public class PieceEntry {
         return parentEntry;
     }
 
-    public JigsawManager.PieceContext getSourcePieceContext() {
+    public PieceContext getSourcePieceContext() {
         return sourcePieceContext;
     }
 
