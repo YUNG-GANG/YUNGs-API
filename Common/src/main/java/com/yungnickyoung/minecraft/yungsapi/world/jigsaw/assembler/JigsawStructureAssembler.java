@@ -12,6 +12,7 @@ import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.IMaxCountJigsawPo
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.YungJigsawSinglePoolElement;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.util.ArrayList;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -36,7 +37,6 @@ import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.phys.AABB;
-import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.Deque;
@@ -59,7 +59,7 @@ public class JigsawStructureAssembler {
      * A piece only gets added to this list when its spawn conditions have been validated to ensure
      * it should be added to the structure.
      */
-    private final List<PieceEntry> pieces = Lists.newArrayList();
+    private final List<PieceEntry> pieces = new ArrayList<>();
 
     /**
      * Queue of unprocessed pieces to be processed.
