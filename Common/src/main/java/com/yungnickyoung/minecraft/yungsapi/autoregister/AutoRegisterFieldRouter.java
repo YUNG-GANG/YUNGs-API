@@ -2,8 +2,10 @@ package com.yungnickyoung.minecraft.yungsapi.autoregister;
 
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.*;
 import net.minecraft.advancements.CriterionTrigger;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 
@@ -17,6 +19,10 @@ public class AutoRegisterFieldRouter {
             AutoRegistrationManager.STRUCTURE_FEATURES.add(registerData);
         } else if (registerData.object() instanceof Feature<?>) {
             AutoRegistrationManager.FEATURES.add(registerData);
+        } else if (registerData.object() instanceof AutoRegisterConfiguredFeature) {
+            AutoRegistrationManager.CONFIGURED_FEATURES.add(registerData);
+        } else if (registerData.object() instanceof AutoRegisterPlacedFeature) {
+            AutoRegistrationManager.PLACED_FEATURES.add(registerData);
         } else if (registerData.object() instanceof StructurePoolElementType<?>) {
             AutoRegistrationManager.STRUCTURE_POOL_ELEMENT_TYPES.add(registerData);
         } else if (registerData.object() instanceof CriterionTrigger) {

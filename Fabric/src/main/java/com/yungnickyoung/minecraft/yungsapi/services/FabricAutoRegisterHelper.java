@@ -94,6 +94,8 @@ public class FabricAutoRegisterHelper implements IAutoRegisterHelper {
         SoundEventModuleFabric.processEntries();
         StructureFeatureModuleFabric.processEntries();
         FeatureModuleFabric.processEntries();
+        ConfiguredFeatureModuleFabric.processEntries();
+        PlacedFeatureModuleFabric.processEntries();
         CreativeModeTabModuleFabric.processEntries();
         ItemModuleFabric.processEntries();
         BlockModuleFabric.processEntries();
