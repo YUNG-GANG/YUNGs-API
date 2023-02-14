@@ -52,7 +52,9 @@ public class PotionModuleForge {
     }
 
     private static void commonSetup(final FMLCommonSetupEvent event) {
-        BREWING_RECIPES.forEach(BrewingRecipeRegistry::addRecipe);
+        event.enqueueWork(() -> {
+            BREWING_RECIPES.forEach(BrewingRecipeRegistry::addRecipe);
+        });
     }
 
     public record BrewingRecipe(Supplier<Potion> input, Supplier<Item> ingredient,
