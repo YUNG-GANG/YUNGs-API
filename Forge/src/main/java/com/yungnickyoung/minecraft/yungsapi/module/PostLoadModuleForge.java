@@ -21,6 +21,7 @@ public class PostLoadModuleForge {
 
     private static void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
+            // Execute all annotated methods
             METHODS.forEach(m -> {
                 // Invoke method
                 try {
@@ -36,6 +37,10 @@ public class PostLoadModuleForge {
                     throw new RuntimeException(message);
                 }
             });
+
+            // Register brewing recipes in case any were just added during annotated method execution
+            // with AutoRegisterUtils#registerBrewingRecipe
+            PotionModuleForge.registerBrewingRecipes();
         });
     }
 }
