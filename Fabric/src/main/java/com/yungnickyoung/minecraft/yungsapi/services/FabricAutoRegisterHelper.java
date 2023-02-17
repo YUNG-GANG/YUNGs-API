@@ -89,23 +89,23 @@ public class FabricAutoRegisterHelper implements IAutoRegisterHelper {
 
     @Override
     public void processQueuedAutoRegEntries() {
+        CreativeModeTabModuleFabric.processEntries();
+        SoundEventModuleFabric.processEntries();
         StructurePoolElementTypeModuleFabric.processEntries();
         CriteriaModuleFabric.processEntries();
-        SoundEventModuleFabric.processEntries();
+        ItemModuleFabric.processEntries();
+        BlockModuleFabric.processEntries();
         StructureFeatureModuleFabric.processEntries();
         FeatureModuleFabric.processEntries();
         ConfiguredFeatureModuleFabric.processEntries();
         PlacedFeatureModuleFabric.processEntries();
-        CreativeModeTabModuleFabric.processEntries();
-        ItemModuleFabric.processEntries();
-        BlockModuleFabric.processEntries();
         StructureProcessorTypeModuleFabric.processEntries();
         BlockEntityTypeModuleFabric.processEntries();
+        ParticleTypeModuleFabric.processEntries();
         BiomeModuleFabric.processEntries();
         EntityTypeModuleFabric.processEntries();
         MobEffectModuleFabric.processEntries();
         PotionModuleFabric.processEntries();
-        ParticleTypeModuleFabric.processEntries();
         CommandModuleFabric.processEntries();
     }
 

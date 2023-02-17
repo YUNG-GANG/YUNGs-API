@@ -137,7 +137,6 @@ public class ForgeAutoRegisterHelper implements IAutoRegisterHelper {
         SoundEventModuleForge.processEntries();
         BlockModuleForge.processEntries();
         FeatureModuleForge.processEntries();
-        ConfiguredFeatureModuleForge.processEntries();
         PlacedFeatureModuleForge.processEntries();
         StructureFeatureModuleForge.processEntries();
         CreativeModeTabModuleForge.processEntries();
