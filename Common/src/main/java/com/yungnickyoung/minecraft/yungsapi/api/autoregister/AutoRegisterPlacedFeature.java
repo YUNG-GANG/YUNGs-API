@@ -12,15 +12,24 @@ import net.minecraft.world.level.levelgen.placement.PlacementModifier;
 import java.util.List;
 
 public class AutoRegisterPlacedFeature extends AutoRegisterEntry<PlacedFeature> {
-    // Data fields, for the user to declare
-    private final Either<AutoRegisterConfiguredFeature, Holder<ConfiguredFeature<?, ?>>> innerConfiguredFeature;
+    private final Either<AutoRegisterConfiguredFeature<?>, Holder<ConfiguredFeature<?, ?>>> innerConfiguredFeature;
     private final List<PlacementModifier> placementModifiers;
 
+    /*
+     * On Forge, we register PlacedFeatures during CommonSetup by default.
+     * However, sometimes they are needed earlier, such as during biome registration, which takes place before CommonSetup.
+     *
+     * To accomplish this, we allow for on-demand registration.
+     * If a PlacedFeature's Holder is requested (i.e. with AutoRegisterPlacedFeature#holder), it will be registered
+     * at that moment if it has not yet already been registered.
+     *
+     * The following variables are all internal variables necessary for this lazy-registration system.
+     */
     private Holder<PlacedFeature> holder;
     private boolean registered = false;
     public ResourceLocation id = null;
 
-    public static AutoRegisterPlacedFeature of(AutoRegisterConfiguredFeature configuredFeature, List<PlacementModifier> placementModifiers) {
+    public static AutoRegisterPlacedFeature of(AutoRegisterConfiguredFeature<?> configuredFeature, List<PlacementModifier> placementModifiers) {
         return new AutoRegisterPlacedFeature(configuredFeature, placementModifiers);
     }
 
@@ -28,7 +37,7 @@ public class AutoRegisterPlacedFeature extends AutoRegisterEntry<PlacedFeature> 
         return new AutoRegisterPlacedFeature(configuredFeatureHolder, placementModifiers);
     }
 
-    private AutoRegisterPlacedFeature(AutoRegisterConfiguredFeature autoRegisterConfiguredFeature, List<PlacementModifier> placementModifiers) {
+    private AutoRegisterPlacedFeature(AutoRegisterConfiguredFeature<?> autoRegisterConfiguredFeature, List<PlacementModifier> placementModifiers) {
         super(null);
         this.innerConfiguredFeature = Either.left(autoRegisterConfiguredFeature);
         this.placementModifiers = placementModifiers;
@@ -40,43 +49,36 @@ public class AutoRegisterPlacedFeature extends AutoRegisterEntry<PlacedFeature> 
         this.placementModifiers = placementModifiers;
     }
 
+    /**
+     * Fetches this ConfiguredFeature's Holder, ensuring it has been registered.
+     * This is the only way you should retrieve the Holder for this ConfiguredFeature!
+     */
     public Holder<PlacedFeature> holder() {
         this.register(); // Ensure we are registered before returning the holder
         return this.holder;
     }
 
-    public Holder<ConfiguredFeature<?, ?>> getConfiguredFeatureHolder() {
+    private Holder<ConfiguredFeature<?, ?>> getConfiguredFeatureHolder() {
         return this.innerConfiguredFeature.map(
                 AutoRegisterConfiguredFeature::holder,
                 holder -> holder);
     }
 
-    public List<PlacementModifier> placementModifiers() {
-        return this.placementModifiers;
-    }
-
-    public void setHolder(Holder<PlacedFeature> holder) {
-        this.holder = holder;
-    }
-
-    public boolean isRegistered() {
-        return this.registered;
-    }
-
+    /**
+     * Registers this PlacedFeature if it has not already been registered.
+     * Note that this object's id must have been initialized.
+     * For internal use only.
+     */
     public void register() {
         if (this.registered) return; // Abort if already registered
 
-        // Ensure the configured feature has been registered so that its holder is populated
-        this.innerConfiguredFeature.ifLeft(AutoRegisterConfiguredFeature::register);
-
         PlacedFeature placedFeature = new PlacedFeature(
                 Holder.hackyErase(this.getConfiguredFeatureHolder()),
-                List.copyOf(this.placementModifiers()));
-        Holder<PlacedFeature> holder = BuiltinRegistries.register(
+                List.copyOf(this.placementModifiers));
+        this.holder = BuiltinRegistries.register(
                 BuiltinRegistries.PLACED_FEATURE,
                 this.id,
                 placedFeature);
-        this.setHolder(holder);
         this.setSupplier(() -> placedFeature);
         this.registered = true;
     }
