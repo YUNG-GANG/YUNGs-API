@@ -156,4 +156,9 @@ public class ForgeAutoRegisterHelper implements IAutoRegisterHelper {
         PotionModuleForge.BrewingRecipe recipe = new PotionModuleForge.BrewingRecipe(inputPotion, ingredient, outputPotion);
         PotionModuleForge.BREWING_RECIPES.add(recipe);
     }
+
+    @Override
+    public void addCompostableItem(Supplier<Item> ingredient, float compostChance) {
+        CompostModuleForge.COMPOSTABLES.put(ingredient.get(), compostChance);
+    }
 }

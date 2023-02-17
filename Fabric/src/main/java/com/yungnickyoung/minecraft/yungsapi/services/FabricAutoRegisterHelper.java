@@ -6,6 +6,7 @@ import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterFieldRouter;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.PotionBrewingAccessor;
 import com.yungnickyoung.minecraft.yungsapi.module.*;
+import net.fabricmc.fabric.api.registry.CompostingChanceRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.Potion;
@@ -112,5 +113,10 @@ public class FabricAutoRegisterHelper implements IAutoRegisterHelper {
     @Override
     public void registerBrewingRecipe(Supplier<Potion> inputPotion, Supplier<Item> ingredient, Supplier<Potion> outputPotion) {
         PotionBrewingAccessor.callAddMix(inputPotion.get(), ingredient.get(), outputPotion.get());
+    }
+
+    @Override
+    public void addCompostableItem(Supplier<Item> ingredient, float compostChance) {
+        CompostingChanceRegistry.INSTANCE.add(ingredient.get(), compostChance);
     }
 }

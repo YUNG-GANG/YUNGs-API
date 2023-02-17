@@ -10,4 +10,8 @@ public class AutoRegisterUtils {
     public static void registerBrewingRecipe(Supplier<Potion> inputPotion, Supplier<Item> ingredient, Supplier<Potion> outputPotion) {
         Services.AUTO_REGISTER.registerBrewingRecipe(inputPotion, ingredient, outputPotion);
     }
+
+    public static void addCompostableItem(Supplier<Item> ingredient, float compostChance) {
+        Services.AUTO_REGISTER.addCompostableItem(ingredient, compostChance);
+    }
 }

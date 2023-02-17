@@ -49,4 +49,6 @@ public interface IAutoRegisterHelper {
     void processQueuedAutoRegEntries();
 
     void registerBrewingRecipe(Supplier<Potion> inputPotion, Supplier<Item> ingredient, Supplier<Potion> outputPotion);
+
+    void addCompostableItem(Supplier<Item> ingredient, float compostChance);
 }
