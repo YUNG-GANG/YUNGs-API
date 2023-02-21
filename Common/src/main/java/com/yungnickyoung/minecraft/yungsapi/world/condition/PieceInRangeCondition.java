@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * Searches a specified number of blocks from a given position and checks for a structure piece.
  * Passes if a structure piece is found matching one of the entries from the given list.
- * Note that "yungsapi:*" is an acceptable entry for matching any piece.
+ * Note that "yungsapi:all" is an acceptable entry for matching any piece.
  */
 public class PieceInRangeCondition extends StructureCondition {
     private static final ResourceLocation ALL = new ResourceLocation(YungsApiCommon.MOD_ID, "all");
@@ -67,6 +67,13 @@ public class PieceInRangeCondition extends StructureCondition {
         if (templateManager == null || pieces == null || pieceEntry == null) return false;
 
         PoolElementStructurePiece piece = pieceEntry.getPiece();
+        BoundingBox searchBox = new BoundingBox(
+                piece.getBoundingBox().minX() - this.horizontalRange,
+                piece.getBoundingBox().minY() - this.belowRange,
+                piece.getBoundingBox().minZ() - this.horizontalRange,
+                piece.getBoundingBox().maxX() + this.horizontalRange,
+                piece.getBoundingBox().maxY() + this.aboveRange,
+                piece.getBoundingBox().maxZ() + this.horizontalRange);
 
         // Check for any matching pieces that satisfy the positional criteria
         for (PieceEntry otherPieceEntry : pieces) {
@@ -84,15 +91,9 @@ public class PieceInRangeCondition extends StructureCondition {
                 for (ResourceLocation matchPieceId : matchPieces) {
                     StructureTemplate structureTemplate = templateManager.getOrCreate(matchPieceId);
                     if (otherStructureTemplate == structureTemplate || matchPieceId.equals(ALL)) {
-                        // This is one of the pieces we're searching for, so we test its bounding box
-                        BoundingBox searchBox = new BoundingBox(
-                                 piece.getBoundingBox().minX() - this.horizontalRange,
-                                 piece.getBoundingBox().minY() - this.belowRange,
-                                 piece.getBoundingBox().minZ() - this.horizontalRange,
-                                 piece.getBoundingBox().maxX() + this.horizontalRange,
-                                 piece.getBoundingBox().maxY() + this.aboveRange,
-                                 piece.getBoundingBox().maxZ() + this.horizontalRange);
-                        if (otherPiece.getBoundingBox().intersects(searchBox)) {
+                        // This is one of the pieces we're searching for, so we test its bounding box.
+                        // It must intersect the search box, but not be within the current piece's bounding box.
+                        if (otherPiece.getBoundingBox().intersects(searchBox) && !otherPiece.getBoundingBox().intersects(piece.getBoundingBox())) {
                             return true;
                         }
                     }

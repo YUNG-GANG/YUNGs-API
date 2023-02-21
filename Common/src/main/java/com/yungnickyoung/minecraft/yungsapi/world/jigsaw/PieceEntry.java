@@ -21,6 +21,7 @@ public class PieceEntry {
     private final PieceEntry parentEntry;
     private final PieceContext sourcePieceContext;
     private final JigsawJunction parentJunction;
+    private boolean delayGeneration = false;
 
     public PieceEntry(PoolElementStructurePiece piece, MutableObject<BoxOctree> boxOctree, AABB pieceAabb, int depth,
                       PieceEntry parentEntry, PieceContext sourcePieceContext, JigsawJunction parentJunction) {
@@ -76,6 +77,14 @@ public class PieceEntry {
     public boolean hasDeadendPool() {
         return this.piece.getElement() instanceof YungJigsawSinglePoolElement yungElement
                 && yungElement.hasDeadendPool();
+    }
+
+    public void setDelayGeneration(boolean delayGeneration) {
+        this.delayGeneration = delayGeneration;
+    }
+
+    public boolean isDelayGeneration() {
+        return this.delayGeneration;
     }
 
     @Override

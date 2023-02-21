@@ -186,6 +186,7 @@ public class JigsawManager {
                         .pos(adjustedStartPos)
                         .rotation(rotation)
                         .depth(0)
+                        .random(rand)
                         .build();
                 if (!yungSingleElement.passesConditions(ctx)) {
                     totalWeightSum -= chosenPieceWeight;

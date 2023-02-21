@@ -2,6 +2,7 @@ package com.yungnickyoung.minecraft.yungsapi.world.structure.context;
 
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.PieceEntry;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
@@ -21,6 +22,7 @@ public class StructureContext {
     private final StructureTemplateManager structureTemplateManager;
     private final List<PieceEntry> pieces;
     private final PieceEntry pieceEntry;
+    private final RandomSource random;
 
     private StructureContext(StructureContext.Builder builder) {
         this.pieceMinY = builder.pieceMinY;
@@ -31,6 +33,7 @@ public class StructureContext {
         this.pieces = builder.pieces;
         this.pieceEntry = builder.pieceEntry;
         this.rotation = builder.rotation;
+        this.random = builder.random;
     }
 
     public int pieceMinY() {
@@ -65,6 +68,10 @@ public class StructureContext {
         return this.pieceEntry;
     }
 
+    public RandomSource random() {
+        return this.random;
+    }
+
     public static class Builder {
         private int pieceMinY = 0;
         private int pieceMaxY = 0;
@@ -74,6 +81,7 @@ public class StructureContext {
         private StructureTemplateManager structureTemplateManager = null;
         private List<PieceEntry> pieces = null;
         private PieceEntry pieceEntry = null;
+        private RandomSource random = null;
 
         public Builder() {
         }
@@ -115,6 +123,11 @@ public class StructureContext {
 
         public Builder pieceEntry(PieceEntry pieceEntry) {
             this.pieceEntry = pieceEntry;
+            return this;
+        }
+
+        public Builder random(RandomSource random) {
+            this.random = random;
             return this;
         }
 

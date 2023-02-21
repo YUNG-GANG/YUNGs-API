@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.SinglePoolElementAccessor;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.PieceEntry;
@@ -13,9 +14,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
+import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
+import net.minecraft.world.phys.AABB;
 
 import java.util.List;
 
@@ -72,29 +77,47 @@ public class TransformAction extends StructureAction {
 
     @Override
     public void apply(StructureContext ctx, PieceEntry targetPieceEntry) {
+        // Extract args from context
+        StructureTemplateManager templateManager = ctx.structureTemplateManager();
+
+        // Abort if missing any args
+        if (templateManager == null) {
+            YungsApiCommon.LOGGER.error("Missing required field 'structureTemplateManager' for transform action!");
+            return;
+        }
+
         // Transform piece, copying over most other data
         YungJigsawSinglePoolElement old = (YungJigsawSinglePoolElement) targetPieceEntry.getPiece().getElement();
         WorldgenRandom rand = new WorldgenRandom(new LegacyRandomSource(0));
         rand.setFeatureSeed(targetPieceEntry.getPiece().getPosition().getX(),
                 targetPieceEntry.getPiece().getPosition().getY(),
                 targetPieceEntry.getPiece().getPosition().getX());
-        Either<ResourceLocation, StructureTemplate> newTemplate = this.output.get(rand.nextInt(this.output.size()));
 
-        // Determine new piece position
+        // Randomly choose output piece
+        Either<ResourceLocation, StructureTemplate> newTemplate = this.output.get(rand.nextInt(this.output.size()));
+        StructurePoolElement newElement = new YungJigsawSinglePoolElement(newTemplate, ((SinglePoolElementAccessor)old).getProcessors(),
+                old.getProjection(), old.name, old.maxCount, old.minRequiredDepth, old.maxPossibleDepth,
+                old.isPriority, old.ignoreBounds, old.condition, old.enhancedTerrainAdaptation,
+                old.deadendPool, old.modifiers);
+
+        // New piece position
         BlockPos offset = new BlockPos(this.xOffset, this.yOffset, this.zOffset);
-        offset.rotate(targetPieceEntry.getPiece().getRotation());
+        offset = offset.rotate(targetPieceEntry.getPiece().getRotation());
         BlockPos newPos = targetPieceEntry.getPiece().getPosition().offset(offset);
 
+        // New piece bounding box
+        BoundingBox newBoundingBox = newElement.getBoundingBox(templateManager, newPos, targetPieceEntry.getPiece().getRotation());
+        AABB newAabb = AABB.of(newBoundingBox);
+        targetPieceEntry.getBoxOctree().getValue().removeBox(targetPieceEntry.getPieceAabb());
+        targetPieceEntry.getBoxOctree().getValue().addBox(newAabb);
+
         PoolElementStructurePiece newPiece = new PoolElementStructurePiece(
-                ctx.structureTemplateManager(),
-                new YungJigsawSinglePoolElement(newTemplate, ((SinglePoolElementAccessor)old).getProcessors(),
-                        old.getProjection(), old.name, old.maxCount, old.minRequiredDepth, old.maxPossibleDepth,
-                        old.isPriority, old.ignoreBounds, old.condition, old.enhancedTerrainAdaptation,
-                        old.deadendPool, old.modifiers),
+                templateManager,
+                newElement,
                 newPos,
                 targetPieceEntry.getPiece().getGroundLevelDelta(),
                 targetPieceEntry.getPiece().getRotation(),
-                targetPieceEntry.getPiece().getBoundingBox()
+                newBoundingBox
         );
 
         targetPieceEntry.setPiece(newPiece);

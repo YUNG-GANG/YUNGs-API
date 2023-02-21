@@ -1,10 +1,11 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure.targetselector;
 
 import com.mojang.serialization.Codec;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.PieceEntry;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Target selector that returns the piece currently undergoing modification.
@@ -22,10 +23,13 @@ public class SelfTargetSelector extends StructureTargetSelector {
     }
 
     @Override
-    public Optional<PieceEntry> apply(StructureContext ctx) {
+    public List<PieceEntry> apply(StructureContext ctx) {
+        List<PieceEntry> list = new ArrayList<>();
+
         if (ctx.pieceEntry() != null) {
-            return Optional.of(ctx.pieceEntry());
+            list.add(ctx.pieceEntry());
         }
-        return Optional.empty();
+
+        return list;
     }
 }

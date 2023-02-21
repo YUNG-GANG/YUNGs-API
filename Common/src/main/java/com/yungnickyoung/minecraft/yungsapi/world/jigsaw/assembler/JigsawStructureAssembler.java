@@ -12,7 +12,9 @@ import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.IMaxCountJigsawPo
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.YungJigsawSinglePoolElement;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
 import java.util.ArrayList;
+
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -88,7 +90,7 @@ public class JigsawStructureAssembler {
     /**
      * Assembles a YUNG Jigsaw structure, populating an internal list of all the pieces that comprise the structure.
      *
-     * @param startPiece The starting piece of the structure
+     * @param startPiece      The starting piece of the structure
      * @param structureBounds The maximum allowed bounds of the structure
      */
     public void assembleStructure(PoolElementStructurePiece startPiece, BoxOctree structureBounds) {
@@ -197,9 +199,27 @@ public class JigsawStructureAssembler {
             newContext.candidatePoolElements = new ObjectArrayList<>(((StructureTemplatePoolAccessor) deadendPool.get()).getRawTemplates());
             AABB pieceAabb = pieceEntry.getPieceAabb();
             if (parentEntry != null && pieceAabb != null) {
+                // Remove previous piece
                 parentEntry.getPiece().getJunctions().remove(pieceEntry.getParentJunction());
                 pieceEntry.getBoxOctree().getValue().removeBox(pieceAabb);
                 this.pieces.remove(pieceEntry);
+
+                // Update piece count, if applicable
+                if (pieceEntry.getPiece().getElement() instanceof YungJigsawSinglePoolElement yungSingleElement
+                        && yungSingleElement.maxCount.isPresent()
+                        && yungSingleElement.name.isPresent()
+                        && this.pieceCounts.containsKey(yungSingleElement.name.get())) {
+                    String pieceName = yungSingleElement.name.get();
+                    this.pieceCounts.put(pieceName, this.pieceCounts.get(pieceName) - 1);
+                }
+
+                // LEGACY - support for IMaxCountJigsawPiece
+                if (pieceEntry.getPiece().getElement() instanceof IMaxCountJigsawPoolElement maxCountJigsawPoolElement
+                        && this.pieceCounts.containsKey(maxCountJigsawPoolElement.getName())) {
+                    String pieceName = maxCountJigsawPoolElement.getName();
+                    this.pieceCounts.put(pieceName, this.pieceCounts.get(pieceName) - 1);
+                }
+
                 this.chooseCandidateFromPool(newContext);
             }
         }
@@ -438,8 +458,10 @@ public class JigsawStructureAssembler {
                     }
 
                     // Prevent pieces from spawning above max Y and below min Y
-                    if (this.settings.maxY.isPresent() && adjustedCandidateBoundingBox.maxY() > this.settings.maxY.get()) continue;
-                    if (this.settings.minY.isPresent() && adjustedCandidateBoundingBox.minY() < this.settings.minY.get()) continue;
+                    if (this.settings.maxY.isPresent() && adjustedCandidateBoundingBox.maxY() > this.settings.maxY.get())
+                        continue;
+                    if (this.settings.minY.isPresent() && adjustedCandidateBoundingBox.minY() < this.settings.minY.get())
+                        continue;
 
                     // Final boundary check before adding the new piece.
                     // Not sure why the candidate box is shrunk by 0.25. Maybe just ensures no overlap for adjacent block positions?
@@ -513,6 +535,7 @@ public class JigsawStructureAssembler {
                                 .pieceMinY(adjustedCandidateBoundingBox.minY())
                                 .pieceMaxY(adjustedCandidateBoundingBox.maxY())
                                 .depth(context.depth + 1)
+                                .random(this.settings.rand)
                                 .build();
                         if (!yungSingleElement.passesConditions(ctx)) {
                             continue; // Abort this piece & rotation if it doesn't pass conditions check
@@ -590,11 +613,19 @@ public class JigsawStructureAssembler {
                             .pieces(this.pieces)
                             .pieceMaxY(piece.getBoundingBox().maxY())
                             .pieceMinY(piece.getBoundingBox().minY())
+                            .random(this.settings.rand)
                             .build();
                     yungElement.modifiers.forEach(modifier -> modifier.apply(structureContext));
                 }
             }
         }
+
+        // Move any pieces marked for delayed generation to the end of the list
+        List<PieceEntry> delayedEntries = this.pieces.stream()
+                .filter(PieceEntry::isDelayGeneration)
+                .toList();
+        this.pieces.removeAll(delayedEntries);
+        this.pieces.addAll(delayedEntries);
     }
 
     public static class Settings {

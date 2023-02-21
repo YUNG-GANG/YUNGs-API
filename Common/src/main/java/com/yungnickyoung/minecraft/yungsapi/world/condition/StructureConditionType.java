@@ -38,6 +38,7 @@ public interface StructureConditionType<C extends StructureCondition> {
     StructureConditionType<NotCondition> NOT = register("not", NotCondition.CODEC);
     StructureConditionType<AltitudeCondition> ALTITUDE = register("altitude", AltitudeCondition.CODEC);
     StructureConditionType<DepthCondition> DEPTH = register("depth", DepthCondition.CODEC);
+    StructureConditionType<RandomChanceCondition> RANDOM_CHANCE = register("random_chance", RandomChanceCondition.CODEC);
     StructureConditionType<PieceInRangeCondition> PIECE_IN_RANGE = register("piece_in_range", PieceInRangeCondition.CODEC);
     StructureConditionType<ModLoaderCondition> MOD_LOADER = register("mod_loader", ModLoaderCondition.CODEC);
     StructureConditionType<ModLoadedCondition> MOD_LOADED = register("mod_loaded", ModLoadedCondition.CODEC);

@@ -21,9 +21,14 @@ import java.util.List;
  * Searches a specified number of blocks from a given position in a specified direction and checks for a structure piece.
  * Passes if a structure piece is found matching one of the entries from the given list.
  * Note that "all" is an acceptable entry for matching any piece.
+ *
+ * This condition is useful if you need to search for pieces in a specific direction relative to the current piece,
+ * e.g. searching for a piece within 5 blocks to the right of the current piece (90 degree rotation).
+ *
+ * If you instead need to search for pieces within any horizontal or vertical distance, use {@link PieceInRangeCondition} instead.
  */
 public class PieceInHorizontalDirectionCondition extends StructureCondition {
-    private static final ResourceLocation WILDCARD = new ResourceLocation(YungsApiCommon.MOD_ID, "all");
+    private static final ResourceLocation ALL = new ResourceLocation(YungsApiCommon.MOD_ID, "all");
 
     public static final Codec<PieceInHorizontalDirectionCondition> CODEC = RecordCodecBuilder.create((builder) -> builder
             .group(
@@ -53,7 +58,7 @@ public class PieceInHorizontalDirectionCondition extends StructureCondition {
         this.range = range;
         this.rotation = rotation;
         if (matchPieces.isEmpty()) {
-            matchPieces.add(WILDCARD); // No pieces specified -> match all pieces
+            matchPieces.add(ALL); // No pieces specified -> match all pieces
         }
     }
 
@@ -87,6 +92,14 @@ public class PieceInHorizontalDirectionCondition extends StructureCondition {
             case COUNTERCLOCKWISE_90 -> negX = this.range;
         }
 
+        BoundingBox searchBox = new BoundingBox(
+                piece.getBoundingBox().minX() - negX,
+                piece.getBoundingBox().minY(),
+                piece.getBoundingBox().minZ() - negZ,
+                piece.getBoundingBox().maxX() + posX,
+                piece.getBoundingBox().maxY(),
+                piece.getBoundingBox().maxZ() + posZ);
+
         // Check for any matching pieces that satisfy the positional criteria
         for (PieceEntry otherPieceEntry : pieces) {
             PoolElementStructurePiece otherPiece = otherPieceEntry.getPiece();
@@ -102,16 +115,9 @@ public class PieceInHorizontalDirectionCondition extends StructureCondition {
                 // Iterate our target pieces and check for a match with otherPiece
                 for (ResourceLocation matchPieceId : matchPieces) {
                     StructureTemplate structureTemplate = templateManager.getOrCreate(matchPieceId);
-                    if (otherStructureTemplate == structureTemplate || matchPieceId.getPath().equals("all")) {
+                    if (otherStructureTemplate == structureTemplate || matchPieceId.equals(ALL)) {
                         // This is one of the pieces we're searching for, so we test its bounding box
-                        BoundingBox searchBox = new BoundingBox(
-                                piece.getBoundingBox().minX() - negX,
-                                piece.getBoundingBox().minY(),
-                                piece.getBoundingBox().minZ() - negZ,
-                                piece.getBoundingBox().maxX() + posX,
-                                piece.getBoundingBox().maxY(),
-                                piece.getBoundingBox().maxZ() + posZ);
-                        if (otherPiece.getBoundingBox().intersects(searchBox)) {
+                        if (otherPiece.getBoundingBox().intersects(searchBox) && !otherPiece.getBoundingBox().intersects(piece.getBoundingBox())) {
                             return true;
                         }
                     }

@@ -33,6 +33,7 @@ public interface StructureActionType<C extends StructureAction> {
 
     /* Types. Add any new types here! */
     StructureActionType<TransformAction> TRANSFORM = register("transform", TransformAction.CODEC);
+    StructureActionType<DelayGenerationAction> DELAY_GENERATION = register("delay_generation", DelayGenerationAction.CODEC);
 
     /**
      * Utility method for registering StructureActionTypes.
