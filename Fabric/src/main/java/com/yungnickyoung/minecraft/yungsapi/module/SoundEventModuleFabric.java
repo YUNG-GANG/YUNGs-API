@@ -4,6 +4,7 @@ import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterSoundEv
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvent;
 
 /**
@@ -18,11 +19,11 @@ public class SoundEventModuleFabric {
 
     private static void register(AutoRegisterField data) {
         AutoRegisterSoundEvent autoRegisterSoundEvent = (AutoRegisterSoundEvent) data.object();
-        SoundEvent soundEvent = new SoundEvent(data.name());
+        SoundEvent soundEvent = SoundEvent.createVariableRangeEvent(data.name());
         autoRegisterSoundEvent.setSupplier(() -> soundEvent);
 
         // Register
-        Registry.register(Registry.SOUND_EVENT, data.name(), soundEvent);
+        Registry.register(BuiltInRegistries.SOUND_EVENT, data.name(), soundEvent);
         data.markProcessed();
     }
 }

@@ -7,8 +7,7 @@ import com.yungnickyoung.minecraft.yungsapi.module.StructurePlacementTypeModule;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.exclusion.EnhancedExclusionZone;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.ExtraCodecs;
-import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
@@ -59,11 +58,11 @@ public class EnhancedRandomSpread extends RandomSpreadStructurePlacement {
     }
 
     @Override
-    public boolean isStructureChunk(ChunkGenerator chunkGenerator, RandomState randomState, long seed, int x, int z) {
-        if (!super.isStructureChunk(chunkGenerator, randomState, seed, x, z)) {
+    public boolean isPlacementChunk(ChunkGeneratorStructureState chunkGeneratorStructureState, int x, int z) {
+        if (!super.isStructureChunk(chunkGeneratorStructureState, x, z)) {
             return false;
         }
         return this.enhancedExclusionZone.isEmpty()
-                || !this.enhancedExclusionZone.get().isPlacementForbidden(chunkGenerator, randomState, seed, x, z);
+                || !this.enhancedExclusionZone.get().isPlacementForbidden(chunkGeneratorStructureState, x, z);
     }
 }

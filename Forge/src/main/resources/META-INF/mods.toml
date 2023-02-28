@@ -4,21 +4,21 @@ license="LGPLv3"
 issueTrackerURL="https://github.com/yungnickyoung/YUNGs-Api/issues"
 
 [[mods]]
-	modId="yungsapi"
-	logoFile="logo.png"
-	version="${file.jarVersion}"
-	displayName="YUNG's API"
+    modId="${mod_id}"
+    version="${version}"
+    displayName="${mod_full_name}"
 	credits="Thanks so much to all my patrons!"
 	authors="YUNGNICKYOUNG"
-	description="API Library for YUNG's minecraft mods."
-	displayURL="https://www.curseforge.com/minecraft/mc-mods/yungs-api"
+    description="${mod_description}"
+    logoFile="logo.png"
+    displayURL="https://www.curseforge.com/minecraft/mc-mods/yungs-api"
 
-[[dependencies.yungsapi]]
+[[dependencies.${mod_id}]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.19.2,)"
+    versionRange="[1.19.3,)"
 
-[[dependencies.yungsapi]]
+[[dependencies.${mod_id}]]
     modId="forge"
     mandatory=true
-    versionRange="[43.1.1,)"
+    versionRange="[44.1.0,)"

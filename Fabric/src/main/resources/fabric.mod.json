@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "yungsapi",
+  "id": "${mod_id}",
   "version": "${version}",
-  "name": "YUNG's API",
-  "description": "A common API for YUNG's Minecraft mods",
+  "name": "${mod_full_name}",
+  "description": "${mod_description}",
   "authors": [
     "YUNGNICKYOUNG"
   ],
@@ -26,8 +26,8 @@
     "yungsapi_fabric.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.14",
-    "fabric": ">=0.60.0",
-    "minecraft": ">=1.19.2"
+    "fabricloader": ">=0.14.14",
+    "fabric": ">=0.75.1",
+    "minecraft": ">=1.19.3"
   }
 }

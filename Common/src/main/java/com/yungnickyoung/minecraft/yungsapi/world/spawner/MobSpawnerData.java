@@ -1,6 +1,6 @@
 package com.yungnickyoung.minecraft.yungsapi.world.spawner;
 
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.util.random.SimpleWeightedRandomList;
@@ -81,7 +81,7 @@ public class MobSpawnerData {
         }
 
         public Builder setEntityType(EntityType<?> entityType) {
-            this.nextSpawnData.getEntityToSpawn().putString("id", Registry.ENTITY_TYPE.getKey(entityType).toString());
+            this.nextSpawnData.getEntityToSpawn().putString("id", BuiltInRegistries.ENTITY_TYPE.getKey(entityType).toString());
             return this;
         }
 

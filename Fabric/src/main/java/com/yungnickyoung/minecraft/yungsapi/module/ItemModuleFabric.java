@@ -4,6 +4,7 @@ import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterItem;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -26,11 +27,11 @@ public class ItemModuleFabric {
         Item item = autoRegisterItem.get();
 
         // Register item
-        Registry.register(Registry.ITEM, data.name(), item);
+        Registry.register(BuiltInRegistries.ITEM, data.name(), item);
         data.markProcessed();
     }
 
     public static void registerBlockItem(ResourceLocation resourceLocation, Block block, Item.Properties itemProperties) {
-        Registry.register(Registry.ITEM, resourceLocation, new BlockItem(block, itemProperties));
+        Registry.register(BuiltInRegistries.ITEM, resourceLocation, new BlockItem(block, itemProperties));
     }
 }

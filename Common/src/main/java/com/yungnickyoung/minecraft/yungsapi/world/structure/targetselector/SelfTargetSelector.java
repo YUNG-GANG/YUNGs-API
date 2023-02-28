@@ -1,7 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure.targetselector;
 
 import com.mojang.serialization.Codec;
-import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.PieceEntry;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.PieceEntry;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 
 import java.util.ArrayList;

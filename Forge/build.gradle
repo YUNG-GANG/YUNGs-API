@@ -1,24 +1,27 @@
 buildscript {
     repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
         maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
-        mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
         classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'eclipse'
+
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '5.1.+'
+}
+
 apply plugin: 'org.spongepowered.mixin'
 
 archivesBaseName = "${mod_name}"
-version = "${minecraft_version}-Forge-${version}"
+version = "${mc_version}-Forge-${version}"
 group = maven_group
 
 minecraft {
-    mappings channel: 'official', version: minecraft_version
+    mappings channel: 'official', version: mc_version
 
     if (project.hasProperty('forge_ats_enabled') && project.findProperty('forge_ats_enabled').toBoolean()) {
         // This location is hardcoded in Forge and can not be changed.
@@ -79,7 +82,7 @@ minecraft {
 sourceSets.main.resources.srcDir 'src/generated/resources'
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     compileOnly project(":Common")
 }
@@ -90,9 +93,18 @@ tasks.withType(JavaCompile) {
 
 processResources {
     from project(":Common").sourceSets.main.resources
+    inputs.property "version", project.version
+    inputs.property "mc_version", project.mc_version
+    inputs.property "mod_description", project.mod_description
+    inputs.property "mod_full_name", project.mod_full_name
+    inputs.property "mod_id", project.mod_id
 
-    filesMatching('*.mixins.json') {
-        expand "refmap_target": mod_id + "."
+    filesMatching("META-INF/mods.toml") {
+        expand "version": project.version,
+                "mc_version": project.mc_version,
+                "mod_description": project.mod_description,
+                "mod_full_name": project.mod_full_name,
+                "mod_id": project.mod_id
     }
 }
 

@@ -1,10 +1,10 @@
 plugins {
-    id 'fabric-loom' version '0.13-SNAPSHOT'
+    id 'fabric-loom' version '1.0-SNAPSHOT'
     id 'idea'
 }
 
 archivesBaseName = "${mod_name}"
-version = "${minecraft_version}-Fabric-${version}"
+version = "${mc_version}-Fabric-${version}"
 group = maven_group
 
 repositories {
@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    minecraft "com.mojang:minecraft:${minecraft_version}"
+    minecraft "com.mojang:minecraft:${mc_version}"
     mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
@@ -48,9 +48,17 @@ loom {
 processResources {
     from project(":Common").sourceSets.main.resources
     inputs.property "version", project.version
+    inputs.property "mc_version", project.mc_version
+    inputs.property "mod_description", project.mod_description
+    inputs.property "mod_full_name", project.mod_full_name
+    inputs.property "mod_id", project.mod_id
 
     filesMatching("fabric.mod.json") {
-        expand "version": project.version
+        expand "version": project.version,
+                "mc_version": project.mc_version,
+                "mod_description": project.mod_description,
+                "mod_full_name": project.mod_full_name,
+                "mod_id": project.mod_id
     }
 }
 

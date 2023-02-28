@@ -4,6 +4,7 @@ import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterBlock;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 
 /**
@@ -21,7 +22,7 @@ public class BlockModuleFabric {
         Block block = autoRegisterBlock.get();
 
         // Register block
-        Registry.register(Registry.BLOCK, data.name(), block);
+        Registry.register(BuiltInRegistries.BLOCK, data.name(), block);
 
         // Register item if applicable
         if (autoRegisterBlock.hasItemProperties()) {

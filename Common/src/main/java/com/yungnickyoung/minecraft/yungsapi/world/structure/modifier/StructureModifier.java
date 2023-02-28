@@ -5,14 +5,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.action.StructureAction;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.action.StructureActionType;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
-import com.yungnickyoung.minecraft.yungsapi.world.condition.StructureCondition;
-import com.yungnickyoung.minecraft.yungsapi.world.condition.StructureConditionType;
-import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.PieceEntry;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.condition.StructureCondition;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.condition.StructureConditionType;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.PieceEntry;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.targetselector.StructureTargetSelector;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.targetselector.StructureTargetSelectorType;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Applies a list of {@link StructureAction}s to target(s) determined by an associated {@link StructureTargetSelector},

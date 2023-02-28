@@ -15,9 +15,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerEntityTickMixin extends Player {
-
-    public ServerPlayerEntityTickMixin(Level $$0, BlockPos $$1, float $$2, GameProfile $$3, @Nullable ProfilePublicKey $$4) {
-        super($$0, $$1, $$2, $$3, $$4);
+    public ServerPlayerEntityTickMixin(Level $$0, BlockPos $$1, float $$2, GameProfile $$3) {
+        super($$0, $$1, $$2, $$3);
     }
 
     /**

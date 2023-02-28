@@ -2,7 +2,7 @@ package com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.b
 
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.BeardifierAccessor;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.YungJigsawStructure;
-import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.YungJigsawSinglePoolElement;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawSinglePoolElement;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.EnhancedTerrainAdaptation;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;

@@ -3,6 +3,7 @@ package com.yungnickyoung.minecraft.yungsapi.module;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -22,7 +23,7 @@ public class StructurePieceTypeModuleForge {
     }
 
     private static void register(AutoRegisterField data) {
-        Registry.register(Registry.STRUCTURE_PIECE, data.name(),  (StructurePieceType) data.object());
+        Registry.register(BuiltInRegistries.STRUCTURE_PIECE, data.name(),  (StructurePieceType) data.object());
         data.markProcessed();
     }
 }

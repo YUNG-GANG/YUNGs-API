@@ -3,13 +3,12 @@ package com.yungnickyoung.minecraft.yungsapi.module;
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterCreativeTab;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
-import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.RegisterEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,19 +25,18 @@ public class CreativeModeTabModuleForge {
     private static final Map<String, AutoRegisterCreativeTab> initializedTabs = new HashMap<>();
 
     public static void processEntries() {
-        // We subscribe to RegisterEvent because it runs before Common Setup.
-        // We subscribe to Block class because it runs before all other Register events, ensuring creative tabs will be initialized first.
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(EventPriority.HIGHEST, CreativeModeTabModuleForge::initializeTabs);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(CreativeModeTabModuleForge::initializeTabs);
     }
 
-    private static void initializeTabs(final RegisterEvent event) {
-        event.register(Registry.BLOCK_REGISTRY, helper -> AutoRegistrationManager.CREATIVE_MODE_TABS.stream()
+    private static void initializeTabs(final CreativeModeTabEvent.Register event) {
+        AutoRegistrationManager.CREATIVE_MODE_TABS.stream()
                 .filter(data -> !data.processed())
-                .forEach(CreativeModeTabModuleForge::initializeTab));
+                .forEach(data -> registerTab(data, event));
     }
 
-    private static void initializeTab(AutoRegisterField data) {
-        // Check cache to see if we already initialized this tab
+    private static void registerTab(AutoRegisterField data, final CreativeModeTabEvent.Register event) {
+        // Check cache to see if we already initialized this tab.
+        // Not sure if caching is still necessary in 1.19.3.
         ResourceLocation resourceLocation = data.name();
         String name = String.format("%s.%s", resourceLocation.getNamespace(), resourceLocation.getPath());
         if (initializedTabs.containsKey(name)) {
@@ -50,12 +48,14 @@ public class CreativeModeTabModuleForge {
         Supplier<ItemStack> itemStackSupplier = autoRegisterCreativeTab.getIconItemStackSupplier();
 
         // Create tab
-        CreativeModeTab creativeModeTab = new CreativeModeTab(name) {
-            @Override
-            public ItemStack makeIcon() {
-                return itemStackSupplier.get();
-            }
-        };
+        CreativeModeTab creativeModeTab = event.registerCreativeModeTab(data.name(), builder -> builder
+                .title(Component.translatable("itemGroup." + name))
+                .icon(itemStackSupplier)
+                .displayItems((enabledFlags, populator, hasPermissions) -> {
+                    // TODO
+                })
+                .build()
+        );
 
         // Update supplier to retrieve tab
         autoRegisterCreativeTab.setSupplier(() -> creativeModeTab);

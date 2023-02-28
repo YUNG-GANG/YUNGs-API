@@ -1,8 +1,8 @@
 package com.yungnickyoung.minecraft.yungsapi.module;
 
-import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
-import net.minecraft.core.Registry;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.RegisterEvent;
@@ -16,7 +16,7 @@ public class PlacementModifierTypeModuleForge {
     }
 
     private static void registerPlacementModifierTypes(RegisterEvent event) {
-        event.register(Registry.PLACEMENT_MODIFIER_REGISTRY, helper -> AutoRegistrationManager.PLACEMENT_MODIFIER_TYPES.stream()
+        event.register(Registries.PLACEMENT_MODIFIER_TYPE, helper -> AutoRegistrationManager.PLACEMENT_MODIFIER_TYPES.stream()
                 .filter(data -> !data.processed())
                 .forEach(data -> registerPlacementModifierType(data, helper)));
     }

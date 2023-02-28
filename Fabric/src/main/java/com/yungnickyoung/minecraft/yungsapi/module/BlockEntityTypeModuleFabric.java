@@ -1,9 +1,10 @@
 package com.yungnickyoung.minecraft.yungsapi.module;
 
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterBlockEntityType;
-import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
+import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
@@ -22,7 +23,7 @@ public class BlockEntityTypeModuleFabric {
         BlockEntityType<?> blockEntityType = autoRegisterBlockEntityType.get();
 
         // Register block entity type
-        Registry.register(Registry.BLOCK_ENTITY_TYPE, data.name(), blockEntityType);
+        Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, data.name(), blockEntityType);
         data.markProcessed();
     }
 }
