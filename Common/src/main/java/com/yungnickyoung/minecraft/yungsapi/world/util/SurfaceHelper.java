@@ -15,14 +15,14 @@ public class SurfaceHelper {
      * Returns 1 if somehow no non-air block is found.
      */
     public static int getSurfaceHeight(ChunkAccess chunk, ColumnPos pos) {
-        BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos(pos.x(), chunk.getMaxBuildHeight(), pos.z());
+        int maxY = chunk.getMaxBuildHeight() - 1;
+        BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos(pos.x(), maxY, pos.z());
 
         // Edge case: blocks go all the way up to build height
-        BlockPos topPos = new BlockPos(pos.x(), chunk.getMaxBuildHeight(), pos.z());
-        if (chunk.getBlockState(topPos) != Blocks.AIR.defaultBlockState())
-            return chunk.getMaxBuildHeight();
+        if (chunk.getBlockState(blockPos) != Blocks.AIR.defaultBlockState())
+            return maxY;
 
-        for (int y = chunk.getMaxBuildHeight(); y >= 0; y--) {
+        for (int y = maxY; y >= 0; y--) {
             BlockState blockState = chunk.getBlockState(blockPos);
             if (blockState != Blocks.AIR.defaultBlockState())
                 return y;
