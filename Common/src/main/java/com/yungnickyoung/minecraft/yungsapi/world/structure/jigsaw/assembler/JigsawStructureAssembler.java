@@ -168,9 +168,9 @@ public class JigsawStructureAssembler {
 
             // Fetch the jigsaw block's fallback pool (defined in the pool's JSON), ensuring it's not empty
             Holder<StructureTemplatePool> fallbackPoolHolder = targetPoolHolder.value().getFallback();
-            StructureTemplatePool fallbackPool = targetPoolHolder.value();
+            StructureTemplatePool fallbackPool = fallbackPoolHolder.value();
             if (fallbackPool.size() == 0 && !fallbackPoolHolder.is(Pools.EMPTY)) {
-                YungsApiCommon.LOGGER.warn("Empty or nonexistent fallback pool: {}", targetPoolHolder.unwrapKey()
+                YungsApiCommon.LOGGER.warn("Empty or nonexistent fallback pool: {}", fallbackPoolHolder.unwrapKey()
                         .map(key -> key.location().toString())
                         .orElse("<unregistered>"));
                 continue;
