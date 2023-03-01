@@ -58,7 +58,7 @@ public class EnhancedRandomSpread extends RandomSpreadStructurePlacement {
     }
 
     @Override
-    public boolean isPlacementChunk(ChunkGeneratorStructureState chunkGeneratorStructureState, int x, int z) {
+    public boolean isStructureChunk(ChunkGeneratorStructureState chunkGeneratorStructureState, int x, int z) {
         if (!super.isStructureChunk(chunkGeneratorStructureState, x, z)) {
             return false;
         }
