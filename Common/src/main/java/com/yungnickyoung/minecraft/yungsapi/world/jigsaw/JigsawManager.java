@@ -33,7 +33,7 @@ public class JigsawManager {
             Holder<StructureTemplatePool> startPool,
             Optional<ResourceLocation> startJigsawNameOptional,
             int maxDepth,
-            BlockPos startPos,
+            BlockPos locatePos,
             boolean useExpansionHack, // Used to be doBoundaryAdjustments
             Optional<Heightmap.Types> projectStartToHeightmap,
             int maxDistanceFromCenter, // Used to be structureBoundingBoxRadius
@@ -49,68 +49,78 @@ public class JigsawManager {
         Registry<StructureTemplatePool> registry = registryAccess.registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY);
 
         // Grab a random starting piece from the start pool
-        Optional<PoolElementStructurePiece> startPieceOptional = getStartPiece(startPool, startJigsawNameOptional, startPos, structureManager, worldgenRandom);
+        Optional<PoolElementStructurePiece> startPieceOptional = getStartPiece(startPool, startJigsawNameOptional, locatePos, structureManager, worldgenRandom);
         if (startPieceOptional.isEmpty()) {
             return Optional.empty();
         }
         PoolElementStructurePiece startPiece = startPieceOptional.get();
 
+        // Offset vector from the /locate position to the piece's starting position.
+        // This will be a zero vector if no start jigsaw name was specified.
+        Vec3i startingPosOffset = locatePos.subtract(startPiece.getPosition());
+
         // Grab some data regarding starting piece's bounding box & position
         BoundingBox pieceBoundingBox = startPiece.getBoundingBox();
-        int pieceCenterX = (pieceBoundingBox.maxX() + pieceBoundingBox.minX()) / 2;
-        int pieceCenterZ = (pieceBoundingBox.maxZ() + pieceBoundingBox.minZ()) / 2;
-        int pieceCenterY = projectStartToHeightmap
-                .map(types -> startPos.getY() + chunkGenerator.getFirstFreeHeight(pieceCenterX, pieceCenterZ, types, levelHeightAccessor, generationContext.randomState()))
+        int bbCenterX = (pieceBoundingBox.maxX() + pieceBoundingBox.minX()) / 2;
+        int bbCenterZ = (pieceBoundingBox.maxZ() + pieceBoundingBox.minZ()) / 2;
+        // Note that the bbCenterY does not actually refer to the center of the piece, unlike the bbCenterX/Z variables.
+        // If a heightmap is used, the bbCenterY will be the y-value of the /locate position (anchor pos) after adjusting for the heightmap.
+        // Otherwise, the bbCenterY is simply the starting position's y-value. I'm not sure why it uses that position and not the /locate position,
+        // but that's vanilla behavior. It almost certainly won't make a difference anyway, as structures are basically never that tall.
+        int bbCenterY = projectStartToHeightmap
+                .map(types -> locatePos.getY() + chunkGenerator.getFirstFreeHeight(bbCenterX, bbCenterZ, types, levelHeightAccessor, generationContext.randomState()))
                 .orElseGet(() -> startPiece.getPosition().getY());
+        int adjustedPieceCenterY = bbCenterY + startingPosOffset.getY();
 
+        // Move the starting piece to account for any y-level change due to heightmap and/or groundLevelDelta
         int yAdjustment = pieceBoundingBox.minY() + startPiece.getGroundLevelDelta();
-        startPiece.move(0, pieceCenterY - yAdjustment, 0);
-        Vec3i startingPosOffset = startPos.subtract(startPiece.getPosition());
-        int adjustedPieceCenterY = pieceCenterY + startingPosOffset.getY();
+        startPiece.move(0, bbCenterY - yAdjustment, 0);
 
         // Establish max bounds of entire structure.
         // Make sure the supplied distance is large enough to cover the size of your entire structure.
         AABB aABB = new AABB(
-                pieceCenterX - maxDistanceFromCenter, adjustedPieceCenterY - maxDistanceFromCenter, pieceCenterZ - maxDistanceFromCenter,
-                pieceCenterX + maxDistanceFromCenter + 1, adjustedPieceCenterY + maxDistanceFromCenter + 1, pieceCenterZ + maxDistanceFromCenter + 1);
+                bbCenterX - maxDistanceFromCenter, adjustedPieceCenterY - maxDistanceFromCenter, bbCenterZ - maxDistanceFromCenter,
+                bbCenterX + maxDistanceFromCenter + 1, adjustedPieceCenterY + maxDistanceFromCenter + 1, bbCenterZ + maxDistanceFromCenter + 1);
         BoxOctree maxStructureBounds = new BoxOctree(aABB); // The maximum boundary of the entire structure
         maxStructureBounds.addBox(AABB.of(pieceBoundingBox)); // Add start piece to our structure's bounds
 
-        return Optional.of(new Structure.GenerationStub(new BlockPos(pieceCenterX, adjustedPieceCenterY, pieceCenterZ), (structurePiecesBuilder) -> {
-            if (maxDepth <= 0) { // Realistically this should never be true. Why make a jigsaw config with a non-positive size?
-                return;
-            }
+        return Optional.of(new Structure.GenerationStub(
+                new BlockPos(bbCenterX, adjustedPieceCenterY, bbCenterZ),
+                (structurePiecesBuilder) -> {
+                    if (maxDepth <= 0) { // Realistically this should never be true. Why make a jigsaw config with a non-positive size?
+                        return;
+                    }
 
-            // Create assembler + initial entry
-            JigsawStructureAssembler assembler = new JigsawStructureAssembler(new JigsawStructureAssembler.Settings()
-                    .poolRegistry(registry)
-                    .maxDepth(maxDepth)
-                    .chunkGenerator(chunkGenerator)
-                    .structureTemplateManager(structureManager)
-                    .randomState(generationContext.randomState())
-                    .rand(worldgenRandom)
-                    .maxY(maxY)
-                    .minY(minY)
-                    .useExpansionHack(useExpansionHack)
-                    .levelHeightAccessor(levelHeightAccessor));
+                    // Create assembler + initial entry
+                    JigsawStructureAssembler assembler = new JigsawStructureAssembler(new JigsawStructureAssembler.Settings()
+                            .poolRegistry(registry)
+                            .maxDepth(maxDepth)
+                            .chunkGenerator(chunkGenerator)
+                            .structureTemplateManager(structureManager)
+                            .randomState(generationContext.randomState())
+                            .rand(worldgenRandom)
+                            .maxY(maxY)
+                            .minY(minY)
+                            .useExpansionHack(useExpansionHack)
+                            .levelHeightAccessor(levelHeightAccessor));
 
-            // Add the start piece to the assembler & assemble the structure
-            assembler.assembleStructure(startPiece, maxStructureBounds);
-            assembler.addAllPiecesToStructureBuilder(structurePiecesBuilder);
-        }));
+                    // Add the start piece to the assembler & assemble the structure
+                    assembler.assembleStructure(startPiece, maxStructureBounds);
+                    assembler.addAllPiecesToStructureBuilder(structurePiecesBuilder);
+                }));
     }
 
     /**
      * Returns a piece from the provided pool to be used as the starting piece for a structure.
      * Pieces are chosen randomly, but some conditions as well as the isPriority flag are respected.
-     *
+     * <p>
      * Note that only some conditions are supported. Conditions checking for things like piece position or orientation
      * should not be used, as instead those checks can be performed on the structure's placement itself.
      */
     private static Optional<PoolElementStructurePiece> getStartPiece(
             Holder<StructureTemplatePool> startPoolHolder,
             Optional<ResourceLocation> startJigsawNameOptional,
-            BlockPos startPos,
+            BlockPos locatePos,
             StructureTemplateManager structureTemplateManager,
             RandomSource rand
     ) {
@@ -162,22 +172,24 @@ public class JigsawManager {
                 return Optional.empty();
             }
 
-            BlockPos blockPos;
+            BlockPos anchorPos;
             if (startJigsawNameOptional.isPresent()) {
                 ResourceLocation name = startJigsawNameOptional.get();
-                Optional<BlockPos> optional = getPosOfJigsawBlockWithName(chosenPoolElement, name, startPos, rotation, structureTemplateManager, rand);
+                Optional<BlockPos> optional = getPosOfJigsawBlockWithName(chosenPoolElement, name, locatePos, rotation, structureTemplateManager, rand);
                 if (optional.isEmpty()) {
                     YungsApiCommon.LOGGER.error("No starting jigsaw with Name {} found in start pool {}", name, startPoolHolder.unwrapKey().get().location());
                     return Optional.empty();
                 }
 
-                blockPos = optional.get();
+                anchorPos = optional.get();
             } else {
-                blockPos = startPos;
+                anchorPos = locatePos;
             }
 
-            Vec3i startingPosOffset = blockPos.subtract(startPos);
-            BlockPos adjustedStartPos = startPos.subtract(startingPosOffset);
+            // We adjust the starting position such that, if a named start jigsaw is being used (i.e. an anchor),
+            // then the anchor's position will be located at the original starting position.
+            Vec3i startingPosOffset = anchorPos.subtract(locatePos);
+            BlockPos adjustedStartPos = locatePos.subtract(startingPosOffset);
 
             // Validate conditions for this piece, if applicable
             if (chosenPoolElement instanceof YungJigsawSinglePoolElement yungSingleElement) {
@@ -211,7 +223,7 @@ public class JigsawManager {
     /**
      * Returns a jigsaw block with the specified name in the StructurePoolElement.
      * If no such jigsaw block is found, returns an empty Optional.
-     *
+     * <p>
      * This is used for starting pieces, when you want /locate to point to a position other than the
      * corner of the start piece, such as the center of ancient cities.
      */
