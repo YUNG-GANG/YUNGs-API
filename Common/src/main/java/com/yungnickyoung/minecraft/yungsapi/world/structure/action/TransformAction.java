@@ -97,7 +97,7 @@ public class TransformAction extends StructureAction {
         Either<ResourceLocation, StructureTemplate> newTemplate = this.output.get(rand.nextInt(this.output.size()));
         StructurePoolElement newElement = new YungJigsawSinglePoolElement(newTemplate, ((SinglePoolElementAccessor)old).getProcessors(),
                 old.getProjection(), old.name, old.maxCount, old.minRequiredDepth, old.maxPossibleDepth,
-                old.isPriority, old.ignoreBounds, old.condition, /*old.enhancedTerrainAdaptation,*/
+                old.isPriority, old.ignoreBounds, old.condition, old.enhancedTerrainAdaptation,
                 old.deadendPool, old.modifiers);
 
         // New piece position

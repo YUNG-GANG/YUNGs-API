@@ -11,6 +11,8 @@ import com.yungnickyoung.minecraft.yungsapi.world.condition.StructureCondition;
 import com.yungnickyoung.minecraft.yungsapi.world.condition.StructureConditionType;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.modifier.StructureModifier;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.EnhancedTerrainAdaptation;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.EnhancedTerrainAdaptationType;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
@@ -40,7 +42,7 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
                     Codec.BOOL.optionalFieldOf("is_priority", false).forGetter(element -> element.isPriority),
                     Codec.BOOL.optionalFieldOf("ignore_bounds", false).forGetter(element -> element.ignoreBounds),
                     StructureConditionType.CONDITION_CODEC.optionalFieldOf("condition", StructureCondition.ALWAYS_TRUE).forGetter(element -> element.condition),
-//                    EnhancedTerrainAdaptationType.ADAPTATION_CODEC.optionalFieldOf("enhanced_terrain_adaptation").forGetter(element -> element.enhancedTerrainAdaptation),
+                    EnhancedTerrainAdaptationType.ADAPTATION_CODEC.optionalFieldOf("enhanced_terrain_adaptation").forGetter(element -> element.enhancedTerrainAdaptation),
                     ResourceLocation.CODEC.optionalFieldOf("deadend_pool").forGetter(element -> element.deadendPool),
                     StructureModifier.CODEC.listOf().optionalFieldOf("modifiers", new ArrayList<>()).forGetter(element -> element.modifiers)
             ).apply(builder, YungJigsawSinglePoolElement::new));
@@ -99,7 +101,7 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
      * Optional enhanced terrain adaptation specific to this piece.
      * Takes priority over the structure's enhanced terrain adaptation if specified.
      */
-//    public final Optional<EnhancedTerrainAdaptation> enhancedTerrainAdaptation;
+    public final Optional<EnhancedTerrainAdaptation> enhancedTerrainAdaptation;
 
     /**
      * Whether this piece should apply dead end adjustments.
@@ -133,7 +135,7 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
             boolean isPriority,
             boolean ignoreBounds,
             StructureCondition condition,
-//            Optional<EnhancedTerrainAdaptation> enhancedTerrainAdaptation,
+            Optional<EnhancedTerrainAdaptation> enhancedTerrainAdaptation,
             Optional<ResourceLocation> deadendPool,
             List<StructureModifier> modifiers
     ) {
@@ -145,7 +147,7 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
         this.isPriority = isPriority;
         this.ignoreBounds = ignoreBounds;
         this.condition = condition;
-//        this.enhancedTerrainAdaptation = enhancedTerrainAdaptation;
+        this.enhancedTerrainAdaptation = enhancedTerrainAdaptation;
         this.deadendPool = deadendPool;
         this.modifiers = modifiers;
     }
@@ -182,13 +184,13 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
                 this.isPriority);
     }
 
-//    public EnhancedTerrainAdaptation getEnhancedTerrainAdaptation() {
-//        return this.enhancedTerrainAdaptation.get();
-//    }
+    public EnhancedTerrainAdaptation getEnhancedTerrainAdaptation() {
+        return this.enhancedTerrainAdaptation.get();
+    }
 
-//    public boolean hasEnhancedTerrainAdaptation() {
-//        return this.enhancedTerrainAdaptation.isPresent();
-//    }
+    public boolean hasEnhancedTerrainAdaptation() {
+        return this.enhancedTerrainAdaptation.isPresent();
+    }
 
     public ResourceLocation getDeadendPool() {
         return this.deadendPool.get();

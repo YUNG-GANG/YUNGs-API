@@ -2,6 +2,8 @@ package com.yungnickyoung.minecraft.yungsapi.api;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.EnhancedTerrainAdaptation;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.EnhancedTerrainAdaptationType;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -23,15 +25,16 @@ public class YungJigsawConfig implements FeatureConfiguration {
                     Codec.intRange(0, 100).optionalFieldOf("structure_set_avoid_radius_check", 0).forGetter(config -> config.structureAvoidRadius),
                     ResourceKey.codec(Registry.STRUCTURE_SET_REGISTRY).listOf().optionalFieldOf("structure_set_avoid", new ArrayList<>()).forGetter(config -> config.structureSetAvoid),
                     Codec.INT.optionalFieldOf("max_y").forGetter(structure -> structure.maxY),
-                    Codec.INT.optionalFieldOf("min_y").forGetter(structure -> structure.minY))
+                    Codec.INT.optionalFieldOf("min_y").forGetter(structure -> structure.minY),
+                    EnhancedTerrainAdaptationType.ADAPTATION_CODEC.optionalFieldOf("enhanced_terrain_adaptation", EnhancedTerrainAdaptation.NONE).forGetter(structure -> structure.enhancedTerrainAdaptation))
             .apply(builder, YungJigsawConfig::new));
 
     private final ResourceLocation startPool;
-    public final int structureAvoidRadius;
-    public final List<ResourceKey<StructureSet>> structureSetAvoid;
-    public final Optional<Integer> maxY;
-    public final Optional<Integer> minY;
-
+    private final int structureAvoidRadius;
+    private final List<ResourceKey<StructureSet>> structureSetAvoid;
+    private final Optional<Integer> maxY;
+    private final Optional<Integer> minY;
+    private final EnhancedTerrainAdaptation enhancedTerrainAdaptation;
 
     /**
      * The size of the structure.
@@ -46,14 +49,16 @@ public class YungJigsawConfig implements FeatureConfiguration {
             int structureAvoidRadius,
             List<ResourceKey<StructureSet>> structureSetAvoid,
             Optional<Integer> maxY,
-            Optional<Integer> minY
-            ) {
+            Optional<Integer> minY,
+            EnhancedTerrainAdaptation enhancedTerrainAdaptation
+    ) {
         this.startPool = startPool;
         this.maxDepth = maxDepth;
         this.structureAvoidRadius = structureAvoidRadius;
         this.structureSetAvoid = structureSetAvoid;
         this.maxY = maxY;
         this.minY = minY;
+        this.enhancedTerrainAdaptation = enhancedTerrainAdaptation;
     }
 
     public int getMaxDepth() {
@@ -78,5 +83,9 @@ public class YungJigsawConfig implements FeatureConfiguration {
 
     public Optional<Integer> getMinY() {
         return this.minY;
+    }
+
+    public EnhancedTerrainAdaptation getEnhancedTerrainAdaptation() {
+        return this.enhancedTerrainAdaptation;
     }
 }
