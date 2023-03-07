@@ -1,12 +1,16 @@
 package com.yungnickyoung.minecraft.yungsapi.codec;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.mojang.serialization.DataResult;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 
@@ -105,5 +109,27 @@ public class CodecHelper {
         }
 
         return blockState;
+    }
+
+    // Rotation codec helper
+    public static final Codec<Rotation> ROTATION_CODEC = Codec.STRING.comapFlatMap(CodecHelper::readRotation, CodecHelper::writeRotation);
+    private static final BiMap<String, Rotation> rotationMap = HashBiMap.create();
+    static {
+        rotationMap.put("none", Rotation.NONE);
+        rotationMap.put("clockwise_90", Rotation.CLOCKWISE_90);
+        rotationMap.put("180", Rotation.CLOCKWISE_180);
+        rotationMap.put("counterclockwise_90", Rotation.COUNTERCLOCKWISE_90);
+    }
+
+    private static DataResult<Rotation> readRotation(String name) {
+        try {
+            return DataResult.success(rotationMap.get(name));
+        } catch (ResourceLocationException e) {
+            return DataResult.error("Not a valid rotation: " + name + " " + e.getMessage());
+        }
+    }
+
+    private static String writeRotation(Rotation rotation) {
+        return rotationMap.inverse().get(rotation);
     }
 }

@@ -3,6 +3,9 @@ package com.yungnickyoung.minecraft.yungsapi.world;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
+import com.yungnickyoung.minecraft.yungsapi.world.condition.StructureCondition;
+import com.yungnickyoung.minecraft.yungsapi.world.condition.StructureConditionType;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -146,6 +149,28 @@ public class BlockStateRandomizer {
     }
 
     /**
+     * Randomly select a BlockState from this BlockSetSelector.
+     * The random provided should be one used in generation of your structure or feature,
+     * to ensure reproducibility for the same world seed.
+     * Enforces conditions via the StructureContext passed in.
+     */
+    public BlockState get(Random randomSource, StructureContext ctx) {
+        float target = randomSource.nextFloat();
+        float currBottom = 0;
+
+        for (Entry entry : entries) {
+            if (currBottom <= target && target < currBottom + entry.probability && entry.passesCondition(ctx)) {
+                return entry.blockState;
+            }
+
+            currBottom += entry.probability;
+        }
+
+        // No match found
+        return this.defaultBlockState;
+    }
+
+    /**
      * Sets the default BlockState for this selector.
      * The default BlockState is used for any leftover probability ranges.
      */
@@ -171,15 +196,27 @@ public class BlockStateRandomizer {
         public static Codec<Entry> CODEC = RecordCodecBuilder.create(instance -> instance
                 .group(
                         BlockState.CODEC.fieldOf("blockState").forGetter(entry -> entry.blockState),
-                        Codec.floatRange(0.0F, 1.0F).fieldOf("probability").forGetter(entry -> entry.probability))
+                        Codec.floatRange(0.0F, 1.0F).fieldOf("probability").forGetter(entry -> entry.probability),
+                        StructureConditionType.CONDITION_CODEC.optionalFieldOf("condition").forGetter(entry -> entry.condition))
                 .apply(instance, Entry::new));
 
         public BlockState blockState;
         public float probability;
+        public Optional<StructureCondition> condition; // Conditions are ONLY supported via JSON
 
         public Entry(BlockState blockState, float probability) {
             this.blockState = blockState;
             this.probability = probability;
+        }
+
+        public Entry(BlockState blockState, float probability, Optional<StructureCondition> condition) {
+            this.blockState = blockState;
+            this.probability = probability;
+            this.condition = condition;
+        }
+
+        public boolean passesCondition(StructureContext ctx) {
+            return this.condition.isEmpty() || this.condition.get().passes(ctx);
         }
 
         @Override

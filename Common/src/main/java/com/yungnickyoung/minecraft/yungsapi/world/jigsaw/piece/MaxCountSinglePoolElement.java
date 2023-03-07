@@ -3,7 +3,7 @@ package com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.yungnickyoung.minecraft.yungsapi.module.JigsawModule;
+import com.yungnickyoung.minecraft.yungsapi.module.StructurePoolElementTypeModule;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
@@ -12,7 +12,7 @@ import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
-public class MaxCountSinglePoolElement extends SinglePoolElement implements IMaxCountJigsawPiece {
+public class MaxCountSinglePoolElement extends SinglePoolElement implements IMaxCountJigsawPoolElement {
     public static final Codec<MaxCountSinglePoolElement> CODEC = RecordCodecBuilder.create((builder) -> builder
         .group(
             templateCodec(),
@@ -42,7 +42,7 @@ public class MaxCountSinglePoolElement extends SinglePoolElement implements IMax
     }
 
     public StructurePoolElementType<?> getType() {
-        return JigsawModule.MAX_COUNT_SINGLE_ELEMENT;
+        return StructurePoolElementTypeModule.MAX_COUNT_SINGLE_ELEMENT;
     }
 
     public String toString() {

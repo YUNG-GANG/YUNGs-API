@@ -14,6 +14,7 @@
     "accessor.FeaturePoolElementAccessor",
     "accessor.ListPoolElementAccessor",
     "accessor.PotionBrewingAccessor",
+    "accessor.SinglePoolElementAccessor",
     "accessor.StructureTemplatePoolAccessor"
   ],
   "injectors": {
