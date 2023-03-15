@@ -10,6 +10,7 @@ import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.JigsawManager;
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.PieceEntry;
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.IMaxCountJigsawPoolElement;
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.YungJigsawSinglePoolElement;
+import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.YungJigsawPoolElement;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
@@ -73,13 +74,13 @@ public class JigsawStructureAssembler {
     /**
      * Map of each piece to the current count of that piece in the entire structure.
      * This data is only stored for the pieces that need it, i.e. named {@link IMaxCountJigsawPoolElement} pieces and
-     * named {@link YungJigsawSinglePoolElement} pieces with the {@code maxCount} specified.
+     * named {@link YungJigsawPoolElement} pieces with the {@code maxCount} specified.
      */
     private final Map<String, Integer> pieceCounts = new HashMap<>();
 
     /**
      * Map of each piece count to the maximum number of that piece allowed in the structure.
-     * Only applies to named {@link IMaxCountJigsawPoolElement} pieces, or named {@link YungJigsawSinglePoolElement} pieces with the {@code maxCount} specified.
+     * Only applies to named {@link IMaxCountJigsawPoolElement} pieces, or named {@link YungJigsawPoolElement} pieces with the {@code maxCount} specified.
      */
     private final Map<String, Integer> maxPieceCounts = new HashMap<>();
 
@@ -185,9 +186,9 @@ public class JigsawStructureAssembler {
          * were able to be placed, convert this piece to a dead end.
          * This is accomplished by re-processing its parent piece, but force using the deadend pool.
          */
-        if (pieceEntry.hasDeadendPool() && !generatedAtLeastOneChildPiece && pieceJigsawBlocks.size() > 1) {
+        if (pieceEntry.getDeadendPool().isPresent() && !generatedAtLeastOneChildPiece && pieceJigsawBlocks.size() > 1) {
             // Get deadend pool from id
-            ResourceLocation deadendPoolId = ((YungJigsawSinglePoolElement) piece.getElement()).getDeadendPool();
+            ResourceLocation deadendPoolId = pieceEntry.getDeadendPool().get();
             Optional<StructureTemplatePool> deadendPool = this.settings.poolRegistry.getOptional(deadendPoolId);
             if (deadendPool.isEmpty()) {
                 YungsApiCommon.LOGGER.error("Unable to find deadend pool {} for element {}", deadendPoolId, piece.getElement());
@@ -205,11 +206,11 @@ public class JigsawStructureAssembler {
                 this.pieces.remove(pieceEntry);
 
                 // Update piece count, if applicable
-                if (pieceEntry.getPiece().getElement() instanceof YungJigsawSinglePoolElement yungSingleElement
-                        && yungSingleElement.maxCount.isPresent()
-                        && yungSingleElement.name.isPresent()
-                        && this.pieceCounts.containsKey(yungSingleElement.name.get())) {
-                    String pieceName = yungSingleElement.name.get();
+                if (pieceEntry.getPiece().getElement() instanceof YungJigsawPoolElement yungElement
+                        && yungElement.maxCount.isPresent()
+                        && yungElement.name.isPresent()
+                        && this.pieceCounts.containsKey(yungElement.name.get())) {
+                    String pieceName = yungElement.name.get();
                     this.pieceCounts.put(pieceName, this.pieceCounts.get(pieceName) - 1);
                 }
 
@@ -297,7 +298,7 @@ public class JigsawStructureAssembler {
             // First, check for any priority pieces
             for (Pair<StructurePoolElement, Integer> candidatePiecePair : candidatePoolElements) {
                 StructurePoolElement candidatePiece = candidatePiecePair.getFirst();
-                if (candidatePiece instanceof YungJigsawSinglePoolElement yungSingleElement && yungSingleElement.isPriorityPiece()) {
+                if (candidatePiece instanceof YungJigsawPoolElement yungElement && yungElement.isPriorityPiece()) {
                     chosenPoolElementPair = candidatePiecePair;
                     break;
                 }
@@ -329,16 +330,16 @@ public class JigsawStructureAssembler {
             }
 
             // Validate to make sure we haven't reached the max number of instances of this piece, if applicable
-            if (chosenPoolElement instanceof YungJigsawSinglePoolElement yungSingleElement && yungSingleElement.maxCount.isPresent()) {
-                int pieceMaxCount = yungSingleElement.maxCount.get();
+            if (chosenPoolElement instanceof YungJigsawPoolElement yungElement && yungElement.maxCount.isPresent()) {
+                int pieceMaxCount = yungElement.maxCount.get();
 
                 // Max count pieces must also be named
-                if (yungSingleElement.name.isEmpty()) {
+                if (yungElement.name.isEmpty()) {
                     YungsApiCommon.LOGGER.error("Found YUNG Jigsaw piece with max_count={} missing \"name\" property.", pieceMaxCount);
                     YungsApiCommon.LOGGER.error("Max count pieces must be named in order to work properly!");
                     YungsApiCommon.LOGGER.error("Ignoring max_count for this piece...");
                 } else {
-                    String pieceName = yungSingleElement.name.get();
+                    String pieceName = yungElement.name.get();
                     // Check if max count of this piece does not match stored max count for this name.
                     // This can happen when the same name is reused across pools, but the max count values are different.
                     if (this.maxPieceCounts.containsKey(pieceName) && this.maxPieceCounts.get(pieceName) != pieceMaxCount) {
@@ -384,7 +385,7 @@ public class JigsawStructureAssembler {
             }
 
             // Validate piece depth, if applicable
-            if (chosenPoolElement instanceof YungJigsawSinglePoolElement yungSingleElement && !yungSingleElement.isAtValidDepth(context.depth)) {
+            if (chosenPoolElement instanceof YungJigsawPoolElement yungElement && !yungElement.isAtValidDepth(context.depth)) {
                 totalWeightSum -= chosenPieceWeight;
                 candidatePoolElements.remove(chosenPoolElementPair);
                 continue;
@@ -469,8 +470,8 @@ public class JigsawStructureAssembler {
                     AABB aabbDeflated = aabb.deflate(0.25);
                     boolean pieceIgnoresBounds = false;
 
-                    if (chosenPoolElement instanceof YungJigsawSinglePoolElement yungSingleElement) {
-                        pieceIgnoresBounds = yungSingleElement.ignoresBounds();
+                    if (chosenPoolElement instanceof YungJigsawPoolElement yungElement) {
+                        pieceIgnoresBounds = yungElement.ignoresBounds();
                     }
 
                     // Validate piece boundaries
@@ -525,7 +526,7 @@ public class JigsawStructureAssembler {
                             context.depth + 1, context.pieceEntry, context.copy(), newJunctionOnParent);
 
                     // Validate conditions for this piece, if applicable
-                    if (chosenPoolElement instanceof YungJigsawSinglePoolElement yungSingleElement) {
+                    if (chosenPoolElement instanceof YungJigsawPoolElement yungElement) {
                         StructureContext ctx = new StructureContext.Builder()
                                 .structureTemplateManager(this.settings.structureTemplateManager)
                                 .pieces(this.pieces)
@@ -537,7 +538,7 @@ public class JigsawStructureAssembler {
                                 .depth(context.depth + 1)
                                 .random(this.settings.rand)
                                 .build();
-                        if (!yungSingleElement.passesConditions(ctx)) {
+                        if (!yungElement.passesConditions(ctx)) {
                             continue; // Abort this piece & rotation if it doesn't pass conditions check
                         }
                     }
@@ -568,15 +569,15 @@ public class JigsawStructureAssembler {
                     }
 
                     // Update piece count, if applicable
-                    if (chosenPoolElement instanceof YungJigsawSinglePoolElement yungSingleElement && yungSingleElement.maxCount.isPresent()) {
+                    if (chosenPoolElement instanceof YungJigsawPoolElement yungElement && yungElement.maxCount.isPresent()) {
                         // Max count pieces must also be named.
                         // The following condition will never be met if users correctly configure their template pools.
-                        if (yungSingleElement.name.isEmpty()) {
+                        if (yungElement.name.isEmpty()) {
                             // If name is missing, ignore max count for this piece. We've already logged an error for it earlier.
                             return Optional.of(chosenPoolElement);
                         }
 
-                        String pieceName = yungSingleElement.name.get();
+                        String pieceName = yungElement.name.get();
                         this.pieceCounts.put(pieceName, this.pieceCounts.getOrDefault(pieceName, 0) + 1);
                     }
 

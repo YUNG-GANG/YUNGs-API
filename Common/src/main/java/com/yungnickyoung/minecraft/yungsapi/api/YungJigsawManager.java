@@ -1,11 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.api;
 
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.JigsawManager;
-import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.MaxCountFeaturePoolElement;
-import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.MaxCountLegacySinglePoolElement;
-import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.MaxCountListPoolElement;
-import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.MaxCountSinglePoolElement;
-import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.YungJigsawSinglePoolElement;
+import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.YungJigsawPoolElement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -23,32 +19,14 @@ import java.util.Optional;
  * Includes additional pool element types to choose from for maximum flexibility when creating structures.
  * </p>
  * <p>
- * The main feature of this algorithm is the addition of the {@link YungJigsawSinglePoolElement} pool element type.
- * This element type supports additional behaviors such as limiting piece counts to a certain maximum, bounding possible y-values
+ * The main feature of this algorithm is the addition of the {@link YungJigsawPoolElement} pool element types.
+ * These element type support additional behaviors such as limiting piece counts to a certain maximum, bounding possible y-values
  * on a per-piece basis, and enforcing arbitrary piece placement conditions.<br />
- * For more information, see {@link YungJigsawSinglePoolElement}.
+ * For more information, see {@link YungJigsawPoolElement} and its subclasses.
  * </p>
  * <p>
- * The {@link YungJigsawSinglePoolElement} pool element type should generally be used, but
- * the following legacy enhanced element types are also available:
- * <ul>
- * <li>{@link MaxCountSinglePoolElement}</li>
- * <li>{@link MaxCountLegacySinglePoolElement}</li>
- * <li>{@link MaxCountFeaturePoolElement}</li>
- * <li>{@link MaxCountListPoolElement}</li>
- * </ul>
- * Each of these are identical to their vanilla counterparts, but with the following differences:
- * <ol>
- * <li>A <i>name</i> field is required. This can be any string. It is used as an identifier for keeping track of the
- *   max count of a given entry.
- * <li>A <i>max_count</i> field is required. This defines the maximum number of times an element with this entry's name
- *   can be used in a single instance of the entire structure. If multiple entries share the same name, they
- *   should have matching max_count's as well. A warning will be logged if they do not match, and behavior may be unexpected.</li>
- * </ol>
- * <p>
- * Note that the <i>max_count</i> behavior is also supported by the {@link YungJigsawSinglePoolElement}, so there is never
- * any reason to use {@link MaxCountSinglePoolElement}
- * </p>
+ * The {@link YungJigsawPoolElement} pool element subtypes should always be preferred over vanilla types.<br />
+ * The MaxCount types are considered deprecated and should no longer be used.
  */
 public class YungJigsawManager {
     /**

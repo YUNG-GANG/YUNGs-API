@@ -3,6 +3,7 @@ package com.yungnickyoung.minecraft.yungsapi.world.jigsaw;
 import com.yungnickyoung.minecraft.yungsapi.util.BoxOctree;
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.assembler.PieceContext;
 import com.yungnickyoung.minecraft.yungsapi.world.jigsaw.piece.YungJigsawSinglePoolElement;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawJunction;
 import net.minecraft.world.phys.AABB;
@@ -11,6 +12,7 @@ import org.apache.commons.lang3.mutable.MutableObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class PieceEntry {
     private PoolElementStructurePiece piece;
@@ -74,9 +76,11 @@ public class PieceEntry {
         return parentJunction;
     }
 
-    public boolean hasDeadendPool() {
-        return this.piece.getElement() instanceof YungJigsawSinglePoolElement yungElement
-                && yungElement.hasDeadendPool();
+    public Optional<ResourceLocation> getDeadendPool() {
+        if (this.piece.getElement() instanceof YungJigsawSinglePoolElement yungSingleElement) {
+            return yungSingleElement.getDeadendPool();
+        }
+        return Optional.empty();
     }
 
     public void setDelayGeneration(boolean delayGeneration) {

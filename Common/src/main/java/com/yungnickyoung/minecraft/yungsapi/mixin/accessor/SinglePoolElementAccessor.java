@@ -13,7 +13,4 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface SinglePoolElementAccessor {
     @Invoker
     StructureTemplate callGetTemplate(StructureTemplateManager $$0);
-
-    @Accessor
-    Holder<StructureProcessorList> getProcessors();
 }
