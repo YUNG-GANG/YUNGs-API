@@ -21,10 +21,10 @@ import java.util.List;
  * Searches a specified number of blocks from a given position in a specified direction and checks for a structure piece.
  * Passes if a structure piece is found matching one of the entries from the given list.
  * Note that "all" is an acceptable entry for matching any piece.
- * <p>
+ *
  * This condition is useful if you need to search for pieces in a specific direction relative to the current piece,
  * e.g. searching for a piece within 5 blocks to the right of the current piece (90 degree rotation).
- * <p>
+ *
  * If you instead need to search for pieces within any horizontal or vertical distance, use {@link PieceInRangeCondition} instead.
  */
 public class PieceInHorizontalDirectionCondition extends StructureCondition {

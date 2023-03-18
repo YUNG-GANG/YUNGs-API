@@ -2,12 +2,12 @@ package com.yungnickyoung.minecraft.yungsapi.noise;
 
 /**
  * K.jpg's OpenSimplex 2, smooth variant ("SuperSimplex")
- * <p>
+ *
  * - 2D is standard simplex, modified to support larger kernels.
  *   Implemented using a lookup table.
  * - 3D is "Re-oriented 8-point BCC noise" which constructs an
  *   isomorphic BCC lattice in a much different way than usual.
- * <p>
+ *
  * Multiple versions of each function are provided. See the
  * documentation above each, for more info.
  */

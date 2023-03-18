@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 @Mixin(StructureTemplatePool.class)
 public class IncreaseStructureWeightLimitMixinForge {
     /**
-     * Increases the weight limit that mojang slapped on that was a workaround for <a href="https://bugs.mojang.com/browse/MC-203131">...</a>
+     * Increases the weight limit that mojang slapped on that was a workaround for "https://bugs.mojang.com/browse/MC-203131"
      * @author - TelepathicGrunt
      * @return - The higher weight that is a more reasonable limit.
      */
