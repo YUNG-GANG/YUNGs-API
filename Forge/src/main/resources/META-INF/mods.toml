@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[44,)"
+loaderVersion="[45,)"
 license="LGPLv3"
 issueTrackerURL="https://github.com/yungnickyoung/YUNGs-Api/issues"
 
@@ -16,9 +16,9 @@ issueTrackerURL="https://github.com/yungnickyoung/YUNGs-Api/issues"
 [[dependencies.${mod_id}]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.19.3,)"
+    versionRange="[1.19.4,)"
 
 [[dependencies.${mod_id}]]
     modId="forge"
     mandatory=true
-    versionRange="[44.1.0,)"
+    versionRange="[45.0.9,)"

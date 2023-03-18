@@ -24,8 +24,8 @@ public class ItemRandomizerAdapter extends TypeAdapter<ItemRandomizer> {
 
         reader.beginObject();
         while (reader.hasNext()) {
-            switch(reader.nextName()) {
-                case "entries":
+            switch (reader.nextName()) {
+                case "entries" -> {
                     reader.beginObject();
                     while (reader.hasNext()) {
                         Item item = ItemAdapter.resolveItem(reader.nextName());
@@ -33,11 +33,11 @@ public class ItemRandomizerAdapter extends TypeAdapter<ItemRandomizer> {
                         selector.addItem(item, (float) probability);
                     }
                     reader.endObject();
-                    break;
-                case "defaultItem":
+                }
+                case "defaultItem" -> {
                     Item item = ItemAdapter.resolveItem(reader.nextString());
                     selector.setDefaultItem(item);
-                    break;
+                }
             }
         }
         reader.endObject();

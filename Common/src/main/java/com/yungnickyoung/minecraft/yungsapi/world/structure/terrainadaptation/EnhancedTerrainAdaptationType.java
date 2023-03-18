@@ -23,10 +23,10 @@ public interface EnhancedTerrainAdaptationType<C extends EnhancedTerrainAdaptati
             .flatXmap(
                     resourceLocation -> Optional.ofNullable(ADAPTATION_TYPES_BY_NAME.get(resourceLocation))
                             .map(DataResult::success)
-                            .orElseGet(() -> DataResult.error("Unknown enhanced terrain adaptation type: " + resourceLocation)),
+                            .orElseGet(() -> DataResult.error(() -> "Unknown enhanced terrain adaptation type: " + resourceLocation)),
                     adaptationType -> Optional.of(NAME_BY_ADAPTATION_TYPES.get(adaptationType))
                             .map(DataResult::success)
-                            .orElseGet(() -> DataResult.error("No ID found for enhanced terrain adaptation type " + adaptationType + ". Is it registered?")));
+                            .orElseGet(() -> DataResult.error(() -> "No ID found for enhanced terrain adaptation type " + adaptationType + ". Is it registered?")));
 
     Codec<EnhancedTerrainAdaptation> ADAPTATION_CODEC = ADAPTATION_TYPE_CODEC
             .dispatch("type", EnhancedTerrainAdaptation::type, EnhancedTerrainAdaptationType::codec);

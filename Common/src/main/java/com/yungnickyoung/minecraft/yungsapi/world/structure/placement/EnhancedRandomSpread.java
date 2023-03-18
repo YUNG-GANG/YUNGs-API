@@ -24,16 +24,16 @@ public class EnhancedRandomSpread extends RandomSpreadStructurePlacement {
                     ExtraCodecs.NON_NEGATIVE_INT.fieldOf("salt").forGetter(placement -> placement.salt()),
                     ExclusionZone.CODEC.optionalFieldOf("exclusion_zone").forGetter(placement -> placement.exclusionZone()),
                     EnhancedExclusionZone.CODEC.optionalFieldOf("enhanced_exclusion_zone").forGetter(placement -> placement.enhancedExclusionZone),
-                    ExtraCodecs.NON_NEGATIVE_INT.fieldOf("spacing").forGetter(placement -> placement.spacing()),
-                    ExtraCodecs.NON_NEGATIVE_INT.fieldOf("separation").forGetter(placement -> placement.separation()),
-                    RandomSpreadType.CODEC.optionalFieldOf("spread_type", RandomSpreadType.LINEAR).forGetter(placement -> placement.spreadType()))
+                    ExtraCodecs.NON_NEGATIVE_INT.fieldOf("spacing").forGetter(RandomSpreadStructurePlacement::spacing),
+                    ExtraCodecs.NON_NEGATIVE_INT.fieldOf("separation").forGetter(RandomSpreadStructurePlacement::separation),
+                    RandomSpreadType.CODEC.optionalFieldOf("spread_type", RandomSpreadType.LINEAR).forGetter(RandomSpreadStructurePlacement::spreadType))
             .apply(builder, builder.stable(EnhancedRandomSpread::new)))
             .flatXmap(verifySpacing(), DataResult::success)
             .codec();
 
     private static Function<EnhancedRandomSpread, DataResult<EnhancedRandomSpread>> verifySpacing() {
         return placement -> placement.spacing() <= placement.separation()
-                ? DataResult.error("EnhancedRandomSpread's spacing has to be larger than separation")
+                ? DataResult.error(() -> "EnhancedRandomSpread's spacing has to be larger than separation")
                 : DataResult.success(placement);
     }
 

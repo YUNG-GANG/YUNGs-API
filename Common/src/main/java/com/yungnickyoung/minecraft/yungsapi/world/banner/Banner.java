@@ -2,10 +2,6 @@ package com.yungnickyoung.minecraft.yungsapi.world.banner;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentContents;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WallBannerBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -15,7 +11,7 @@ import java.util.List;
 
 /**
  * Representation of a Banner in Minecraft.
- *
+ * <p>
  * Includes fields for patterns, BlockState, and NBT tags.
  * Includes an internal Builder for easy Banner construction.
  */
@@ -73,7 +69,7 @@ public class Banner {
 
     /**
      * Builder class for Banners.
-     *
+     * <p>
      * This makes it easy to construct banners from code and then extract the BlockState and NBT,
      * without having to manually construct a compound NBT.
      */

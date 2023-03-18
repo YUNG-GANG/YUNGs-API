@@ -48,7 +48,7 @@ public class TransformAction extends StructureAction {
      */
     private static <T> DataResult<T> encodeTemplate(Either<ResourceLocation, StructureTemplate> either, DynamicOps<T> ops, T data) {
         return either.left().isEmpty()
-                ? DataResult.error("yungsapi - Cannot serialize a runtime pool element")
+                ? DataResult.error(() -> "yungsapi - Cannot serialize a runtime pool element")
                 : ResourceLocation.CODEC.encode(either.left().get(), ops, data);
     }
 

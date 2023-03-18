@@ -64,7 +64,7 @@ public class EntityProcessorMixin {
                     f += entity.getYRot() - entity.rotate(structurePlaceSettings.getRotation());
                     entity.moveTo(vec3d.x, vec3d.y, vec3d.z, f, entity.getXRot());
                     if (structurePlaceSettings.shouldFinalizeEntities() && entity instanceof Mob) {
-                        ((Mob)entity).finalizeSpawn(serverLevelAccessor, serverLevelAccessor.getCurrentDifficultyAt(new BlockPos(vec3d)), MobSpawnType.STRUCTURE, null, compoundTag);
+                        ((Mob)entity).finalizeSpawn(serverLevelAccessor, serverLevelAccessor.getCurrentDifficultyAt(new BlockPos((int) vec3d.x, (int) vec3d.y, (int) vec3d.z)), MobSpawnType.STRUCTURE, null, compoundTag);
                     }
 
                     serverLevelAccessor.addFreshEntityWithPassengers(entity);

@@ -31,7 +31,7 @@ public class SafeStructureLocationPredicate {
     }
 
     public boolean matches(ServerLevel serverLevel, float x, float y, float z) {
-        BlockPos blockpos = new BlockPos(x, y, z);
+        BlockPos blockpos = new BlockPos((int)x, (int)y, (int)z);
         return this.configuredStructureFeature != null &&
                 serverLevel.isLoaded(blockpos) &&
                 serverLevel.structureManager().getStructureWithPieceAt(blockpos, this.configuredStructureFeature).isValid();

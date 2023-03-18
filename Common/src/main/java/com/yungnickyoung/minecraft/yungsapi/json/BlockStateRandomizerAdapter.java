@@ -24,8 +24,8 @@ public class BlockStateRandomizerAdapter extends TypeAdapter<BlockStateRandomize
 
         reader.beginObject();
         while (reader.hasNext()) {
-            switch(reader.nextName()) {
-                case "entries":
+            switch (reader.nextName()) {
+                case "entries" -> {
                     reader.beginObject();
                     while (reader.hasNext()) {
                         BlockState blockState = BlockStateAdapter.resolveBlockState(reader.nextName());
@@ -33,11 +33,11 @@ public class BlockStateRandomizerAdapter extends TypeAdapter<BlockStateRandomize
                         selector.addBlock(blockState, (float) probability);
                     }
                     reader.endObject();
-                    break;
-                case "defaultBlock":
+                }
+                case "defaultBlock" -> {
                     BlockState blockState = BlockStateAdapter.resolveBlockState(reader.nextString());
                     selector.setDefaultBlockState(blockState);
-                    break;
+                }
             }
         }
         reader.endObject();

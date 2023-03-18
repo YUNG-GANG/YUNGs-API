@@ -23,10 +23,10 @@ public interface StructureConditionType<C extends StructureCondition> {
             .flatXmap(
                     resourceLocation -> Optional.ofNullable(CONDITION_TYPES_BY_NAME.get(resourceLocation))
                             .map(DataResult::success)
-                            .orElseGet(() -> DataResult.error("Unknown condition type: " + resourceLocation)),
+                            .orElseGet(() -> DataResult.error(() -> "Unknown condition type: " + resourceLocation)),
                     conditionType -> Optional.of(NAME_BY_CONDITION_TYPES.get(conditionType))
                             .map(DataResult::success)
-                            .orElseGet(() -> DataResult.error("No ID found for condition type " + conditionType + ". Is it registered?")));
+                            .orElseGet(() -> DataResult.error(() -> "No ID found for condition type " + conditionType + ". Is it registered?")));
 
     Codec<StructureCondition> CONDITION_CODEC = StructureConditionType.CONDITION_TYPE_CODEC
             .dispatch("type", StructureCondition::type, StructureConditionType::codec);

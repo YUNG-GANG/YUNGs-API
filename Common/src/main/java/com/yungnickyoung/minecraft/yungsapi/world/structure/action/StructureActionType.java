@@ -23,10 +23,10 @@ public interface StructureActionType<C extends StructureAction> {
             .flatXmap(
                     resourceLocation -> Optional.ofNullable(ACTION_TYPES_BY_NAME.get(resourceLocation))
                             .map(DataResult::success)
-                            .orElseGet(() -> DataResult.error("Unknown structure action type: " + resourceLocation)),
+                            .orElseGet(() -> DataResult.error(() -> "Unknown structure action type: " + resourceLocation)),
                     actionType -> Optional.of(NAME_BY_ACTION_TYPES.get(actionType))
                             .map(DataResult::success)
-                            .orElseGet(() -> DataResult.error("No ID found for structure action type " + actionType + ". Is it registered?")));
+                            .orElseGet(() -> DataResult.error(() -> "No ID found for structure action type " + actionType + ". Is it registered?")));
 
     Codec<StructureAction> ACTION_CODEC = StructureActionType.ACTION_TYPE_CODEC
             .dispatch("type", StructureAction::type, StructureActionType::codec);

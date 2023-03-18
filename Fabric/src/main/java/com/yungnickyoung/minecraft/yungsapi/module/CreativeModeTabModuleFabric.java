@@ -30,7 +30,7 @@ public class CreativeModeTabModuleFabric {
         CreativeModeTab creativeModeTab = FabricItemGroup
                 .builder(name)
                 .icon(itemStackSupplier)
-                .displayItems((enabledFlags, populator, hasPermissions) -> {
+                .displayItems((enabledFlags, populator) -> {
                     // TODO
                 })
                 .build();

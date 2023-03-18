@@ -16,7 +16,7 @@ import java.util.Optional;
  * Utility methods that bypass the PaletteContainer's lock, as it was causing an
  * `Accessing PalettedContainer from multiple threads` crash, even though everything
  * seemed to be safe.
- *
+ * <p>
  * This crash started occurring in 1.17. I currently do not know the cause, so this
  * is a workaround in the meantime.
  *

@@ -51,7 +51,7 @@ public class CreativeModeTabModuleForge {
         CreativeModeTab creativeModeTab = event.registerCreativeModeTab(data.name(), builder -> builder
                 .title(Component.translatable("itemGroup." + name))
                 .icon(itemStackSupplier)
-                .displayItems((enabledFlags, populator, hasPermissions) -> {
+                .displayItems((enabledFlags, populator) -> {
                     // TODO
                 })
                 .build()

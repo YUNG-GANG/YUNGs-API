@@ -5,7 +5,6 @@ import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 /**
@@ -19,8 +18,8 @@ public class BlockEntityTypeModuleFabric {
     }
 
     private static void register(AutoRegisterField data) {
-        AutoRegisterBlockEntityType<? extends BlockEntity> autoRegisterBlockEntityType = (AutoRegisterBlockEntityType) data.object();
-        BlockEntityType<?> blockEntityType = autoRegisterBlockEntityType.get();
+        AutoRegisterBlockEntityType autoRegisterBlockEntityType = (AutoRegisterBlockEntityType) data.object();
+        BlockEntityType<?> blockEntityType = (BlockEntityType<?>) autoRegisterBlockEntityType.get();
 
         // Register block entity type
         Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, data.name(), blockEntityType);
