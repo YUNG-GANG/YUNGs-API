@@ -6,7 +6,7 @@ import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.StructureTemplatePool
 import com.yungnickyoung.minecraft.yungsapi.util.BoxOctree;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.assembler.JigsawStructureAssembler;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawSinglePoolElement;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawPoolElement;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -151,7 +151,7 @@ public class JigsawManager {
             // First, check for any priority pieces
             for (Pair<StructurePoolElement, Integer> candidatePiecePair : candidatePoolElements) {
                 StructurePoolElement candidatePiece = candidatePiecePair.getFirst();
-                if (candidatePiece instanceof YungJigsawSinglePoolElement yungSingleElement && yungSingleElement.isPriorityPiece()) {
+                if (candidatePiece instanceof YungJigsawPoolElement yungElement && yungElement.isPriorityPiece()) {
                     chosenPoolElementPair = candidatePiecePair;
                     break;
                 }
@@ -202,7 +202,7 @@ public class JigsawManager {
             BlockPos adjustedStartPos = locatePos.subtract(startingPosOffset);
 
             // Validate conditions for this piece, if applicable
-            if (chosenPoolElement instanceof YungJigsawSinglePoolElement yungSingleElement) {
+            if (chosenPoolElement instanceof YungJigsawPoolElement yungElement) {
                 StructureContext ctx = new StructureContext.Builder()
                         .structureTemplateManager(structureTemplateManager)
                         .pos(adjustedStartPos)
@@ -210,7 +210,7 @@ public class JigsawManager {
                         .depth(0)
                         .random(rand)
                         .build();
-                if (!yungSingleElement.passesConditions(ctx)) {
+                if (!yungElement.passesConditions(ctx)) {
                     totalWeightSum -= chosenPieceWeight;
                     candidatePoolElements.remove(chosenPoolElementPair);
                     continue; // Abort this piece if it doesn't pass conditions check

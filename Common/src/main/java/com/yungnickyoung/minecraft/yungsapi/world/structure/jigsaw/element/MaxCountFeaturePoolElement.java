@@ -13,8 +13,9 @@ import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 
 /**
  * Equivalent of vanilla {@link FeaturePoolElement} with additional support for max_count setting.
- * Prefer using {@link YungJigsawSinglePoolElement} if possible instead.
+ * Deprecated. Use {@link YungJigsawFeatureElement} instead.
  */
+@Deprecated
 public class MaxCountFeaturePoolElement extends FeaturePoolElement implements IMaxCountJigsawPoolElement {
     public static final Codec<MaxCountFeaturePoolElement> CODEC = RecordCodecBuilder.create((builder) -> builder
         .group(

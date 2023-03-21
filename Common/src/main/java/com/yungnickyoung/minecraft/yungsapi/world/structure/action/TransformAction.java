@@ -6,7 +6,6 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
-import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.SinglePoolElementAccessor;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.PieceEntry;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawSinglePoolElement;
@@ -95,7 +94,7 @@ public class TransformAction extends StructureAction {
 
         // Randomly choose output piece
         Either<ResourceLocation, StructureTemplate> newTemplate = this.output.get(rand.nextInt(this.output.size()));
-        StructurePoolElement newElement = new YungJigsawSinglePoolElement(newTemplate, ((SinglePoolElementAccessor)old).getProcessors(),
+        StructurePoolElement newElement = new YungJigsawSinglePoolElement(newTemplate, old.processors,
                 old.getProjection(), old.name, old.maxCount, old.minRequiredDepth, old.maxPossibleDepth,
                 old.isPriority, old.ignoreBounds, old.condition, old.enhancedTerrainAdaptation,
                 old.deadendPool, old.modifiers);

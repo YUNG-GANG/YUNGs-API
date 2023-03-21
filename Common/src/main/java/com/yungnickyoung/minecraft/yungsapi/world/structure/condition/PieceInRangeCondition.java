@@ -6,6 +6,7 @@ import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.SinglePoolElementAccessor;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.PieceEntry;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawSinglePoolElement;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
@@ -78,14 +79,16 @@ public class PieceInRangeCondition extends StructureCondition {
         // Check for any matching pieces that satisfy the positional criteria
         for (PieceEntry otherPieceEntry : pieces) {
             PoolElementStructurePiece otherPiece = otherPieceEntry.getPiece();
-            if (otherPiece.getElement() instanceof SinglePoolElement singlePoolElement) {
+            if (otherPiece.getElement() instanceof SinglePoolElement || otherPiece.getElement() instanceof YungJigsawSinglePoolElement) {
                 // If otherPiece has the same bounding box as our starting piece, skip over it, as
                 // it is likely just the same piece.
                 if (otherPiece.getBoundingBox().equals(piece.getBoundingBox())) {
                     continue;
                 }
 
-                StructureTemplate otherStructureTemplate = ((SinglePoolElementAccessor)singlePoolElement).callGetTemplate(templateManager);
+                StructureTemplate otherStructureTemplate = otherPiece.getElement() instanceof SinglePoolElement
+                        ? ((SinglePoolElementAccessor) otherPiece.getElement()).callGetTemplate(templateManager)
+                        : ((YungJigsawSinglePoolElement) otherPiece.getElement()).getTemplate(templateManager);
 
                 // Iterate our target pieces and check for a match with otherPiece
                 for (ResourceLocation matchPieceId : matchPieces) {

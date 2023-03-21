@@ -1,107 +1,74 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element;
 
+import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.module.StructurePoolElementTypeModule;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.condition.AllOfCondition;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.condition.AnyOfCondition;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.condition.DepthCondition;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.condition.StructureCondition;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.condition.StructureConditionType;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.modifier.StructureModifier;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.EnhancedTerrainAdaptation;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.EnhancedTerrainAdaptationType;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.properties.StructureMode;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
+import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
+import net.minecraft.world.level.levelgen.structure.templatesystem.JigsawReplacementProcessor;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Custom {@link SinglePoolElement} with support for many additional settings.
  */
-public class YungJigsawSinglePoolElement extends SinglePoolElement {
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
+public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
+    private static final Codec<Either<ResourceLocation, StructureTemplate>> TEMPLATE_CODEC = Codec.of(YungJigsawSinglePoolElement::encodeTemplate, ResourceLocation.CODEC.map(Either::left));
     public static final Codec<YungJigsawSinglePoolElement> CODEC = RecordCodecBuilder.create((builder) -> builder
             .group(
                     templateCodec(),
                     processorsCodec(),
                     projectionCodec(),
-                    Codec.STRING.optionalFieldOf("name").forGetter(element -> element.name),
-                    ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("max_count").forGetter(element -> element.maxCount),
-                    ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("min_required_depth").forGetter(element -> element.minRequiredDepth),
-                    ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("max_possible_depth").forGetter(element -> element.maxPossibleDepth),
-                    Codec.BOOL.optionalFieldOf("is_priority", false).forGetter(element -> element.isPriority),
-                    Codec.BOOL.optionalFieldOf("ignore_bounds", false).forGetter(element -> element.ignoreBounds),
-                    StructureConditionType.CONDITION_CODEC.optionalFieldOf("condition", StructureCondition.ALWAYS_TRUE).forGetter(element -> element.condition),
-                    EnhancedTerrainAdaptationType.ADAPTATION_CODEC.optionalFieldOf("enhanced_terrain_adaptation").forGetter(element -> element.enhancedTerrainAdaptation),
+                    nameCodec(),
+                    maxCountCodec(),
+                    minRequiredDepthCodec(),
+                    maxPossibleDepthCodec(),
+                    isPriorityCodec(),
+                    ignoreBoundsCodec(),
+                    conditionCodec(),
+                    enhancedTerrainAdaptationCodec(),
                     ResourceLocation.CODEC.optionalFieldOf("deadend_pool").forGetter(element -> element.deadendPool),
                     StructureModifier.CODEC.listOf().optionalFieldOf("modifiers", new ArrayList<>()).forGetter(element -> element.modifiers)
             ).apply(builder, YungJigsawSinglePoolElement::new));
 
-    /**
-     * The name of this piece.
-     * Solely used to uniquely identify pieces for the sake of tracking max_count.
-     */
-    public final Optional<String> name;
+    public final Either<ResourceLocation, StructureTemplate> template;
 
-    /**
-     * The maximum possible number of pieces with this name.
-     * If this setting is used, the 'name' MUST be specified.
-     */
-    public final Optional<Integer> maxCount;
-
-    /**
-     * The minimum required depth (in jigsaw pieces) from the structure start
-     * at which this piece can spawn.
-     *
-     * @deprecated Use {@link DepthCondition} instead.
-     */
-    @Deprecated
-    public final Optional<Integer> minRequiredDepth;
-
-    /**
-     * The maximum allowed depth (in jigsaw pieces) from the structure start
-     * at which this piece will no longer spawn.
-     *
-     * @deprecated Use {@link DepthCondition} instead.
-     */
-    @Deprecated
-    public final Optional<Integer> maxPossibleDepth;
-
-    /**
-     * Whether this is a priority piece.
-     * Priority pieces attempt to generate before all other pieces in the pool,
-     * regardless of weight.
-     */
-    public final boolean isPriority;
-
-    /**
-     * Whether this piece should ignore the usual piece boundary checks.
-     * Enabling this allows this piece to spawn while overlapping other pieces.
-     */
-    public final boolean ignoreBounds;
-
-    /**
-     * Optional condition required for this piece to spawn.
-     * Can be any {@link StructureCondition}, including compound conditions
-     * ({@link AnyOfCondition}, {@link AllOfCondition})
-     */
-    public final StructureCondition condition;
-
-    /**
-     * Optional enhanced terrain adaptation specific to this piece.
-     * Takes priority over the structure's enhanced terrain adaptation if specified.
-     */
-    public final Optional<EnhancedTerrainAdaptation> enhancedTerrainAdaptation;
+    public final Holder<StructureProcessorList> processors;
 
     /**
      * Whether this piece should apply dead end adjustments.
@@ -122,10 +89,15 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
      */
     public final Optional<ResourceLocation> deadendPool;
 
+    /**
+     * Post-placement modifiers.
+     * These are modifications run on a piece after the entire structure's layout has been generated,
+     * allowing for last-second conditional changes.
+     */
     public final List<StructureModifier> modifiers;
 
     public YungJigsawSinglePoolElement(
-            Either<ResourceLocation, StructureTemplate> resourceLocation,
+            Either<ResourceLocation, StructureTemplate> template,
             Holder<StructureProcessorList> processors,
             StructureTemplatePool.Projection projection,
             Optional<String> name,
@@ -139,68 +111,129 @@ public class YungJigsawSinglePoolElement extends SinglePoolElement {
             Optional<ResourceLocation> deadendPool,
             List<StructureModifier> modifiers
     ) {
-        super(resourceLocation, processors, projection);
-        this.maxCount = maxCount;
-        this.name = name;
-        this.minRequiredDepth = minRequiredDepth;
-        this.maxPossibleDepth = maxPossibleDepth;
-        this.isPriority = isPriority;
-        this.ignoreBounds = ignoreBounds;
-        this.condition = condition;
-        this.enhancedTerrainAdaptation = enhancedTerrainAdaptation;
+        super(projection, name, maxCount, minRequiredDepth, maxPossibleDepth, isPriority, ignoreBounds, condition, enhancedTerrainAdaptation);
+        this.template = template;
+        this.processors = processors;
         this.deadendPool = deadendPool;
         this.modifiers = modifiers;
+    }
+
+    @Override
+    public Vec3i getSize(StructureTemplateManager structureTemplateManager, Rotation rotation) {
+        StructureTemplate structureTemplate = this.getTemplate(structureTemplateManager);
+        return structureTemplate.getSize(rotation);
+    }
+
+    @Override
+    public List<StructureTemplate.StructureBlockInfo> getShuffledJigsawBlocks(
+            StructureTemplateManager structureTemplateManager,
+            BlockPos blockPos,
+            Rotation rotation,
+            RandomSource randomSource
+    ) {
+        StructureTemplate structureTemplate = this.getTemplate(structureTemplateManager);
+        ObjectArrayList<StructureTemplate.StructureBlockInfo> jigsawBlocks = structureTemplate.filterBlocks(blockPos, (new StructurePlaceSettings()).setRotation(rotation), Blocks.JIGSAW, true);
+        Util.shuffle(jigsawBlocks, randomSource);
+        return jigsawBlocks;
+    }
+
+    @Override
+    public BoundingBox getBoundingBox(StructureTemplateManager structureTemplateManager, BlockPos blockPos, Rotation rotation) {
+        StructureTemplate structureTemplate = this.getTemplate(structureTemplateManager);
+        return structureTemplate.getBoundingBox((new StructurePlaceSettings()).setRotation(rotation), blockPos);
+    }
+
+    @Override
+    public boolean place(StructureTemplateManager structureTemplateManager,
+                         WorldGenLevel worldGenLevel,
+                         StructureManager structureManager,
+                         ChunkGenerator chunkGenerator,
+                         BlockPos pos,
+                         BlockPos pivotPos,
+                         Rotation rotation,
+                         BoundingBox boundingBox,
+                         RandomSource randomSource,
+                         boolean replaceJigsaws
+    ) {
+        StructureTemplate structureTemplate = this.getTemplate(structureTemplateManager);
+        StructurePlaceSettings structurePlaceSettings = this.getSettings(rotation, boundingBox, replaceJigsaws);
+        if (!structureTemplate.placeInWorld(worldGenLevel, pos, pivotPos, structurePlaceSettings, randomSource, 18)) {
+            return false;
+        } else {
+            for(StructureTemplate.StructureBlockInfo $$13 : StructureTemplate.processBlockInfos(worldGenLevel, pos, pivotPos, structurePlaceSettings, this.getDataMarkers(structureTemplateManager, pos, rotation, false))) {
+                this.handleDataMarker(worldGenLevel, $$13, pos, rotation, randomSource, boundingBox);
+            }
+
+            return true;
+        }
+    }
+
+    public Optional<ResourceLocation> getDeadendPool() {
+        return this.deadendPool;
+    }
+
+    public boolean hasModifiers() {
+        return this.modifiers.size() > 0;
+    }
+
+    public StructureTemplate getTemplate(StructureTemplateManager structureTemplateManager) {
+        return this.template.map(structureTemplateManager::getOrCreate, Function.identity());
     }
 
     public StructurePoolElementType<?> getType() {
         return StructurePoolElementTypeModule.YUNG_SINGLE_ELEMENT;
     }
 
-    public boolean isPriorityPiece() {
-        return isPriority;
-    }
-
-    public boolean ignoresBounds() {
-        return this.ignoreBounds;
-    }
-
-    public boolean isAtValidDepth(int depth) {
-        boolean isAtMinRequiredDepth = minRequiredDepth.isEmpty() || minRequiredDepth.get() <= depth;
-        boolean isAtMaxAllowableDepth = maxPossibleDepth.isEmpty() || maxPossibleDepth.get() >= depth;
-        return isAtMinRequiredDepth && isAtMaxAllowableDepth;
-    }
-
-    public boolean passesConditions(StructureContext ctx) {
-        return this.condition.passes(ctx);
-    }
-
     public String toString() {
-        return String.format("YungJigsawSingle[%s][%s][%s][%s][%s][%s]",
-                this.name,
+        return String.format("YungJigsawSingle[%s][%s][%s][%s]",
+                this.name.orElse("<unnamed>"),
                 this.template,
-                this.maxCount.isPresent() ? maxCount.get() : "N/A",
-                this.minRequiredDepth.isPresent() ? "" + minRequiredDepth.get() : "N/A",
-                this.maxPossibleDepth.isPresent() ? "" + maxPossibleDepth.get() : "N/A",
+                this.maxCount.isPresent() ? maxCount.get() : "no max count",
                 this.isPriority);
     }
 
-    public EnhancedTerrainAdaptation getEnhancedTerrainAdaptation() {
-        return this.enhancedTerrainAdaptation.get();
+    private StructurePlaceSettings getSettings(Rotation rotation, BoundingBox boundingBox, boolean replaceJigsaws) {
+        StructurePlaceSettings structurePlaceSettings = new StructurePlaceSettings();
+        structurePlaceSettings.setBoundingBox(boundingBox);
+        structurePlaceSettings.setRotation(rotation);
+        structurePlaceSettings.setKnownShape(true);
+        structurePlaceSettings.setIgnoreEntities(false);
+        structurePlaceSettings.addProcessor(BlockIgnoreProcessor.STRUCTURE_BLOCK);
+        structurePlaceSettings.setFinalizeEntities(true);
+        if (!replaceJigsaws) {
+            structurePlaceSettings.addProcessor(JigsawReplacementProcessor.INSTANCE);
+        }
+
+        this.processors.value().list().forEach(structurePlaceSettings::addProcessor);
+        this.getProjection().getProcessors().forEach(structurePlaceSettings::addProcessor);
+        return structurePlaceSettings;
     }
 
-    public boolean hasEnhancedTerrainAdaptation() {
-        return this.enhancedTerrainAdaptation.isPresent();
+    private List<StructureTemplate.StructureBlockInfo> getDataMarkers(StructureTemplateManager structureTemplateManager, BlockPos blockPos, Rotation rotation, boolean isPositionLocal) {
+        StructureTemplate structureTemplate = this.getTemplate(structureTemplateManager);
+        List<StructureTemplate.StructureBlockInfo> structureBlocks = structureTemplate.filterBlocks(blockPos, (new StructurePlaceSettings()).setRotation(rotation), Blocks.STRUCTURE_BLOCK, isPositionLocal);
+        List<StructureTemplate.StructureBlockInfo> dataBlocks = Lists.newArrayList();
+
+        for(StructureTemplate.StructureBlockInfo block : structureBlocks) {
+            StructureMode structureMode = StructureMode.valueOf(block.nbt.getString("mode"));
+            if (structureMode == StructureMode.DATA) {
+                dataBlocks.add(block);
+            }
+        }
+
+        return dataBlocks;
     }
 
-    public ResourceLocation getDeadendPool() {
-        return this.deadendPool.get();
+    public static <E extends YungJigsawSinglePoolElement> RecordCodecBuilder<E, Holder<StructureProcessorList>> processorsCodec() {
+        return StructureProcessorType.LIST_CODEC.fieldOf("processors").forGetter(element -> element.processors);
     }
 
-    public boolean hasDeadendPool() {
-        return this.deadendPool.isPresent();
+    public static <E extends YungJigsawSinglePoolElement> RecordCodecBuilder<E, Either<ResourceLocation, StructureTemplate>> templateCodec() {
+        return TEMPLATE_CODEC.fieldOf("location").forGetter(($$0) -> $$0.template);
     }
 
-    public boolean hasModifiers() {
-        return this.modifiers.size() > 0;
+    private static <T> DataResult<T> encodeTemplate(Either<ResourceLocation, StructureTemplate> either, DynamicOps<T> ops, T template) {
+        Optional<ResourceLocation> optional = either.left();
+        return !optional.isPresent() ? DataResult.error(() -> "Can not serialize a runtime pool element") : ResourceLocation.CODEC.encode(optional.get(), ops, template);
     }
 }

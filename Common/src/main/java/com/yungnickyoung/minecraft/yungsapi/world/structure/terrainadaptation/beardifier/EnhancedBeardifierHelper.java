@@ -1,8 +1,9 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.beardifier;
 
+import com.yungnickyoung.minecraft.yungsapi.mixin.BeardifierMixin;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.BeardifierAccessor;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.YungJigsawStructure;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawSinglePoolElement;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawPoolElement;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.EnhancedTerrainAdaptation;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -16,7 +17,6 @@ import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawJunction;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
-import com.yungnickyoung.minecraft.yungsapi.mixin.BeardifierMixin;
 
 import java.util.List;
 
@@ -46,9 +46,9 @@ public class EnhancedBeardifierHelper {
             int kernelRadius = structureTerrainAdaptation.getKernelRadius();
             for (StructurePiece structurePiece : structureStart.getPieces()) {
                 if (structurePiece instanceof PoolElementStructurePiece poolPiece
-                        && poolPiece.getElement() instanceof YungJigsawSinglePoolElement yungElement
-                        && yungElement.hasEnhancedTerrainAdaptation()) {
-                    kernelRadius = Math.max(kernelRadius, yungElement.getEnhancedTerrainAdaptation().getKernelRadius());
+                        && poolPiece.getElement() instanceof YungJigsawPoolElement yungElement
+                        && yungElement.getEnhancedTerrainAdaptation().isPresent()) {
+                    kernelRadius = Math.max(kernelRadius, yungElement.getEnhancedTerrainAdaptation().get().getKernelRadius());
                 }
             }
 
@@ -69,8 +69,8 @@ public class EnhancedBeardifierHelper {
 
                     // Check if piece overrides terrain adaptation
                     EnhancedTerrainAdaptation pieceTerrainAdaptation = structureTerrainAdaptation;
-                    if (poolElementPiece.getElement() instanceof YungJigsawSinglePoolElement yungElement && yungElement.hasEnhancedTerrainAdaptation()) {
-                        pieceTerrainAdaptation = yungElement.getEnhancedTerrainAdaptation();
+                    if (poolElementPiece.getElement() instanceof YungJigsawPoolElement yungElement && yungElement.getEnhancedTerrainAdaptation().isPresent()) {
+                        pieceTerrainAdaptation = yungElement.getEnhancedTerrainAdaptation().get();
                     }
 
                     // If no terrain adaptation for this piece, we can ignore it

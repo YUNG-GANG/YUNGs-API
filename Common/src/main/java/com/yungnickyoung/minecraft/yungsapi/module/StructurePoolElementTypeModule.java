@@ -6,6 +6,7 @@ import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.MaxCo
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.MaxCountLegacySinglePoolElement;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.MaxCountListPoolElement;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.MaxCountSinglePoolElement;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawFeatureElement;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawSinglePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType;
 
@@ -26,4 +27,8 @@ public class StructurePoolElementTypeModule {
     @AutoRegister("yung_single_element")
     public static StructurePoolElementType<YungJigsawSinglePoolElement> YUNG_SINGLE_ELEMENT =
             () -> YungJigsawSinglePoolElement.CODEC;
+
+    @AutoRegister("yung_feature_element")
+    public static StructurePoolElementType<YungJigsawFeatureElement> YUNG_FEATURE_ELEMENT =
+            () -> YungJigsawFeatureElement.CODEC;
 }
