@@ -26,8 +26,8 @@
     "yungsapi_fabric.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.14.14",
-    "fabric": ">=0.75.1",
-    "minecraft": ">=1.19.3"
+    "fabricloader": ">=${fabric_loader_version}",
+    "fabric": ">=${fabric_version}",
+    "minecraft": ">=${mc_version}"
   }
 }

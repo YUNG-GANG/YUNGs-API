@@ -96,13 +96,15 @@ processResources {
     inputs.property "mod_description", project.mod_description
     inputs.property "mod_full_name", project.mod_full_name
     inputs.property "mod_id", project.mod_id
+    inputs.property "forge_version", project.forge_version
 
     filesMatching("META-INF/mods.toml") {
         expand "version": project.version,
                 "mc_version": project.mc_version,
                 "mod_description": project.mod_description,
                 "mod_full_name": project.mod_full_name,
-                "mod_id": project.mod_id
+                "mod_id": project.mod_id,
+                "forge_version": project.forge_version
     }
 }
 
