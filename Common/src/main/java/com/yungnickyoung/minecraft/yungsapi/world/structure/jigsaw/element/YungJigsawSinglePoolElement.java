@@ -215,7 +215,7 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
         List<StructureTemplate.StructureBlockInfo> dataBlocks = Lists.newArrayList();
 
         for(StructureTemplate.StructureBlockInfo block : structureBlocks) {
-            StructureMode structureMode = StructureMode.valueOf(block.nbt.getString("mode"));
+            StructureMode structureMode = StructureMode.valueOf(block.nbt().getString("mode"));
             if (structureMode == StructureMode.DATA) {
                 dataBlocks.add(block);
             }

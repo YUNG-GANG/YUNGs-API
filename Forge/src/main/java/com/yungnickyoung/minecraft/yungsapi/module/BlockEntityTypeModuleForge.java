@@ -34,7 +34,7 @@ public class BlockEntityTypeModuleForge {
             registersByModId.put(modId, deferredRegister);
         }
 
-        AutoRegisterBlockEntityType autoRegisterBlockEntityType = (AutoRegisterBlockEntityType) data.object();
+        AutoRegisterBlockEntityType autoRegisterBlockEntityType = (AutoRegisterBlockEntityType<?>) data.object();
         Supplier<BlockEntityType<?>> blockEntityTypeSupplier = autoRegisterBlockEntityType.getSupplier();
 
         // Register block

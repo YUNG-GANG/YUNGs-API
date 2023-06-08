@@ -247,9 +247,9 @@ public class JigsawManager {
     ) {
         List<StructureTemplate.StructureBlockInfo> shuffledJigsawBlocks = structurePoolElement.getShuffledJigsawBlocks(structureTemplateManager, startPos, rotation, rand);
         for (StructureTemplate.StructureBlockInfo jigsawBlockInfo : shuffledJigsawBlocks) {
-            ResourceLocation jigsawBlockName = ResourceLocation.tryParse(jigsawBlockInfo.nbt.getString("name"));
+            ResourceLocation jigsawBlockName = ResourceLocation.tryParse(jigsawBlockInfo.nbt().getString("name"));
             if (name.equals(jigsawBlockName)) {
-                return Optional.of(jigsawBlockInfo.pos);
+                return Optional.of(jigsawBlockInfo.pos());
             }
         }
 

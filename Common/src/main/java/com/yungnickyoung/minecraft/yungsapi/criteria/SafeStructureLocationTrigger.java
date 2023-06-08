@@ -29,29 +29,29 @@ public class SafeStructureLocationTrigger extends SimpleCriterionTrigger<SafeStr
     }
 
     @Override
-    public TriggerInstance createInstance(JsonObject jsonObject, EntityPredicate.Composite composite, DeserializationContext deserializationContext) {
+    public TriggerInstance createInstance(JsonObject jsonObject, ContextAwarePredicate contextAwarePredicate, DeserializationContext deserializationContext) {
         JsonObject jsonobject = GsonHelper.getAsJsonObject(jsonObject, "location", jsonObject);
         SafeStructureLocationPredicate safeStructureLocationPredicate = SafeStructureLocationPredicate.fromJson(jsonobject);
-        return new TriggerInstance(this.id, composite, safeStructureLocationPredicate);
+        return new TriggerInstance(this.id, contextAwarePredicate, safeStructureLocationPredicate);
     }
 
     public void trigger(Player player) {
         if (player instanceof ServerPlayer) {
             this.trigger((ServerPlayer) player, (triggerInstance) ->
-                    triggerInstance.matches((ServerLevel) player.getLevel(), player.getX(), player.getY(), player.getZ()));
+                    triggerInstance.matches(((ServerPlayer) player).serverLevel(), player.getX(), player.getY(), player.getZ()));
         }
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
         private final SafeStructureLocationPredicate location;
 
-        public TriggerInstance(ResourceLocation id, EntityPredicate.Composite composite, SafeStructureLocationPredicate locationPredicate) {
-            super(id, composite);
+        public TriggerInstance(ResourceLocation id, ContextAwarePredicate contextAwarePredicate, SafeStructureLocationPredicate locationPredicate) {
+            super(id, contextAwarePredicate);
             this.location = locationPredicate;
         }
 
         public static TriggerInstance located(SafeStructureLocationPredicate safeStructureLocationPredicate) {
-            return new TriggerInstance(CriteriaTriggers.LOCATION.getId(), EntityPredicate.Composite.ANY, safeStructureLocationPredicate);
+            return new TriggerInstance(CriteriaTriggers.LOCATION.getId(), ContextAwarePredicate.ANY, safeStructureLocationPredicate);
         }
 
         public boolean matches(ServerLevel serverLevel, double x, double y, double z) {

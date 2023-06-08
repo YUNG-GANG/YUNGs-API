@@ -18,8 +18,8 @@ public class BlockEntityTypeModuleFabric {
     }
 
     private static void register(AutoRegisterField data) {
-        AutoRegisterBlockEntityType autoRegisterBlockEntityType = (AutoRegisterBlockEntityType) data.object();
-        BlockEntityType<?> blockEntityType = (BlockEntityType<?>) autoRegisterBlockEntityType.get();
+        AutoRegisterBlockEntityType<?> autoRegisterBlockEntityType = (AutoRegisterBlockEntityType<?>) data.object();
+        BlockEntityType<?> blockEntityType = autoRegisterBlockEntityType.get();
 
         // Register block entity type
         Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, data.name(), blockEntityType);

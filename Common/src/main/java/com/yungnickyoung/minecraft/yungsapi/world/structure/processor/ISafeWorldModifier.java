@@ -87,7 +87,7 @@ public interface ISafeWorldModifier {
      */
     default boolean isMaterialLiquidSafe(LevelReader world, BlockPos pos) {
         Optional<BlockState> blockState = getBlockStateSafe(world, pos);
-        return blockState.isPresent() && blockState.get().getMaterial().isLiquid();
+        return blockState.isPresent() && blockState.get().liquid();
     }
 
     /**
