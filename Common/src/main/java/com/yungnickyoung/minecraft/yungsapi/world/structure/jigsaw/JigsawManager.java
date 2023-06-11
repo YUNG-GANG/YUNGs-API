@@ -32,6 +32,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.phys.AABB;
 
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Optional;
 
@@ -245,15 +246,22 @@ public class JigsawManager {
             StructureTemplateManager structureTemplateManager,
             RandomSource rand
     ) {
-        List<StructureTemplate.StructureBlockInfo> shuffledJigsawBlocks = structurePoolElement.getShuffledJigsawBlocks(structureTemplateManager, startPos, rotation, rand);
-        for (StructureTemplate.StructureBlockInfo jigsawBlockInfo : shuffledJigsawBlocks) {
-            ResourceLocation jigsawBlockName = ResourceLocation.tryParse(jigsawBlockInfo.nbt().getString("name"));
-            if (name.equals(jigsawBlockName)) {
-                return Optional.of(jigsawBlockInfo.pos());
+        // Wrap in try-catch because for some reason, getShuffledJigsawBlocks rarely throws a ConcurrentModificationException.
+        // We'd rather just ignore the anchor jigsaw block than crash the game.
+        try {
+            List<StructureTemplate.StructureBlockInfo> shuffledJigsawBlocks = structurePoolElement.getShuffledJigsawBlocks(structureTemplateManager, startPos, rotation, rand);
+            for (StructureTemplate.StructureBlockInfo jigsawBlockInfo : shuffledJigsawBlocks) {
+                ResourceLocation jigsawBlockName = ResourceLocation.tryParse(jigsawBlockInfo.nbt().getString("name"));
+                if (name.equals(jigsawBlockName)) {
+                    return Optional.of(jigsawBlockInfo.pos());
+                }
             }
+        } catch (ConcurrentModificationException e) {
+            YungsApiCommon.LOGGER.error("Encountered unexpected ConcurrentModException while trying to get jigsaw block with name {} from structure pool element {}", name, structurePoolElement);
+            YungsApiCommon.LOGGER.error("Ignoring - the structure will still generate, but /locate will not point to the structure's anchor block.");
+            return Optional.empty();
         }
 
         return Optional.empty();
     }
-
 }
