@@ -27,6 +27,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 import java.util.function.Function;
 
+/**
+ * Enhanced jigsaw structure that uses the {@link YungJigsawManager} to assemble jigsaw structures.
+ */
 public class YungJigsawStructure extends Structure {
     public static final int MAX_TOTAL_STRUCTURE_RADIUS = 128;
     public static final Codec<YungJigsawStructure> CODEC = RecordCodecBuilder.<YungJigsawStructure>mapCodec(builder -> builder
@@ -48,17 +51,83 @@ public class YungJigsawStructure extends Structure {
             .flatXmap(verifyRange(), verifyRange())
             .codec();
 
+    /**
+     * The template pool to use for the starting piece.
+     */
     public final Holder<StructureTemplatePool> startPool;
+
+    /**
+     * An optional resource location specifying the Name field of a jigsaw block in the starting pool.
+     * If specified, the position of a matching jigsaw block will be used as the structure's starting position
+     * when generating the structure. This will become the target position of the /locate command.
+     */
     private final Optional<ResourceLocation> startJigsawName;
+
+    /**
+     * The max depth, in Jigsaw pieces, the structure can generate before stopping.
+     */
     public final int maxDepth;
+
+    /**
+     * Specifies the heights at which the structure can start generating.
+     */
     public final HeightProvider startHeight;
+
+    /**
+     * The x offset, in blocks, from the chunk's starting corner position to the starting position of the structure.
+     */
     public final IntProvider xOffsetInChunk;
+
+    /**
+     * The z offset, in blocks, from the chunk's starting corner position to the starting position of the structure.
+     */
     public final IntProvider zOffsetInChunk;
+
+    /**
+     * Whether boundary adjustments should be performed on this structure.
+     * In vanilla, only villages and pillager outposts have this enabled.
+     * I recommend avoiding this, as it can cause weird issues if you don't know what you're doing.
+     */
     public final boolean useExpansionHack;
+
+    /**
+     * Heightmap to use for determining starting y-position. If provided, the startPos
+     * y-coordinate acts as an offset to this heightmap; otherwise, the startPos
+     * y-coordinate is an absolute world coordinate.
+     */
     public final Optional<Heightmap.Types> projectStartToHeightmap;
+
+    /**
+     * The radius of the maximum bounding box for the structure. Typical is 80,
+     * but can be increased if your structure is particularly large.
+     */
     public final int maxDistanceFromCenter;
+
+    /**
+     * Optional integer for specifying the max possible y-value of the structure.
+     * If provided, no pieces of the structure will generate above this value.
+     * If not provided, no max y-value will be enforced.
+     * This is useful for structures that should only generate underground.
+     * Note that this is not the same as the max height of the structure.
+     * The max height of the structure is determined by the max height of the
+     * pieces in the structure's pool.
+     */
     public final Optional<Integer> maxY;
+
+    /**
+     * Optional integer for specifying the min possible y-value of the structure.
+     * If provided, no pieces of the structure will generate below this value.
+     * If not provided, no min y-value will be enforced.
+     */
     public final Optional<Integer> minY;
+
+    /**
+     * The enhanced terrain adaptation to use for this structure.
+     * This allows structures to guarantee that terrain is generated in a certain way around them.
+     * For example, ancient cities use this to ensure there is natural terrain below the city, and
+     * air carved out above the city's ground level.
+     * See {@link EnhancedTerrainAdaptation} and {@link EnhancedTerrainAdaptationType} for more information.
+     */
     public final EnhancedTerrainAdaptation enhancedTerrainAdaptation;
 
     public YungJigsawStructure(

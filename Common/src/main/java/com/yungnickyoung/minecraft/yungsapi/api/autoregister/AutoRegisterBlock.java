@@ -3,11 +3,14 @@ package com.yungnickyoung.minecraft.yungsapi.api.autoregister;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterEntry;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.item.BlockItem;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.function.Supplier;
 
 /**
  * Wrapper for registering {@link Block}s with AutoRegister.
+ * Includes support for automatically registering a corresponding {@link BlockItem} via {@link AutoRegisterBlock#withItem(Supplier)}.
  * <br />
  * Example usage:
  * <pre>
@@ -38,6 +41,12 @@ public class AutoRegisterBlock extends AutoRegisterEntry<Block> {
         super(blockSupplier);
     }
 
+    /**
+     * Sets the {@link Item.Properties} for the {@link BlockItem} corresponding to this block.
+     * If this method is not called, no {@link BlockItem} will be registered.
+     * @param itemProperties the {@link Item.Properties} for the {@link BlockItem} corresponding to this block
+     * @return this {@link AutoRegisterBlock} for chaining
+     */
     public AutoRegisterBlock withItem(Supplier<Item.Properties> itemProperties) {
         this.itemProperties = itemProperties;
         return this;
@@ -47,6 +56,7 @@ public class AutoRegisterBlock extends AutoRegisterEntry<Block> {
         return itemProperties;
     }
 
+    @ApiStatus.Internal
     public boolean hasItemProperties() {
         return itemProperties != null;
     }

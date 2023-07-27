@@ -17,6 +17,8 @@ import java.lang.annotation.Target;
  * <p>
  * <b>Fields</b> with this annotation will be automatically registered at the appropriate time. If a field is annotated,
  * its encompassing class must also be annotated with {@link AutoRegister}.
+ * A field-level {@link AutoRegister} annotation's value should be the registry name of the object, not
+ * including the mod ID.
  * </p>
  * <br />
  * <p>

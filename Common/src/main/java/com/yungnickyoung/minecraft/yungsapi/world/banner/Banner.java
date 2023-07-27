@@ -11,7 +11,6 @@ import java.util.List;
 
 /**
  * Representation of a Banner in Minecraft.
- *
  * Includes fields for patterns, BlockState, and NBT tags.
  * Includes an internal Builder for easy Banner construction.
  */

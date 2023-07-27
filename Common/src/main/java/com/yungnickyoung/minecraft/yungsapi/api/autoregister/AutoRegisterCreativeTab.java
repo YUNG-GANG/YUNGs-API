@@ -31,6 +31,9 @@ public class AutoRegisterCreativeTab extends AutoRegisterEntry<CreativeModeTab> 
         return iconItemStackSupplier;
     }
 
+    /**
+     * Builder for {@link AutoRegisterCreativeTab}s.
+     */
     public static class Builder {
         private Supplier<ItemStack> iconItemStackSupplier;
 

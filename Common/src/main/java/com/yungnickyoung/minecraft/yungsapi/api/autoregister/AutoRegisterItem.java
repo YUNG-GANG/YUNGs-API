@@ -20,11 +20,11 @@ import java.util.function.Supplier;
  * </pre>
  */
 public class AutoRegisterItem extends AutoRegisterEntry<Item> {
-    public static AutoRegisterItem of(Supplier<Item> blockSupplier) {
-        return new AutoRegisterItem(blockSupplier);
+    public static AutoRegisterItem of(Supplier<Item> itemSupplier) {
+        return new AutoRegisterItem(itemSupplier);
     }
 
-    private AutoRegisterItem(Supplier<Item> blockSupplier) {
-        super(blockSupplier);
+    private AutoRegisterItem(Supplier<Item> itemSupplier) {
+        super(itemSupplier);
     }
 }

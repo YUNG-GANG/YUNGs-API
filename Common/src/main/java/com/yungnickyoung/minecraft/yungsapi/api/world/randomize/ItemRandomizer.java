@@ -19,7 +19,7 @@ import java.util.Random;
 
 /**
  * Describes a set of Items and the probability of each Item in the set being chosen.
- * This is very useful for easily adding random variation to things like armor stands.
+ * This is very useful for easily adding random variation to things like armor stands during world generation.
  */
 public class ItemRandomizer {
     public static final Codec<ItemRandomizer> CODEC = RecordCodecBuilder.create((instance) -> instance
@@ -41,6 +41,10 @@ public class ItemRandomizer {
      */
     private Item defaultItem = Items.AIR;
 
+    /**
+     * Saves this ItemRandomizer to a new CompoundTag.
+     * @return The CompoundTag
+     */
     public CompoundTag saveTag() {
         CompoundTag compoundTag = new CompoundTag();
 
@@ -61,6 +65,10 @@ public class ItemRandomizer {
         return compoundTag;
     }
 
+    /**
+     * Constructs a new ItemRandomizer from a CompoundTag.
+     * @param compoundTag The CompoundTag
+     */
     public ItemRandomizer(CompoundTag compoundTag) {
         this.defaultItem = BuiltInRegistries.ITEM.byId(compoundTag.getInt("defaultItemId"));
         this.entries = new ArrayList<>();
@@ -74,41 +82,53 @@ public class ItemRandomizer {
         });
     }
 
+    /**
+     * Constructs a new ItemRandomizer from a list of Entries and a default Item.
+     * @param entries List of Entries
+     * @param defaultItem The default Item
+     */
     public ItemRandomizer(List<Entry> entries, Item defaultItem) {
         this.entries = entries;
         this.defaultItem = defaultItem;
     }
 
+    /**
+     * Constructs a new ItemRandomizer with only a default Item.
+     * @param defaultItem The default Item
+     */
     public ItemRandomizer(Item defaultItem) {
         this.defaultItem = defaultItem;
     }
 
+    /**
+     * Constructs a new ItemRandomizer with no default Item nor entries.
+     */
     public ItemRandomizer() {
     }
 
     /**
-     * Convenience function to construct an ItemSetSelector from a list of Items.
+     * Convenience factory function to construct an ItemRandomizer from a list of Items.
      * Each Item will have equal probability of being chosen.
      */
     public static ItemRandomizer from(Item... items) {
-        ItemRandomizer selector = new ItemRandomizer();
+        ItemRandomizer randomizer = new ItemRandomizer();
         float chance = 1f / items.length;
 
         for (Item item : items) {
-            selector.addItem(item, chance);
+            randomizer.addItem(item, chance);
         }
 
-        return selector;
+        return randomizer;
     }
 
     /**
-     * Add an Item with given chance of being selected.
-     * @return The modified ItemSetSelector
+     * Adds an Item with given chance of being selected.
+     * @return The modified ItemRandomizer
      */
     public ItemRandomizer addItem(Item item, float chance) {
-        // Abort if Item already a part of this selector
+        // Abort if Item already a part of this randomizer
         if (entries.stream().anyMatch(entry -> entry.item.equals(item))) {
-            YungsApiCommon.LOGGER.warn("WARNING: duplicate item {} added to ItemSetSelector!", item.toString());
+            YungsApiCommon.LOGGER.warn("WARNING: duplicate item {} added to ItemRandomizer!", item.toString());
             return this;
         }
 
@@ -116,7 +136,7 @@ public class ItemRandomizer {
         float currTotal = entries.stream().map(entry -> entry.probability).reduce(Float::sum).orElse(0f);
         float newTotal = currTotal + chance;
         if (newTotal > 1) { // Total probability cannot exceed 1
-            YungsApiCommon.LOGGER.warn("WARNING: item {} added to ItemSetSelector exceeds max probabiltiy of 1!", item.toString());
+            YungsApiCommon.LOGGER.warn("WARNING: item {} added to ItemRandomizer exceeds max probabiltiy of 1!", item.toString());
             return this;
         }
         entries.add(new Entry(item, chance));
@@ -124,7 +144,7 @@ public class ItemRandomizer {
     }
 
     /**
-     * Randomly select an Item from this ItemSetSelector.
+     * Randomly selects an Item from this ItemRandomizer.
      * The random provided should be one used in generation of your structure or feature,
      * to ensure reproducibility for the same world seed.
      */
@@ -145,7 +165,7 @@ public class ItemRandomizer {
     }
 
     /**
-     * Randomly select an Item from this ItemSetSelector.
+     * Randomly selects an Item from this ItemRandomizer.
      * The RandomSource provided should be one used in generation of your structure or feature,
      * to ensure reproducibility for the same world seed.
      */
@@ -166,27 +186,43 @@ public class ItemRandomizer {
     }
 
     /**
-     * Sets the default Item for this selector.
+     * Sets the default Item.
      * The default Item is used for any leftover probability ranges.
      */
     public void setDefaultItem(Item item) {
         this.defaultItem = item;
     }
 
+    /**
+     * Returns a Map of Items to their corresponding probabilities.
+     * Does not include the default Item.
+     * @return The Map
+     */
     public Map<Item, Float> getEntriesAsMap() {
         Map<Item, Float> map = new HashMap<>();
         this.entries.forEach(entry -> map.put(entry.item, entry.probability));
         return map;
     }
 
+    /**
+     * Returns a List of Entries.
+     * @return The List
+     */
     public List<Entry> getEntries() {
         return entries;
     }
 
+    /**
+     * Returns the default Item.
+     * @return The default Item
+     */
     public Item getDefaultItem() {
         return defaultItem;
     }
 
+    /**
+     * Represents an Item and its corresponding probability of being chosen.
+     */
     public static class Entry {
         public static Codec<Entry> CODEC = RecordCodecBuilder.create(instance -> instance
                 .group(

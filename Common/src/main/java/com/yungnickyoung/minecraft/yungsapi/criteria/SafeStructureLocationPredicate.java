@@ -15,7 +15,7 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 /**
  * Custom predicate for safely locating a structure.
  * Unlike vanilla, if the structure does not exist, then the criteria will simply fail
- * (as one might expect).
+ * (as one would expect).
  *
  * @author TelepathicGrunt
  */

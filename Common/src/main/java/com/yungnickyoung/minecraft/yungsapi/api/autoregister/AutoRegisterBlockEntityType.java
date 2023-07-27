@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.function.Supplier;
 
@@ -34,6 +35,9 @@ public class AutoRegisterBlockEntityType <T extends BlockEntity> extends AutoReg
         super(blockSupplier);
     }
 
+    /**
+     * Platform-agnostic builder for {@link BlockEntityType}s.
+     */
     public static class Builder <T extends BlockEntity> {
         private final BlockEntitySupplier<? extends T> factory;
         private final Block[] blocks;
@@ -43,6 +47,13 @@ public class AutoRegisterBlockEntityType <T extends BlockEntity> extends AutoReg
             this.blocks = blocks;
         }
 
+        /**
+         * Creates a new {@link Builder} for the given {@link BlockEntityType} factory and {@link Block}s.
+         * @param factory the {@link BlockEntityType} factory
+         * @param blocks the {@link Block}s
+         * @return the newly instantiated {@link Builder}
+         * @param <T> the {@link BlockEntity} type
+         */
         public static <T extends BlockEntity> Builder<T> of(BlockEntitySupplier<? extends T> factory, Block... blocks) {
             return new Builder<>(factory, blocks);
         }
@@ -55,10 +66,12 @@ public class AutoRegisterBlockEntityType <T extends BlockEntity> extends AutoReg
             return Services.BLOCK_ENTITY_TYPE_HELPER.build(this, type);
         }
 
+        @ApiStatus.Internal
         public BlockEntitySupplier<? extends T> getFactory() {
             return factory;
         }
 
+        @ApiStatus.Internal
         public Block[] getBlocks() {
             return blocks;
         }

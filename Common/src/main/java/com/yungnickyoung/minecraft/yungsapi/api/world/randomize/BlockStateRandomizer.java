@@ -18,13 +18,13 @@ import java.util.*;
 
 /**
  * Describes a set of BlockStates and the probability of each BlockState in the set being chosen.
- * This is very useful to easily adding random variation to your structures and features.
+ * Useful for easily adding random variation to worldgen, especially structures and features.
  */
 public class BlockStateRandomizer {
     public static final Codec<BlockStateRandomizer> CODEC = RecordCodecBuilder.create((instance) -> instance
             .group(
-                    Entry.CODEC.listOf().fieldOf("entries").forGetter((selector) -> selector.entries),
-                    BlockState.CODEC.fieldOf("defaultBlockState").forGetter((selector) -> selector.defaultBlockState))
+                    Entry.CODEC.listOf().fieldOf("entries").forGetter((randomizer) -> randomizer.entries),
+                    BlockState.CODEC.fieldOf("defaultBlockState").forGetter((randomizer) -> randomizer.defaultBlockState))
             .apply(instance, BlockStateRandomizer::new));
 
     /**
@@ -40,6 +40,10 @@ public class BlockStateRandomizer {
      */
     private BlockState defaultBlockState = Blocks.AIR.defaultBlockState();
 
+    /**
+     * Saves this BlockStateRandomizer to a new CompoundTag.
+     * @return The CompoundTag
+     */
     public CompoundTag saveTag() {
         CompoundTag compoundTag = new CompoundTag();
 
@@ -60,6 +64,10 @@ public class BlockStateRandomizer {
         return compoundTag;
     }
 
+    /**
+     * Constructs a new BlockStateRandomizer from a CompoundTag.
+     * @param compoundTag The CompoundTag
+     */
     public BlockStateRandomizer(CompoundTag compoundTag) {
         this.defaultBlockState = Block.BLOCK_STATE_REGISTRY.byId(compoundTag.getInt("defaultBlockStateId"));
         this.entries = new ArrayList<>();
@@ -73,47 +81,64 @@ public class BlockStateRandomizer {
         });
     }
 
+    /**
+     * Constructs a new BlockStateRandomizer from a Map of BlockStates to their corresponding probabilities.
+     * @param entries Map of BlockStates to their corresponding probabilities
+     * @param defaultBlockState The default BlockState
+     */
     public BlockStateRandomizer(Map<BlockState, Float> entries, BlockState defaultBlockState) {
         this.entries = new ArrayList<>();
         entries.forEach(this::addBlock);
         this.defaultBlockState = defaultBlockState;
     }
 
+    /**
+     * Constructs a new BlockStateRandomizer from a List of BlockStateRandomizer Entries.
+     * @param entries List of BlockStateRandomizer Entries
+     * @param defaultBlockState The default BlockState
+     */
     public BlockStateRandomizer(List<Entry> entries, BlockState defaultBlockState) {
         this.entries = entries;
         this.defaultBlockState = defaultBlockState;
     }
 
+    /**
+     * Constructs a new BlockStateRandomizer with only a default BlockState.
+     * @param defaultBlockState The default BlockState
+     */
     public BlockStateRandomizer(BlockState defaultBlockState) {
         this.defaultBlockState = defaultBlockState;
     }
 
+    /**
+     * Constructs a new BlockStateRandomizer with no default BlockState nor entries.
+     */
     public BlockStateRandomizer() {
     }
 
     /**
-     * Convenience function to construct a BlockSetSelector from a list of BlockStates.
+     * Convenience factory function that constructs a BlockStateRandomizer from a list of BlockStates.
      * Each BlockState will have equal probability of being chosen.
      */
     public static BlockStateRandomizer from(BlockState... blockStates) {
-        BlockStateRandomizer selector = new BlockStateRandomizer();
+        BlockStateRandomizer randomizer = new BlockStateRandomizer();
         float chance = 1f / blockStates.length;
 
         for (BlockState state : blockStates) {
-            selector.addBlock(state, chance);
+            randomizer.addBlock(state, chance);
         }
 
-        return selector;
+        return randomizer;
     }
 
     /**
-     * Add a BlockState with given chance of being selected.
-     * @return The modified BlockSetSelector
+     * Adds a BlockState with given chance of being selected.
+     * @return The modified BlockStateRandomizer
      */
     public BlockStateRandomizer addBlock(BlockState blockState, float chance) {
-        // Abort if BlockState already a part of this selector
+        // Abort if BlockState already a part of this randomizer
         if (entries.stream().anyMatch(entry -> entry.blockState.equals(blockState))) {
-            YungsApiCommon.LOGGER.warn("WARNING: duplicate block {} added to BlockSelector!", blockState.toString());
+            YungsApiCommon.LOGGER.warn("WARNING: duplicate block {} added to BlockStateRandomizer!", blockState.toString());
             return this;
         }
 
@@ -121,7 +146,7 @@ public class BlockStateRandomizer {
         float currTotal = entries.stream().map(entry -> entry.probability).reduce(Float::sum).orElse(0f);
         float newTotal = currTotal + chance;
         if (newTotal > 1.0F) { // Total probability cannot exceed 1
-            YungsApiCommon.LOGGER.warn("WARNING: block {} added to BlockSelector exceeds max probabiltiy of 1!", blockState.toString());
+            YungsApiCommon.LOGGER.warn("WARNING: block {} added to BlockStateRandomizer exceeds max probabiltiy of 1!", blockState.toString());
             return this;
         }
         entries.add(new Entry(blockState, chance));
@@ -129,8 +154,8 @@ public class BlockStateRandomizer {
     }
 
     /**
-     * Randomly select a BlockState from this BlockSetSelector.
-     * The random provided should be one used in generation of your structure or feature,
+     * Randomly selects a BlockState from this BlockStateRandomizer.
+     * The Random provided should be one used in generation of your structure or feature,
      * to ensure reproducibility for the same world seed.
      */
     public BlockState get(Random random) {
@@ -150,7 +175,7 @@ public class BlockStateRandomizer {
     }
 
     /**
-     * Randomly select a BlockState from this BlockSetSelector.
+     * Randomly selects a BlockState from this BlockStateRandomizer.
      * The RandomSource provided should be one used in generation of your structure or feature,
      * to ensure reproducibility for the same world seed.
      */
@@ -171,7 +196,7 @@ public class BlockStateRandomizer {
     }
 
     /**
-     * Randomly select a BlockState from this BlockSetSelector.
+     * Randomly selects a BlockState from this BlockStateRandomizer.
      * The RandomSource provided should be one used in generation of your structure or feature,
      * to ensure reproducibility for the same world seed.
      * Enforces conditions via the StructureContext passed in.
@@ -193,27 +218,43 @@ public class BlockStateRandomizer {
     }
 
     /**
-     * Sets the default BlockState for this selector.
-     * The default BlockState is used for any leftover probability ranges.
+     * Sets the default BlockState.
+     * This default BlockState is used for any leftover probability ranges.
      */
     public void setDefaultBlockState(BlockState blockState) {
         this.defaultBlockState = blockState;
     }
 
+    /**
+     * Returns a Map of BlockStates to their corresponding probabilities.
+     * Does not include the defaultBlockState.
+     * @return The Map
+     */
     public Map<BlockState, Float> getEntriesAsMap() {
         Map<BlockState, Float> map = new HashMap<>();
         this.entries.forEach(entry -> map.put(entry.blockState, entry.probability));
         return map;
     }
 
+    /**
+     * Returns a List of BlockStateRandomizer Entries.
+     * @return The List
+     */
     public List<Entry> getEntries() {
         return entries;
     }
 
+    /**
+     * Returns the default BlockState.
+     * @return The default BlockState
+     */
     public BlockState getDefaultBlockState() {
         return defaultBlockState;
     }
 
+    /**
+     * Represents a BlockState and its corresponding probability of being chosen.
+     */
     public static class Entry {
         public static Codec<Entry> CODEC = RecordCodecBuilder.create(instance -> instance
                 .group(

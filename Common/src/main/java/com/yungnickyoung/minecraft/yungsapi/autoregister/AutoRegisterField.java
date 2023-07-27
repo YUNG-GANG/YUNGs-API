@@ -1,7 +1,14 @@
 package com.yungnickyoung.minecraft.yungsapi.autoregister;
 
+import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegister;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.ApiStatus;
 
+/**
+ * Internal representation of a field annotated with {@link AutoRegister},
+ * used for creating and processing annotated fields internally.
+ */
+@ApiStatus.Internal
 public class AutoRegisterField {
     public Object object;
     public ResourceLocation name;

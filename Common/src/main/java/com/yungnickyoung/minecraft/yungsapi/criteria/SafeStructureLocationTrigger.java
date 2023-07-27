@@ -12,7 +12,7 @@ import net.minecraft.world.entity.player.Player;
 /**
  * Custom trigger for safely locating a structure.
  * Unlike vanilla, if the structure does not exist, then the trigger will simply fail
- * (as one might expect).
+ * (as one would expect).
  *
  * @author TelepathicGrunt
  */

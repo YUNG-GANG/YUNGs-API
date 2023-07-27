@@ -20,7 +20,7 @@ public class BlockStateRandomizerAdapter extends TypeAdapter<BlockStateRandomize
             return null;
         }
 
-        BlockStateRandomizer selector = new BlockStateRandomizer();
+        BlockStateRandomizer randomizer = new BlockStateRandomizer();
 
         reader.beginObject();
         while (reader.hasNext()) {
@@ -30,22 +30,22 @@ public class BlockStateRandomizerAdapter extends TypeAdapter<BlockStateRandomize
                     while (reader.hasNext()) {
                         BlockState blockState = BlockStateAdapter.resolveBlockState(reader.nextName());
                         double probability = reader.nextDouble();
-                        selector.addBlock(blockState, (float) probability);
+                        randomizer.addBlock(blockState, (float) probability);
                     }
                     reader.endObject();
                 }
                 case "defaultBlock" -> {
                     BlockState blockState = BlockStateAdapter.resolveBlockState(reader.nextString());
-                    selector.setDefaultBlockState(blockState);
+                    randomizer.setDefaultBlockState(blockState);
                 }
             }
         }
         reader.endObject();
-        return selector;
+        return randomizer;
     }
 
-    public void write(JsonWriter writer, BlockStateRandomizer selector) throws IOException {
-        if (selector == null) {
+    public void write(JsonWriter writer, BlockStateRandomizer randomizer) throws IOException {
+        if (randomizer == null) {
             writer.nullValue();
             return;
         }
@@ -54,13 +54,13 @@ public class BlockStateRandomizerAdapter extends TypeAdapter<BlockStateRandomize
 
         // Entries map
         writer.name("entries").beginObject();
-        for (Map.Entry<BlockState, Float> entry : selector.getEntriesAsMap().entrySet()) {
+        for (Map.Entry<BlockState, Float> entry : randomizer.getEntriesAsMap().entrySet()) {
             writer.name(trimmedBlockName(String.valueOf(entry.getKey()))).value(entry.getValue());
         }
         writer.endObject();
 
         // Default block
-        String defaultBlockString = String.valueOf(selector.getDefaultBlockState());
+        String defaultBlockString = String.valueOf(randomizer.getDefaultBlockState());
         defaultBlockString = trimmedBlockName(defaultBlockString);
         writer.name("defaultBlock").value(defaultBlockString);
 

@@ -16,6 +16,11 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+/**
+ * JSON (de)serialization helper.
+ * Contains a static Gson instance for use throughout the mod.
+ * Useful for conveniently serializing and deserializing objects for custom configs.
+ */
 public class JSON {
     private JSON() {}
 

@@ -20,7 +20,7 @@ public class ItemRandomizerAdapter extends TypeAdapter<ItemRandomizer> {
             return null;
         }
 
-        ItemRandomizer selector = new ItemRandomizer();
+        ItemRandomizer randomizer = new ItemRandomizer();
 
         reader.beginObject();
         while (reader.hasNext()) {
@@ -30,22 +30,22 @@ public class ItemRandomizerAdapter extends TypeAdapter<ItemRandomizer> {
                     while (reader.hasNext()) {
                         Item item = ItemAdapter.resolveItem(reader.nextName());
                         double probability = reader.nextDouble();
-                        selector.addItem(item, (float) probability);
+                        randomizer.addItem(item, (float) probability);
                     }
                     reader.endObject();
                 }
                 case "defaultItem" -> {
                     Item item = ItemAdapter.resolveItem(reader.nextString());
-                    selector.setDefaultItem(item);
+                    randomizer.setDefaultItem(item);
                 }
             }
         }
         reader.endObject();
-        return selector;
+        return randomizer;
     }
 
-    public void write(JsonWriter writer, ItemRandomizer selector) throws IOException {
-        if (selector == null) {
+    public void write(JsonWriter writer, ItemRandomizer randomizer) throws IOException {
+        if (randomizer == null) {
             writer.nullValue();
             return;
         }
@@ -54,13 +54,13 @@ public class ItemRandomizerAdapter extends TypeAdapter<ItemRandomizer> {
 
         // Entries map
         writer.name("entries").beginObject();
-        for (Map.Entry<Item, Float> entry : selector.getEntriesAsMap().entrySet()) {
+        for (Map.Entry<Item, Float> entry : randomizer.getEntriesAsMap().entrySet()) {
             writer.name(String.valueOf(entry.getKey())).value(entry.getValue());
         }
         writer.endObject();
 
         // Default item
-        String defaultItemString = String.valueOf(selector.getDefaultItem());
+        String defaultItemString = String.valueOf(randomizer.getDefaultItem());
         writer.name("defaultItem").value(defaultItemString);
 
         writer.endObject();
