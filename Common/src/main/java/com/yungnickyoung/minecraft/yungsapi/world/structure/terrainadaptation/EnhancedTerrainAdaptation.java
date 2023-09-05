@@ -140,7 +140,7 @@ public abstract class EnhancedTerrainAdaptation {
              * If we are below the beard base (i.e. yDistanceToBeardBase is negative),
              * then the multiplier is positive, and therefore contributes to solid terrain.
              */
-            double multiplier = -actualYDistanceToAdjustedBottom * Mth.fastInvSqrt(squaredDistance / 2.0) / 2.0;
+            double multiplier = -actualYDistanceToAdjustedBottom * Mth.invSqrt(squaredDistance / 2.0) / 2.0;
             if (multiplier > 0 && !this.beards()) return 0;
             if (multiplier < 0 && !this.carves()) return 0;
             return multiplier * kernelValue;
