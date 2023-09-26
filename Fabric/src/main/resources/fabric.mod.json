@@ -14,7 +14,7 @@
     "issues": "https://github.com/yungnickyoung/YUNGs-Api/issues"
   },
   "license": "LGPLv3",
-  "icon": "logo.png",
+  "icon": "icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
@@ -29,5 +29,14 @@
     "fabricloader": ">=${fabric_loader_version}",
     "fabric": ">=${fabric_version}",
     "minecraft": ">=${mc_version}"
+  },
+  "custom": {
+    "catalogue": {
+      "icon": {
+        "image": "catalogue_icon.png"
+      },
+      "banner": "logo.png",
+      "background": "catalogue_background.png"
+    }
   }
 }

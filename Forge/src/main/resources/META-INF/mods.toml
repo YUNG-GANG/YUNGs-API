@@ -13,6 +13,10 @@ issueTrackerURL="https://github.com/yungnickyoung/YUNGs-Api/issues"
     logoFile="logo.png"
     displayURL="https://www.curseforge.com/minecraft/mc-mods/yungs-api"
 
+[modproperties.${mod_id}]
+    catalogueImageIcon="catalogue_icon.png"
+    catalogueBackground="catalogue_background.png"
+
 [[dependencies.${mod_id}]]
     modId="minecraft"
     mandatory=true
