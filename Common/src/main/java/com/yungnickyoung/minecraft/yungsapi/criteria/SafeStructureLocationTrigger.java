@@ -1,13 +1,15 @@
 package com.yungnickyoung.minecraft.yungsapi.criteria;
 
 import com.google.gson.JsonObject;
-import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
 import net.minecraft.advancements.critereon.*;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 /**
  * Custom trigger for safely locating a structure.
@@ -17,22 +19,12 @@ import net.minecraft.world.entity.player.Player;
  * @author TelepathicGrunt
  */
 public class SafeStructureLocationTrigger extends SimpleCriterionTrigger<SafeStructureLocationTrigger.TriggerInstance> {
-    private final ResourceLocation id;
-
-    public SafeStructureLocationTrigger(ResourceLocation id) {
-        this.id = id;
-    }
 
     @Override
-    public ResourceLocation getId() {
-        return this.id;
-    }
-
-    @Override
-    public TriggerInstance createInstance(JsonObject jsonObject, ContextAwarePredicate contextAwarePredicate, DeserializationContext deserializationContext) {
+    public TriggerInstance createInstance(JsonObject jsonObject, Optional<ContextAwarePredicate> player, DeserializationContext deserializationContext) {
         JsonObject jsonobject = GsonHelper.getAsJsonObject(jsonObject, "location", jsonObject);
         SafeStructureLocationPredicate safeStructureLocationPredicate = SafeStructureLocationPredicate.fromJson(jsonobject);
-        return new TriggerInstance(this.id, contextAwarePredicate, safeStructureLocationPredicate);
+        return new TriggerInstance(player, safeStructureLocationPredicate);
     }
 
     public void trigger(Player player) {
@@ -45,13 +37,13 @@ public class SafeStructureLocationTrigger extends SimpleCriterionTrigger<SafeStr
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
         private final SafeStructureLocationPredicate location;
 
-        public TriggerInstance(ResourceLocation id, ContextAwarePredicate contextAwarePredicate, SafeStructureLocationPredicate locationPredicate) {
-            super(id, contextAwarePredicate);
+        public TriggerInstance(Optional<ContextAwarePredicate> player, SafeStructureLocationPredicate locationPredicate) {
+            super(player);
             this.location = locationPredicate;
         }
 
         public static TriggerInstance located(SafeStructureLocationPredicate safeStructureLocationPredicate) {
-            return new TriggerInstance(CriteriaTriggers.LOCATION.getId(), ContextAwarePredicate.ANY, safeStructureLocationPredicate);
+            return new TriggerInstance(Optional.empty(), safeStructureLocationPredicate);
         }
 
         public boolean matches(ServerLevel serverLevel, double x, double y, double z) {
@@ -59,8 +51,8 @@ public class SafeStructureLocationTrigger extends SimpleCriterionTrigger<SafeStr
         }
 
         @Override
-        public JsonObject serializeToJson(SerializationContext serializationContext) {
-            JsonObject jsonObject = super.serializeToJson(serializationContext);
+        public @NotNull JsonObject serializeToJson() {
+            JsonObject jsonObject = super.serializeToJson();
             jsonObject.add("location", this.location.serializeToJson());
             return jsonObject;
         }
