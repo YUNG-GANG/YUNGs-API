@@ -20,10 +20,10 @@ public abstract class ServerPlayerEntityTickMixin extends Player {
     /**
      * Checks for custom triggers.
      */
-    @Inject(method = "tick", at = @At("HEAD"))
-    private void yungsapi_tickCriteria(CallbackInfo info) {
-        if (this.tickCount % 20 == 0) {
-            CriteriaModule.SAFE_STRUCTURE_LOCATION.trigger(this);
-        }
-    }
+//    @Inject(method = "tick", at = @At("HEAD"))
+//    private void yungsapi_tickCriteria(CallbackInfo info) {
+//        if (this.tickCount % 20 == 0) {
+//            CriteriaModule.SAFE_STRUCTURE_LOCATION.trigger(this);
+//        }
+//    }
 }
