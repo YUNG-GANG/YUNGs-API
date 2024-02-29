@@ -24,8 +24,9 @@ import java.lang.annotation.Target;
  * <p>
  * <b>Methods</b> with this annotation will be automatically invoked after field registration is complete
  * (for Forge, this would be during CommonSetup). If a method is annotated,
- * its encompassing class must also be annotated with {@link AutoRegister}.
+ * its encompassing class must also be annotated with {@link AutoRegister}, or else it will not be called.
  * Note that methods with this annotation <i>must</i> be static and have no parameters.
+ * For some useful functions you can use within AutoRegister methods, see {@link AutoRegisterUtils}.
  * </p>
  */
 @Retention(value = RetentionPolicy.RUNTIME)

@@ -8,19 +8,10 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.RegisterEvent;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Initialization of creative mode tabs.
  */
 public class CreativeModeTabModuleForge {
-    /**
-     * Map for caching tabs that have already initialized.
-     * Prevents potential duplicate initialization and cached object instance replacement.
-     */
-    private static final Map<String, AutoRegisterCreativeTab> initializedTabs = new HashMap<>();
-
     public static void processEntries() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(CreativeModeTabModuleForge::registerTabs);
     }
@@ -32,13 +23,6 @@ public class CreativeModeTabModuleForge {
     }
 
     private static void registerTab(AutoRegisterField data, RegisterEvent.RegisterHelper<CreativeModeTab> helper) {
-        // Check cache to see if we already initialized this tab.
-        // TODO - remove, as I don't think this is still necessary in 1.20+
-        String name = String.format("%s.%s", data.name().getNamespace(), data.name().getPath());
-        if (initializedTabs.containsKey(name)) {
-            return;
-        }
-
         // Extract data
         AutoRegisterCreativeTab autoRegisterCreativeTab = (AutoRegisterCreativeTab) data.object();
 
@@ -66,8 +50,6 @@ public class CreativeModeTabModuleForge {
         // Update supplier to retrieve tab
         autoRegisterCreativeTab.setSupplier(() -> creativeModeTab);
 
-        // Add to cache
-        initializedTabs.put(name, autoRegisterCreativeTab);
         data.markProcessed();
     }
 }

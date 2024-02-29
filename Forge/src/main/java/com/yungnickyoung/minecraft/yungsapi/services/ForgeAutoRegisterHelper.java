@@ -7,6 +7,8 @@ import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterFieldRouter
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import com.yungnickyoung.minecraft.yungsapi.module.*;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.alchemy.Potion;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.ModFileScanData;
 import org.objectweb.asm.Type;
@@ -15,6 +17,7 @@ import java.lang.annotation.ElementType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.Supplier;
 
 public class ForgeAutoRegisterHelper implements IAutoRegisterHelper {
     @Override
@@ -125,7 +128,6 @@ public class ForgeAutoRegisterHelper implements IAutoRegisterHelper {
     @Override
     public void processQueuedAutoRegEntries() {
         SoundEventModuleForge.processEntries();
-        CommandModuleForge.processEntries();
         StructurePieceTypeModuleForge.processEntries();
         StructurePoolElementTypeModuleForge.processEntries();
         CriteriaModuleForge.processEntries();
@@ -138,5 +140,20 @@ public class ForgeAutoRegisterHelper implements IAutoRegisterHelper {
         BlockEntityTypeModuleForge.processEntries();
         StructureProcessorTypeModuleForge.processEntries();
         StructurePlacementTypeModuleForge.processEntries();
+        EntityTypeModuleForge.processEntries();
+        MobEffectModuleForge.processEntries();
+        PotionModuleForge.processEntries();
+        CommandModuleForge.processEntries();
+    }
+
+    @Override
+    public void registerBrewingRecipe(Supplier<Potion> inputPotion, Supplier<Item> ingredient, Supplier<Potion> outputPotion) {
+        PotionModuleForge.BrewingRecipe recipe = new PotionModuleForge.BrewingRecipe(inputPotion, ingredient, outputPotion);
+        PotionModuleForge.BREWING_RECIPES.add(recipe);
+    }
+
+    @Override
+    public void addCompostableItem(Supplier<Item> ingredient, float compostChance) {
+        CompostModuleForge.COMPOSTABLES.put(ingredient.get(), compostChance);
     }
 }

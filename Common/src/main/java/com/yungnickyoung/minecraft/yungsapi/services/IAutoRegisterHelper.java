@@ -1,6 +1,10 @@
 package com.yungnickyoung.minecraft.yungsapi.services;
 
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegister;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.alchemy.Potion;
+
+import java.util.function.Supplier;
 
 public interface IAutoRegisterHelper {
     /**
@@ -44,4 +48,7 @@ public interface IAutoRegisterHelper {
      */
     void processQueuedAutoRegEntries();
 
+    void registerBrewingRecipe(Supplier<Potion> inputPotion, Supplier<Item> ingredient, Supplier<Potion> outputPotion);
+
+    void addCompostableItem(Supplier<Item> ingredient, float compostChance);
 }

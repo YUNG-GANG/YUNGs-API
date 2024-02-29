@@ -36,6 +36,12 @@ public class AutoRegisterFieldRouter {
             AutoRegistrationManager.BLOCK_ENTITY_TYPES.add(registerData);
         } else if (registerData.object() instanceof AutoRegisterCreativeTab) {
             AutoRegistrationManager.CREATIVE_MODE_TABS.add(registerData);
+        } else if (registerData.object() instanceof AutoRegisterEntityType) {
+            AutoRegistrationManager.ENTITY_TYPES.add(registerData);
+        } else if (registerData.object() instanceof AutoRegisterMobEffect) {
+            AutoRegistrationManager.MOB_EFFECTS.add(registerData);
+        } else if (registerData.object() instanceof AutoRegisterPotion) {
+            AutoRegistrationManager.POTIONS.add(registerData);
         } else if (registerData.object() instanceof AutoRegisterSoundEvent) {
             AutoRegistrationManager.SOUND_EVENTS.add(registerData);
         } else if (registerData.object() instanceof AutoRegisterCommand) {
