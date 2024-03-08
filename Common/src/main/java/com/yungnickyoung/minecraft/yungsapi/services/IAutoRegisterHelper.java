@@ -1,6 +1,10 @@
 package com.yungnickyoung.minecraft.yungsapi.services;
 
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegister;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.alchemy.Potion;
+
+import java.util.function.Supplier;
 
 public interface IAutoRegisterHelper {
     /**
@@ -10,7 +14,7 @@ public interface IAutoRegisterHelper {
      * and {@link IAutoRegisterHelper#processQueuedAutoRegEntries()} in case you need to access any fields using the
      * AutoRegister system.
      * </p>
-     * <b>All {@link AutoRegister} annotated methods must be static and have no arguments!</b>
+b     * <b>All {@link AutoRegister} annotated methods must be static and have no arguments!</b>
      *
      * @param packageName Name of a package containing {@link AutoRegister} annotated methods.
      *                    When specifying a package, try to be as precise as possible,
@@ -44,4 +48,7 @@ public interface IAutoRegisterHelper {
      */
     void processQueuedAutoRegEntries();
 
+    void registerBrewingRecipe(Supplier<Potion> inputPotion, Supplier<Item> ingredient, Supplier<Potion> outputPotion);
+
+    void addCompostableItem(Supplier<Item> ingredient, float compostChance);
 }

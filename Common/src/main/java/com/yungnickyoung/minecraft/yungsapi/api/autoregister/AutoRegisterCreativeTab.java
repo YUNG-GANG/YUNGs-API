@@ -17,7 +17,7 @@ import java.util.function.Supplier;
  * public static AutoRegisterCreativeTab TAB_GENERAL = AutoRegisterCreativeTab.builder()
  *         .title(Component.literal("General"))
  *         .iconItem(() -> new ItemStack(BlockModule.ICICLE.get()))
- *         .displayItems((params, output) -> { ... })
+ *         .entries((params, output) -> { ... })
  *         .build();
  * }
  * </pre>
@@ -114,7 +114,7 @@ public class AutoRegisterCreativeTab extends AutoRegisterEntry<CreativeModeTab> 
             return this;
         }
 
-        public Builder displayItems(CreativeModeTab.DisplayItemsGenerator displayItemsGenerator) {
+        public Builder entries(CreativeModeTab.DisplayItemsGenerator displayItemsGenerator) {
             this.displayItemsGenerator = displayItemsGenerator;
             return this;
         }

@@ -19,6 +19,9 @@ public class AutoRegistrationManager {
     public static final List<AutoRegisterField> ITEMS = new ArrayList<>();
     public static final List<AutoRegisterField> BLOCK_ENTITY_TYPES = new ArrayList<>();
     public static final List<AutoRegisterField> CREATIVE_MODE_TABS = new ArrayList<>();
+    public static final List<AutoRegisterField> ENTITY_TYPES = new ArrayList<>();
+    public static final List<AutoRegisterField> MOB_EFFECTS = new ArrayList<>();
+    public static final List<AutoRegisterField> POTIONS = new ArrayList<>();
     public static final List<AutoRegisterField> SOUND_EVENTS = new ArrayList<>();
     public static final List<AutoRegisterField> COMMANDS = new ArrayList<>();
 

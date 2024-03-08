@@ -26,7 +26,7 @@ public class CreativeModeTabModuleFabric {
         CreativeModeTab.Builder creativeModeTabBuilder = FabricItemGroup.builder()
                 .title(autoRegisterCreativeTab.getDisplayName())
                 .icon(autoRegisterCreativeTab.getIconItemStackSupplier())
-                .displayItems((params, output) -> autoRegisterCreativeTab.getDisplayItemsGenerator().accept(params, output))
+                .displayItems(autoRegisterCreativeTab.getDisplayItemsGenerator())
                 .backgroundSuffix(autoRegisterCreativeTab.getBackgroundSuffix());
         if (!autoRegisterCreativeTab.canScroll()) {
             creativeModeTabBuilder.noScrollBar();
