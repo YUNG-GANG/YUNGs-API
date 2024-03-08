@@ -14,7 +14,7 @@ public interface IAutoRegisterHelper {
      * and {@link IAutoRegisterHelper#processQueuedAutoRegEntries()} in case you need to access any fields using the
      * AutoRegister system.
      * </p>
-b     * <b>All {@link AutoRegister} annotated methods must be static and have no arguments!</b>
+     * <b>All {@link AutoRegister} annotated methods must be static and have no arguments!</b>
      *
      * @param packageName Name of a package containing {@link AutoRegister} annotated methods.
      *                    When specifying a package, try to be as precise as possible,

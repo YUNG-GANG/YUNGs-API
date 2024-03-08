@@ -31,7 +31,7 @@ public class BlockModuleForge {
     }
 
     private static void registerBlocks(RegisterEvent event) {
-        event.register(Registries.BLOCK,helper -> AutoRegistrationManager.BLOCKS.stream()
+        event.register(Registries.BLOCK, helper -> AutoRegistrationManager.BLOCKS.stream()
                 .filter(data -> !data.processed())
                 .forEach(data -> registerBlock(data, helper)));
     }
