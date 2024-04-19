@@ -5,7 +5,7 @@ plugins {
     id 'java-library'
 }
 base {
-    archivesName = "${mod_name}-NeoForge-${mc_version}"
+    archivesName = "${mod_name}-${mc_version}-NeoForge"
 }
 
 // Automatically enable neoforge AccessTransformers if the file exists
