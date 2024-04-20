@@ -4,9 +4,10 @@ plugins {
     id 'net.neoforged.gradle.userdev' version '7.0.81'
     id 'java-library'
 }
-base {
-    archivesName = "${mod_name}-${mc_version}-NeoForge"
-}
+
+archivesBaseName = "${mod_name}"
+version = "${mc_version}-NeoForge-${version}"
+group = maven_group
 
 // Automatically enable neoforge AccessTransformers if the file exists
 // This location is hardcoded in FML and can not be changed.
