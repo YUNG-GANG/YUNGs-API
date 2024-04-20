@@ -16,7 +16,6 @@ import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.neoforged.neoforge.common.brewing.BrewingRecipeRegistry;
 import net.neoforged.neoforge.common.brewing.IBrewingRecipe;
-import net.neoforged.neoforge.registries.RegisterEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,28 +28,18 @@ public class PotionModuleNeoForge {
     public static final List<IBrewingRecipe> BREWING_RECIPES = new ArrayList<>();
 
     public static void processEntries() {
-        YungsApiNeoForge.loadingContextEventBus.addListener(PotionModuleNeoForge::registerPotions);
+        YungsApiNeoForge.loadingContextEventBus.addListener(YungsApiNeoForge.buildAutoRegistrar(Registries.POTION, AutoRegistrationManager.POTIONS, PotionModuleNeoForge::buildPotion));
     }
 
-    private static void registerPotions(RegisterEvent event) {
-        event.register(Registries.POTION, helper -> {
-            // Register potions
-            AutoRegistrationManager.POTIONS.stream()
-                    .filter(data -> !data.processed())
-                    .forEach(data -> registerPotion(data, helper));
-        });
-    }
-
-    private static void registerPotion(AutoRegisterField data, RegisterEvent.RegisterHelper<Potion> helper) {
+    private static Potion buildPotion(AutoRegisterField data) {
         AutoRegisterPotion autoRegisterPotion = (AutoRegisterPotion) data.object();
         MobEffectInstance mobEffectInstance = autoRegisterPotion.getMobEffectInstance();
         String name = data.name().getNamespace() + "." + data.name().getPath();
         Potion potion = new Potion(name, mobEffectInstance);
         autoRegisterPotion.setSupplier(() -> potion);
 
-        // Register
-        helper.register(data.name(), potion);
-        data.markProcessed();
+        // Return for registering
+        return potion;
     }
 
     /**

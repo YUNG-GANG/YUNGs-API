@@ -13,20 +13,15 @@ import net.neoforged.neoforge.registries.RegisterEvent;
  */
 public class SoundEventModuleNeoForge {
     public static void processEntries() {
-        YungsApiNeoForge.loadingContextEventBus.addListener(SoundEventModuleNeoForge::registerSoundEvents);
+        YungsApiNeoForge.loadingContextEventBus.addListener(YungsApiNeoForge.buildAutoRegistrar(Registries.SOUND_EVENT, AutoRegistrationManager.SOUND_EVENTS, SoundEventModuleNeoForge::buildSoundEvent));
     }
 
-    private static void registerSoundEvents(RegisterEvent event) {
-        event.register(Registries.SOUND_EVENT, helper -> AutoRegistrationManager.SOUND_EVENTS.stream()
-                .filter(data -> !data.processed())
-                .forEach(data -> registerSoundEvent(data, helper)));
-    }
-
-    private static void registerSoundEvent(AutoRegisterField data, RegisterEvent.RegisterHelper<SoundEvent> helper) {
+    private static SoundEvent buildSoundEvent(AutoRegisterField data) {
         AutoRegisterSoundEvent autoRegisterSoundEvent = (AutoRegisterSoundEvent) data.object();
         SoundEvent soundEvent = SoundEvent.createVariableRangeEvent(data.name());
-        helper.register(data.name(), soundEvent);
         autoRegisterSoundEvent.setSupplier(() -> soundEvent);
-        data.markProcessed();
+
+        // Return for registering
+        return soundEvent;
     }
 }

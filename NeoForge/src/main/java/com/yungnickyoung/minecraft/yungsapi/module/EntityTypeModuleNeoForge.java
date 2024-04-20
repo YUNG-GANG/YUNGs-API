@@ -23,30 +23,21 @@ public class EntityTypeModuleNeoForge {
     public static final Map<AutoRegisterEntityType<? extends LivingEntity>, Supplier<AttributeSupplier.Builder>> ENTITY_ATTRIBUTES = new HashMap<>();
 
     public static void processEntries() {
-        YungsApiNeoForge.loadingContextEventBus.addListener(EntityTypeModuleNeoForge::registerEntityTypes);
+        YungsApiNeoForge.loadingContextEventBus.addListener(YungsApiNeoForge.buildAutoRegistrar(Registries.ENTITY_TYPE, AutoRegistrationManager.ENTITY_TYPES, EntityTypeModuleNeoForge::buildEntityType));
         YungsApiNeoForge.loadingContextEventBus.addListener(EntityTypeModuleNeoForge::registerEntityAttributes);
     }
 
-    private static void registerEntityTypes(final RegisterEvent event) {
-        event.register(Registries.ENTITY_TYPE, helper -> {
-            AutoRegistrationManager.ENTITY_TYPES.stream()
-                    .filter(data -> !data.processed())
-                    .forEach(data -> registerEntityType(data, helper));
-        });
-    }
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private static void registerEntityType(AutoRegisterField data, RegisterEvent.RegisterHelper<EntityType<?>> helper) {
+    private static EntityType<?> buildEntityType(AutoRegisterField data) {
         AutoRegisterEntityType autoRegisterEntityType = (AutoRegisterEntityType) data.object();
         EntityType<?> entityType = (EntityType<?>) autoRegisterEntityType.get();
-        helper.register(data.name(), entityType);
 
         // Store attributes for registration, if attached
         if (autoRegisterEntityType.hasAttributes()) {
             ENTITY_ATTRIBUTES.put(autoRegisterEntityType, autoRegisterEntityType.getAttributesSupplier());
         }
 
-        data.markProcessed();
+        // Return for registering
+        return entityType;
     }
 
     private static void registerEntityAttributes(EntityAttributeCreationEvent event) {

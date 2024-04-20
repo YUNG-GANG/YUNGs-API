@@ -18,7 +18,7 @@ public class ItemModuleNeoForge {
         YungsApiNeoForge.loadingContextEventBus.addListener(ItemModuleNeoForge::registerItems);
     }
 
-    private static void registerItems(RegisterEvent event) {
+    private static void registerItems(final RegisterEvent event) {
         event.register(Registries.ITEM, helper -> {
             // Register BlockItems
             AutoRegistrationManager.BLOCKS.forEach(data -> registerBlockItem(data, helper));

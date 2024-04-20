@@ -13,16 +13,10 @@ import net.neoforged.neoforge.registries.RegisterEvent;
  */
 public class CreativeModeTabModuleNeoForge {
     public static void processEntries() {
-        YungsApiNeoForge.loadingContextEventBus.addListener(CreativeModeTabModuleNeoForge::registerTabs);
+        YungsApiNeoForge.loadingContextEventBus.addListener(YungsApiNeoForge.buildAutoRegistrar(Registries.CREATIVE_MODE_TAB, AutoRegistrationManager.CREATIVE_MODE_TABS, CreativeModeTabModuleNeoForge::buildCreativeTab));
     }
 
-    private static void registerTabs(final RegisterEvent event) {
-        event.register(Registries.CREATIVE_MODE_TAB, helper -> AutoRegistrationManager.CREATIVE_MODE_TABS.stream()
-                .filter(data -> !data.processed())
-                .forEach(data -> registerTab(data, helper)));
-    }
-
-    private static void registerTab(AutoRegisterField data, RegisterEvent.RegisterHelper<CreativeModeTab> helper) {
+    private static CreativeModeTab buildCreativeTab(AutoRegisterField data) {
         // Extract data
         AutoRegisterCreativeTab autoRegisterCreativeTab = (AutoRegisterCreativeTab) data.object();
 
@@ -44,12 +38,11 @@ public class CreativeModeTabModuleNeoForge {
 
         CreativeModeTab creativeModeTab = creativeModeTabBuilder.build();
 
-        // Register tab
-        helper.register(data.name(), creativeModeTab);
 
         // Update supplier to retrieve tab
         autoRegisterCreativeTab.setSupplier(() -> creativeModeTab);
 
-        data.markProcessed();
+        // Return for registering
+        return creativeModeTab;
     }
 }
