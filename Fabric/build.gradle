@@ -21,10 +21,10 @@ dependencies {
     mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}+${mc_version}"
-    implementation("org.reflections:reflections:0.10.2")
-    include("org.reflections:reflections:0.10.2")
-    implementation("org.javassist:javassist:3.29.2-GA")
-    include("org.javassist:javassist:3.29.2-GA")
+
+    implementation include (annotationProcessor("io.github.llamalad7:mixinextras-fabric:0.3.5"))
+    implementation include("org.reflections:reflections:0.10.2")
+    implementation include("org.javassist:javassist:3.29.2-GA")
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
     compileOnly project(":Common")
 }

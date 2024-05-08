@@ -20,15 +20,13 @@ public abstract class StructureEntityProcessor extends StructureProcessor {
      *                          Usually this is a corner of the piece, often lowest in x-z value.
      * @param structurePieceBottomCenterPos The global block position of the bottom-center of the
      *                                      current structure component or Jigsaw piece.
-     * @param localEntityInfo The raw entity info. Its {@code pos} and {@code blockpos} fields will refer to its local
+     * @param localEntityInfo The raw entity info. Its {@code pos} and {@code blockPos} fields will refer to its local
      *                        position within the current structure component or jigsaw piece.
-     *                        DO NOT modify its {@code pos} or {@code blockpos} fields!
-     * @param globalEntityInfo The global entity info. This object's {@code pos} and {@code blockpos} fields are the
+     * @param globalEntityInfo The global entity info. This object's {@code pos} and {@code blockPos} fields are the
      *                         adjusted, real-world coordinates. You can use these for a unique random seed, for example.
      *                         This object reflects updates made from previously run processors for this entity.
      *                         This object is set to the return value of this function, so be careful when overwriting
      *                         existing NBT.
-     *                         DO NOT modify its {@code pos} or {@code blockpos} fields!
      * @param structurePlaceSettings The structure's placement data
      * @return The processed StructureEntityInfo. Note that the globalEntityInfo parameter will be set to this object,
      *         so if you want to combine the effects of multiple processors on a single entity, do NOT overwrite
