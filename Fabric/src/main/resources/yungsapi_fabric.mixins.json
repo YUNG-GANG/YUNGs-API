@@ -6,9 +6,7 @@
   "refmap": "yungsapi.refmap.json",
   "mixins": [
     "EntityProcessorMixin",
-    "EntityProcessorMixin2",
     "IncreaseStructureWeightLimitMixinFabric",
-    "StructureEntityInfoMixin",
     "accessor.StairBlockAccessor"
   ],
   "injectors": {
