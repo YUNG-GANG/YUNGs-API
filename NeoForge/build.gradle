@@ -1,9 +1,15 @@
+import net.darkhax.curseforgegradle.TaskPublishCurseForge
+
 plugins {
     id 'idea'
     id 'maven-publish'
     id 'net.neoforged.gradle.userdev' version '7.0.81'
     id 'java-library'
+    id 'net.darkhax.curseforgegradle' version "${cursegradle_version}"
+    id 'com.modrinth.minotaur' version '2.+'
 }
+
+def modVersion = version
 
 archivesBaseName = "${mod_name}"
 version = "${mc_version}-NeoForge-${version}"
@@ -94,15 +100,82 @@ tasks.withType(ProcessResources).matching(notNeoTask).configureEach {
 }
 
 publishing {
-    publications {
+    publications  {
         mavenJava(MavenPublication) {
-            artifactId base.archivesName.get()
-            from components.java
+            artifactId project.archivesBaseName
+            artifact jar
+            artifact sourcesJar
+            artifact javadocJar
+//            from components.java
+            pom {
+                name = "YUNG's API"
+                description = "A common API for YUNG's Minecraft mods"
+                url = 'https://github.com/yungnickyoung/YUNGs-Api'
+                scm {
+                    url = 'https://github.com/yungnickyoung/YUNGs-Api'
+                    connection = 'scm:git:git://github.com/yungnickyoung/YUNGs-Api.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:yungnickyoung/YUNGs-Api.git'
+                }
+                licenses {
+                    license {
+                        name = 'GNU LGPLv3'
+                        url = 'https://github.com/yungnickyoung/YUNGs-Api/blob/1.20.4/LICENSE'
+                        distribution = 'repo'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'YUNGNICKYOUNG'
+                        email = 'yungnickyoung@gmail.com'
+                    }
+                }
+            }
         }
     }
     repositories {
         maven {
-            url "file://" + System.getenv("local_maven")
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username ossrhUsername
+                password ossrhPassword
+            }
         }
     }
 }
+
+// signing.keyId, signing.password, and signing.secretKeyRingFile are defined separately
+// in my global gradle.properties for protection
+signing {
+    sign publishing.publications.mavenJava
+}
+
+String[] compatibleVersions = project.compatible_versions.split(',')
+task publishCurseForgeNeoForge(type: TaskPublishCurseForge) {
+    dependsOn(tasks.jar)
+    apiToken = curseforgeApiKey
+
+    debugMode = false
+
+    def mainFile = upload(curseforge_project_id_neoforge, tasks.jar.archiveFile)
+    mainFile.changelogType = 'markdown'
+    mainFile.changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "No changelog provided"
+    mainFile.releaseType = 'release'
+    mainFile.displayName = "[${mc_version}] ${mod_full_name} v${modVersion} (NeoForge)"
+    compatibleVersions.each { version ->
+        mainFile.addGameVersion(version)
+    }
+}
+
+List compatibleVersionsList = project.compatible_versions.split(',')
+modrinth {
+    token = modrinthToken
+    projectId = modrinth_project_id
+    versionNumber = version
+    versionName = "[${mc_version}] v${modVersion} (NeoForge)"
+    versionType = "release"
+    uploadFile = jar
+    gameVersions = compatibleVersionsList
+    debugMode = false
+    changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "No changelog provided"
+}
+tasks.modrinth.dependsOn(tasks.jar)
