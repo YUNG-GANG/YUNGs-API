@@ -18,9 +18,4 @@ public class ForgePlatformHelper implements IPlatformHelper {
     public boolean isDevelopmentEnvironment() {
         return !FMLLoader.isProduction();
     }
-
-    @Override
-    public boolean isForge() {
-        return true;
-    }
 }

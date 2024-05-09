@@ -27,7 +27,7 @@ public class YungAutoRegister {
      *                    is not used.</b>
      */
     public static void scanPackageForAnnotations(String packageName) {
-        if (Services.PLATFORM.isFabric()) {
+        if (Services.PLATFORM.getPlatformName().equals("Fabric")) {
             AutoRegistrationManager.initAutoRegPackage(packageName);
         }
     }
