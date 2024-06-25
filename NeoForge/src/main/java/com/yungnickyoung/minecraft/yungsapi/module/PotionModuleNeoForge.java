@@ -13,7 +13,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.Potion;
-import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.PotionContents;
 import net.neoforged.neoforge.common.brewing.BrewingRecipeRegistry;
 import net.neoforged.neoforge.common.brewing.IBrewingRecipe;
 
@@ -56,7 +56,7 @@ public class PotionModuleNeoForge {
                                 Supplier<Potion> output) implements IBrewingRecipe {
         @Override
         public boolean isInput(ItemStack input) {
-            return PotionUtils.getPotion(input) == this.input.get();
+            return PotionContents.getPotion(input) == this.input.get();
         }
 
         @Override

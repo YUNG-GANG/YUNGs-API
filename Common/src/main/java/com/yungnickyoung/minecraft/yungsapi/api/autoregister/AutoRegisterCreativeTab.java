@@ -2,6 +2,7 @@ package com.yungnickyoung.minecraft.yungsapi.api.autoregister;
 
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterEntry;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 
@@ -30,7 +31,7 @@ public class AutoRegisterCreativeTab extends AutoRegisterEntry<CreativeModeTab> 
     private final boolean showTitle;
     private final boolean alignedRight;
     private final CreativeModeTab.Type type;
-    private final String backgroundSuffix;
+    private final ResourceLocation backgroundTexture;
 
     /**
      * Private constructor. Use {@link AutoRegisterCreativeTab.Builder} to create instances.
@@ -45,7 +46,7 @@ public class AutoRegisterCreativeTab extends AutoRegisterEntry<CreativeModeTab> 
         this.showTitle = builder.showTitle;
         this.alignedRight = builder.alignedRight;
         this.type = builder.type;
-        this.backgroundSuffix = builder.backgroundSuffix;
+        this.backgroundTexture = builder.backgroundTexture;
     }
 
     /**
@@ -84,8 +85,8 @@ public class AutoRegisterCreativeTab extends AutoRegisterEntry<CreativeModeTab> 
         return type;
     }
 
-    public String getBackgroundSuffix() {
-        return backgroundSuffix;
+    public ResourceLocation getBackgroundTexture() {
+        return backgroundTexture;
     }
 
     /**
@@ -99,7 +100,7 @@ public class AutoRegisterCreativeTab extends AutoRegisterEntry<CreativeModeTab> 
         private boolean showTitle = true;
         private boolean alignedRight = false;
         private final CreativeModeTab.Type type = CreativeModeTab.Type.CATEGORY;
-        private String backgroundSuffix = "items.png";
+        private ResourceLocation backgroundTexture = CreativeModeTab.createTextureLocation("items");
 
         private Builder() {
         }
@@ -134,8 +135,8 @@ public class AutoRegisterCreativeTab extends AutoRegisterEntry<CreativeModeTab> 
             return this;
         }
 
-        public Builder backgroundSuffix(String string) {
-            this.backgroundSuffix = string;
+        public Builder backgroundTexture(ResourceLocation backgroundTexture) {
+            this.backgroundTexture = backgroundTexture;
             return this;
         }
 

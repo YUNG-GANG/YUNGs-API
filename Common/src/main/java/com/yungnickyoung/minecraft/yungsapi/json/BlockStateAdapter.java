@@ -81,7 +81,7 @@ public class BlockStateAdapter extends TypeAdapter<BlockState> {
         }
 
         try {
-            blockState = BuiltInRegistries.BLOCK.get(new ResourceLocation(blockString)).defaultBlockState();
+            blockState = BuiltInRegistries.BLOCK.get(ResourceLocation.parse(blockString)).defaultBlockState();
         } catch (Exception e) {
             YungsApiCommon.LOGGER.error("JSON: Unable to read block '{}': {}", blockString, e.toString());
             YungsApiCommon.LOGGER.error("Using air instead...");

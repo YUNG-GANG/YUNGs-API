@@ -4,9 +4,10 @@ import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegister;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterFieldRouter;
-import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.PotionBrewingAccessor;
 import com.yungnickyoung.minecraft.yungsapi.module.*;
 import net.fabricmc.fabric.api.registry.CompostingChanceRegistry;
+import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.Potion;
@@ -47,7 +48,7 @@ public class FabricAutoRegisterHelper implements IAutoRegisterHelper {
                             // Impossible?
                             throw new RuntimeException(e);
                         }
-                        ResourceLocation resourceLocation = new ResourceLocation(modId, name);
+                        ResourceLocation resourceLocation = ResourceLocation.fromNamespaceAndPath(modId, name);
                         AutoRegisterField autoRegisterField = new AutoRegisterField(o, resourceLocation);
                         AutoRegisterFieldRouter.queueField(autoRegisterField);
                     });
@@ -101,7 +102,7 @@ public class FabricAutoRegisterHelper implements IAutoRegisterHelper {
 
     @Override
     public void registerBrewingRecipe(Supplier<Potion> inputPotion, Supplier<Item> ingredient, Supplier<Potion> outputPotion) {
-        PotionBrewingAccessor.callAddMix(inputPotion.get(), ingredient.get(), outputPotion.get());
+        FabricBrewingRecipeRegistryBuilder.BUILD.register(builder -> builder.addMix(Holder.direct(inputPotion.get()), ingredient.get(), Holder.direct(outputPotion.get())));
     }
 
     @Override

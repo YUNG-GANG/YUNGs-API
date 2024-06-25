@@ -1,7 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element;
 
 import com.google.common.collect.Lists;
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.module.StructurePoolElementTypeModule;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.condition.StructureCondition;
@@ -26,6 +26,7 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.pools.FeaturePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
+import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
@@ -39,7 +40,7 @@ import java.util.Optional;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class YungJigsawFeatureElement extends YungJigsawPoolElement {
-    public static final Codec<YungJigsawFeatureElement> CODEC = RecordCodecBuilder.create((builder) -> builder
+    public static final MapCodec<YungJigsawFeatureElement> CODEC = RecordCodecBuilder.mapCodec((builder) -> builder
             .group(
                     PlacedFeature.CODEC.fieldOf("feature").forGetter(element -> element.feature),
                     projectionCodec(),
@@ -108,6 +109,7 @@ public class YungJigsawFeatureElement extends YungJigsawPoolElement {
                          Rotation rotation,
                          BoundingBox boundingBox,
                          RandomSource randomSource,
+                         LiquidSettings liquidSettings,
                          boolean replaceJigsaws
     ) {
         return this.feature.value().place(worldGenLevel, chunkGenerator, randomSource, pos);

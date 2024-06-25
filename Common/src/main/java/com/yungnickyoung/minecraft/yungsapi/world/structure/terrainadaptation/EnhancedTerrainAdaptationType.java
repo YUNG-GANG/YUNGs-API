@@ -2,6 +2,7 @@ package com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import net.minecraft.resources.ResourceLocation;
 
@@ -42,7 +43,7 @@ public interface EnhancedTerrainAdaptationType<C extends EnhancedTerrainAdaptati
     /**
      * Utility method for registering EnhancedTerrainAdaptationTypes.
      */
-    static <C extends EnhancedTerrainAdaptation> EnhancedTerrainAdaptationType<C> register(ResourceLocation resourceLocation, Codec<C> codec) {
+    static <C extends EnhancedTerrainAdaptation> EnhancedTerrainAdaptationType<C> register(ResourceLocation resourceLocation, MapCodec<C> codec) {
         EnhancedTerrainAdaptationType<C> adaptationType = () -> codec;
         ADAPTATION_TYPES_BY_NAME.put(resourceLocation, adaptationType);
         NAME_BY_ADAPTATION_TYPES.put(adaptationType, resourceLocation);
@@ -52,13 +53,13 @@ public interface EnhancedTerrainAdaptationType<C extends EnhancedTerrainAdaptati
     /**
      * Private utility method for registering EnhancedTerrainAdaptationTypes native to YUNG's API.
      */
-    private static <C extends EnhancedTerrainAdaptation> EnhancedTerrainAdaptationType<C> register(String id, Codec<C> codec) {
-        return register(new ResourceLocation(YungsApiCommon.MOD_ID, id), codec);
+    private static <C extends EnhancedTerrainAdaptation> EnhancedTerrainAdaptationType<C> register(String id, MapCodec<C> codec) {
+        return register(ResourceLocation.fromNamespaceAndPath(YungsApiCommon.MOD_ID, id), codec);
     }
 
     /**
      * Supplies the codec for the {@link EnhancedTerrainAdaptation} corresponding to this EnhancedTerrainAdaptationType.
      */
-    Codec<C> codec();
+    MapCodec<C> codec();
 }
 

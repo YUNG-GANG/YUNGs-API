@@ -79,7 +79,7 @@ public class ForgeAutoRegisterHelper implements IAutoRegisterHelper {
 
                     // Queue for registration
                     String name = (String) data.annotationData().get("value");
-                    AutoRegisterField autoRegisterField = new AutoRegisterField(o, new ResourceLocation(modId, name));
+                    AutoRegisterField autoRegisterField = new AutoRegisterField(o, ResourceLocation.fromNamespaceAndPath(modId, name));
                     AutoRegisterFieldRouter.queueField(autoRegisterField);
                 });
     }

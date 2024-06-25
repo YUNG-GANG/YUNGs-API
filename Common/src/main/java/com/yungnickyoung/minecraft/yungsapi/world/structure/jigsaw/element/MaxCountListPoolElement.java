@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.ListPoolElementAccessor;
 import com.yungnickyoung.minecraft.yungsapi.module.StructurePoolElementTypeModule;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
  * Prefer using {@link YungJigsawSinglePoolElement} if possible instead.
  */
 public class MaxCountListPoolElement extends ListPoolElement implements IMaxCountJigsawPoolElement {
-    public static final Codec<MaxCountListPoolElement> CODEC = RecordCodecBuilder.create((builder) -> builder
+    public static final MapCodec<MaxCountListPoolElement> CODEC = RecordCodecBuilder.mapCodec((builder) -> builder
         .group(
             StructurePoolElement.CODEC.listOf().fieldOf("elements").forGetter((listPiece) -> ((ListPoolElementAccessor)listPiece).getElements()),
             projectionCodec(),

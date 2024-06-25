@@ -1,6 +1,6 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure.condition;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 
@@ -8,7 +8,7 @@ import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureCon
  * Simple condition that passes if its wrapped condition does not pass.
  */
 public class NotCondition extends StructureCondition {
-    public static final Codec<NotCondition> CODEC = RecordCodecBuilder.create((builder) -> builder
+    public static final MapCodec<NotCondition> CODEC = RecordCodecBuilder.mapCodec((builder) -> builder
             .group(
                     StructureConditionType.CONDITION_CODEC.fieldOf("condition").forGetter(condition -> condition.condition)
             ).apply(builder, NotCondition::new));

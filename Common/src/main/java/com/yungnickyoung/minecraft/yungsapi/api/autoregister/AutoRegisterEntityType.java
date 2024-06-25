@@ -69,6 +69,7 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
         private boolean canSpawnFarFromPlayer;
         private int clientTrackingRange = 5;
         private int updateInterval = 3;
+        private float spawnDimensionsScale = 1.0F;
         private EntityDimensions dimensions = EntityDimensions.scalable(0.6F, 1.8F);
         private FeatureFlagSet requiredFeatures = FeatureFlags.VANILLA_SET;
 
@@ -112,6 +113,11 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
             return this;
         }
 
+        public Builder<T> spawnDimensionsScale(float scale) {
+            this.spawnDimensionsScale = scale;
+            return this;
+        }
+
         public Builder<T> clientTrackingRange(int chunkRange) {
             this.clientTrackingRange = chunkRange;
             return this;
@@ -128,7 +134,7 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
         }
 
         public EntityType<T> build() {
-            return new EntityType<>(this.factory, this.category, this.serialize, this.summon, this.fireImmune, this.canSpawnFarFromPlayer, this.immuneTo, this.dimensions, this.clientTrackingRange, this.updateInterval, this.requiredFeatures);
+            return new EntityType<>(this.factory, this.category, this.serialize, this.summon, this.fireImmune, this.canSpawnFarFromPlayer, this.immuneTo, this.dimensions, this.spawnDimensionsScale, this.clientTrackingRange, this.updateInterval, this.requiredFeatures);
         }
     }
 }

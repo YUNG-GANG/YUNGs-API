@@ -6,15 +6,17 @@ import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterPotion;
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterUtils;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.Potion;
-import net.minecraft.world.item.alchemy.PotionUtils;
-import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.brewing.IBrewingRecipe;
+import net.minecraftforge.event.brewing.BrewingRecipeRegisterEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.RegisterEvent;
 
@@ -30,6 +32,7 @@ public class PotionModuleForge {
 
     public static void processEntries() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(PotionModuleForge::registerPotions);
+        MinecraftForge.EVENT_BUS.addListener(PotionModuleForge::registerBrewingRecipes);
     }
 
     private static void registerPotions(RegisterEvent event) {
@@ -39,6 +42,16 @@ public class PotionModuleForge {
                     .filter(data -> !data.processed())
                     .forEach(data -> registerPotion(data, helper));
         });
+    }
+
+    /**
+     * Registers all recipes added with {@link AutoRegisterUtils#registerBrewingRecipe}.
+     * Note that usage of the aforementioned method should be performed in a method annotated
+     * with {@link AutoRegister}. This method is explicitly called after all such methods have been invoked,
+     * during CommonSetup.
+     */
+    private static void registerBrewingRecipes(BrewingRecipeRegisterEvent event) {
+        BREWING_RECIPES.forEach(event::addRecipe);
     }
 
     private static void registerPotion(AutoRegisterField data, RegisterEvent.RegisterHelper<Potion> helper) {
@@ -53,38 +66,24 @@ public class PotionModuleForge {
         data.markProcessed();
     }
 
-    /**
-     * Registers all recipes added with {@link AutoRegisterUtils#registerBrewingRecipe}.
-     * Note that usage of the aforementioned method should be performed in a method annotated
-     * with {@link AutoRegister}. This method is explicitly called after all such methods have been invoked,
-     * during CommonSetup.
-     */
-    public static void registerBrewingRecipes() {
-        BREWING_RECIPES.forEach(BrewingRecipeRegistry::addRecipe);
-    }
-
     public record BrewingRecipe(Supplier<Potion> input, Supplier<Item> ingredient,
                                 Supplier<Potion> output) implements IBrewingRecipe {
         @Override
-        public boolean isInput(ItemStack input) {
-            return PotionUtils.getPotion(input) == this.input.get();
+        public boolean isInput(ItemStack itemStack) {
+            PotionContents potionContents = itemStack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
+            return potionContents.is(Holder.direct(input.get()));
         }
 
         @Override
-        public boolean isIngredient(ItemStack ingredient) {
-            return ingredient.getItem() == this.ingredient.get();
+        public boolean isIngredient(ItemStack itemStack) {
+            return itemStack.getItem() == this.ingredient.get();
         }
 
         @Override
-        public ItemStack getOutput(ItemStack input, ItemStack ingredient) {
-            if (!this.isInput(input) || !this.isIngredient(ingredient)) {
-                return ItemStack.EMPTY;
-            }
-
-            ItemStack itemStack = new ItemStack(input.getItem());
-            itemStack.setTag(new CompoundTag());
-            PotionUtils.setPotion(itemStack, this.output.get());
-            return itemStack;
+        public ItemStack getOutput(ItemStack inputStack, ItemStack ingredientStack) {
+            return isInput(inputStack) && isIngredient(ingredientStack)
+                    ? PotionContents.createItemStack(inputStack.getItem(), Holder.direct(this.output.get()))
+                    : ItemStack.EMPTY;
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure.condition;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 import net.minecraft.util.ExtraCodecs;
@@ -11,7 +11,7 @@ import java.util.Optional;
  * Condition for constraining placement based on jigsaw piece depth.
  */
 public class DepthCondition extends StructureCondition {
-    public static final Codec<DepthCondition> CODEC = RecordCodecBuilder.create((builder) -> builder
+    public static final MapCodec<DepthCondition> CODEC = RecordCodecBuilder.mapCodec((builder) -> builder
             .group(
                     ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("min_required_depth").forGetter(condition -> condition.minRequiredDepth),
                     ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("max_possible_depth").forGetter(condition -> condition.maxPossibleDepth))

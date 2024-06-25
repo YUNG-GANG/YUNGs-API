@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure.condition;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 
 /**
@@ -8,7 +9,7 @@ import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureCon
  */
 public class AlwaysTrueCondition extends StructureCondition {
     private static final AlwaysTrueCondition INSTANCE = new AlwaysTrueCondition();
-    public static final Codec<AlwaysTrueCondition> CODEC = Codec.unit(() -> INSTANCE);
+    public static final MapCodec<AlwaysTrueCondition> CODEC = MapCodec.unit(() -> INSTANCE);
 
     public AlwaysTrueCondition() {
     }

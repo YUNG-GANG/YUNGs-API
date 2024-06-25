@@ -5,6 +5,7 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.module.StructurePoolElementTypeModule;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.condition.StructureCondition;
@@ -30,6 +31,7 @@ import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementTy
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.JigsawReplacementProcessor;
+import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
@@ -49,11 +51,12 @@ import java.util.function.Function;
 @MethodsReturnNonnullByDefault
 public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
     private static final Codec<Either<ResourceLocation, StructureTemplate>> TEMPLATE_CODEC = Codec.of(YungJigsawSinglePoolElement::encodeTemplate, ResourceLocation.CODEC.map(Either::left));
-    public static final Codec<YungJigsawSinglePoolElement> CODEC = RecordCodecBuilder.create((builder) -> builder
+    public static final MapCodec<YungJigsawSinglePoolElement> CODEC = RecordCodecBuilder.mapCodec((builder) -> builder
             .group(
                     templateCodec(),
                     processorsCodec(),
                     projectionCodec(),
+                    overrideLiquidSettingsCodec(),
                     nameCodec(),
                     maxCountCodec(),
                     minRequiredDepthCodec(),
@@ -70,19 +73,21 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
 
     public final Holder<StructureProcessorList> processors;
 
+    public final Optional<LiquidSettings> overrideLiquidSettings;
+
     /**
      * Whether this piece should apply dead end adjustments.
-     * If enabled, this piece has the possibility of being converted into one of its fallback pieces under certain conditions:
+     * If enabled, this piece has the possibility of being converted into one of its deadend pool pieces under certain conditions:
      * <ul>
      *     <li>This piece has one or more jigsaw blocks in addition to the one required to connect to its parent piece.</li>
      *     <li>This piece is not able to generate any other pieces from itself, including encased pieces.
      *     This could be due to either overlap with other pieces or reaching the max depth.</li>
      * </ul>
      * If both of these conditions are met, then a piece marked for deadend adjustments will be replaced with
-     * an appropriate piece from its fallback pool instead.
+     * an appropriate piece from its deadend pool instead.
      * <br />
      * <p>
-     * <b>Note that at least one of the fallback pool elements MUST be a "true" terminator, i.e. have NO jigsaw pieces
+     * <b>Note that at least one of the deadend pool elements MUST be a "true" terminator, i.e. have NO jigsaw pieces
      * except the one required for connection to its parent piece.</b> If all of your fallback pieces have more than one
      * jigsaw block, your structure's generation may get stuck in an infinite loop!
      * </p>
@@ -100,6 +105,7 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
             Either<ResourceLocation, StructureTemplate> template,
             Holder<StructureProcessorList> processors,
             StructureTemplatePool.Projection projection,
+            Optional<LiquidSettings> overrideLiquidSettings,
             Optional<String> name,
             Optional<Integer> maxCount,
             Optional<Integer> minRequiredDepth,
@@ -114,6 +120,7 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
         super(projection, name, maxCount, minRequiredDepth, maxPossibleDepth, isPriority, ignoreBounds, condition, enhancedTerrainAdaptation);
         this.template = template;
         this.processors = processors;
+        this.overrideLiquidSettings = overrideLiquidSettings;
         this.deadendPool = deadendPool;
         this.modifiers = modifiers;
     }
@@ -153,15 +160,16 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
                          Rotation rotation,
                          BoundingBox boundingBox,
                          RandomSource randomSource,
+                         LiquidSettings liquidSettings,
                          boolean replaceJigsaws
     ) {
         StructureTemplate structureTemplate = this.getTemplate(structureTemplateManager);
-        StructurePlaceSettings structurePlaceSettings = this.getSettings(rotation, boundingBox, replaceJigsaws);
+        StructurePlaceSettings structurePlaceSettings = this.getSettings(rotation, boundingBox, liquidSettings, replaceJigsaws);
         if (!structureTemplate.placeInWorld(worldGenLevel, pos, pivotPos, structurePlaceSettings, randomSource, 18)) {
             return false;
         } else {
-            for(StructureTemplate.StructureBlockInfo $$13 : StructureTemplate.processBlockInfos(worldGenLevel, pos, pivotPos, structurePlaceSettings, this.getDataMarkers(structureTemplateManager, pos, rotation, false))) {
-                this.handleDataMarker(worldGenLevel, $$13, pos, rotation, randomSource, boundingBox);
+            for (StructureTemplate.StructureBlockInfo structureBlockInfo : StructureTemplate.processBlockInfos(worldGenLevel, pos, pivotPos, structurePlaceSettings, this.getDataMarkers(structureTemplateManager, pos, rotation, false))) {
+                this.handleDataMarker(worldGenLevel, structureBlockInfo, pos, rotation, randomSource, boundingBox);
             }
 
             return true;
@@ -173,7 +181,7 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
     }
 
     public boolean hasModifiers() {
-        return this.modifiers.size() > 0;
+        return !this.modifiers.isEmpty();
     }
 
     public StructureTemplate getTemplate(StructureTemplateManager structureTemplateManager) {
@@ -192,7 +200,7 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
                 this.isPriority);
     }
 
-    private StructurePlaceSettings getSettings(Rotation rotation, BoundingBox boundingBox, boolean replaceJigsaws) {
+    private StructurePlaceSettings getSettings(Rotation rotation, BoundingBox boundingBox, LiquidSettings liquidSettings, boolean replaceJigsaws) {
         StructurePlaceSettings structurePlaceSettings = new StructurePlaceSettings();
         structurePlaceSettings.setBoundingBox(boundingBox);
         structurePlaceSettings.setRotation(rotation);
@@ -200,6 +208,7 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
         structurePlaceSettings.setIgnoreEntities(false);
         structurePlaceSettings.addProcessor(BlockIgnoreProcessor.STRUCTURE_BLOCK);
         structurePlaceSettings.setFinalizeEntities(true);
+        structurePlaceSettings.setLiquidSettings(this.overrideLiquidSettings.orElse(liquidSettings));
         if (!replaceJigsaws) {
             structurePlaceSettings.addProcessor(JigsawReplacementProcessor.INSTANCE);
         }
@@ -214,7 +223,7 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
         List<StructureTemplate.StructureBlockInfo> structureBlocks = structureTemplate.filterBlocks(blockPos, (new StructurePlaceSettings()).setRotation(rotation), Blocks.STRUCTURE_BLOCK, isPositionLocal);
         List<StructureTemplate.StructureBlockInfo> dataBlocks = Lists.newArrayList();
 
-        for(StructureTemplate.StructureBlockInfo block : structureBlocks) {
+        for (StructureTemplate.StructureBlockInfo block : structureBlocks) {
             StructureMode structureMode = StructureMode.valueOf(block.nbt().getString("mode"));
             if (structureMode == StructureMode.DATA) {
                 dataBlocks.add(block);
@@ -229,7 +238,11 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
     }
 
     public static <E extends YungJigsawSinglePoolElement> RecordCodecBuilder<E, Either<ResourceLocation, StructureTemplate>> templateCodec() {
-        return TEMPLATE_CODEC.fieldOf("location").forGetter(($$0) -> $$0.template);
+        return TEMPLATE_CODEC.fieldOf("location").forGetter(element -> element.template);
+    }
+
+    public static <E extends YungJigsawSinglePoolElement> RecordCodecBuilder<E, Optional<LiquidSettings>> overrideLiquidSettingsCodec() {
+        return LiquidSettings.CODEC.optionalFieldOf("override_liquid_settings").forGetter(element -> element.overrideLiquidSettings);
     }
 
     private static <T> DataResult<T> encodeTemplate(Either<ResourceLocation, StructureTemplate> either, DynamicOps<T> ops, T template) {

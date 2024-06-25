@@ -1,10 +1,10 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 
 public class LargeCarvedTopNoBeardAdaptation extends EnhancedTerrainAdaptation {
     private static final LargeCarvedTopNoBeardAdaptation INSTANCE = new LargeCarvedTopNoBeardAdaptation();
-    public static final Codec<LargeCarvedTopNoBeardAdaptation> CODEC = Codec.unit(() -> INSTANCE);
+    public static final MapCodec<LargeCarvedTopNoBeardAdaptation> CODEC = MapCodec.unit(() -> INSTANCE);
 
     public LargeCarvedTopNoBeardAdaptation() {
         super(24, 16, true, false);

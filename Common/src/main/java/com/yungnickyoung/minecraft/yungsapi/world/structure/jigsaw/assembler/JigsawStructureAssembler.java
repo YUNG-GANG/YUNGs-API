@@ -32,11 +32,13 @@ import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
+import net.minecraft.world.level.levelgen.structure.pools.DimensionPadding;
 import net.minecraft.world.level.levelgen.structure.pools.EmptyPoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawJunction;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
+import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.phys.AABB;
@@ -464,11 +466,10 @@ public class JigsawStructureAssembler {
                         ((BoundingBoxAccessor) adjustedCandidateBoundingBox).setMaxY(adjustedCandidateBoundingBox.minY() + k2);
                     }
 
-                    // Prevent pieces from spawning above max Y and below min Y
-                    if (this.settings.maxY.isPresent() && adjustedCandidateBoundingBox.maxY() > this.settings.maxY.get())
+                    // Prevent pieces from generating outside the structure's boundaries
+                    if (!this.settings.isInBounds(adjustedCandidateBoundingBox.maxY()) || !this.settings.isInBounds(adjustedCandidateBoundingBox.minY())) {
                         continue;
-                    if (this.settings.minY.isPresent() && adjustedCandidateBoundingBox.minY() < this.settings.minY.get())
-                        continue;
+                    }
 
                     // Final boundary check before adding the new piece.
                     // Not sure why the candidate box is shrunk by 0.25. Maybe just ensures no overlap for adjacent block positions?
@@ -519,7 +520,8 @@ public class JigsawStructureAssembler {
                             adjustedCandidateJigsawBlockRelativePos,
                             groundLevelDelta,
                             rotation,
-                            adjustedCandidateBoundingBox);
+                            adjustedCandidateBoundingBox,
+                            this.settings.liquidSettings);
 
                     JigsawJunction newJunctionOnParent = new JigsawJunction(
                             context.jigsawBlockTargetPos.getX(),
@@ -636,7 +638,7 @@ public class JigsawStructureAssembler {
     }
 
     private static ResourceKey<StructureTemplatePool> readPoolName(StructureTemplate.StructureBlockInfo jigsawBlockInfo) {
-        return ResourceKey.create(Registries.TEMPLATE_POOL, new ResourceLocation(jigsawBlockInfo.nbt().getString("pool")));
+        return ResourceKey.create(Registries.TEMPLATE_POOL, ResourceLocation.parse(jigsawBlockInfo.nbt().getString("pool")));
     }
 
     public static class Settings {
@@ -693,6 +695,10 @@ public class JigsawStructureAssembler {
          */
         private Optional<Integer> minY;
 
+        private DimensionPadding dimensionPadding;
+
+        private LiquidSettings liquidSettings;
+
         public Settings() {
         }
 
@@ -744,6 +750,29 @@ public class JigsawStructureAssembler {
         public Settings minY(Optional<Integer> minY) {
             this.minY = minY;
             return this;
+        }
+
+        public Settings dimensionPadding(DimensionPadding dimensionPadding) {
+            this.dimensionPadding = dimensionPadding;
+            return this;
+        }
+
+        public Settings liquidSettings(LiquidSettings liquidSettings) {
+            this.liquidSettings = liquidSettings;
+            return this;
+        }
+
+        /**
+         * Checks if the provided y-value is within the bounds of the structure.
+         * This means it must be within the maxY and minY (if present),
+         * as well as within the dimension's bounds (padded by the dimensionPadding).
+         */
+        public boolean isInBounds(int y) {
+            if (maxY.isPresent() && y > maxY.get()) return false;
+            if (minY.isPresent() && y < minY.get()) return false;
+            if (y < levelHeightAccessor.getMinBuildHeight() + dimensionPadding.bottom()) return false;
+            if (y > levelHeightAccessor.getMaxBuildHeight() - dimensionPadding.top()) return false;
+            return true;
         }
     }
 }

@@ -43,7 +43,7 @@ public class BlockModuleFabric {
         // Register associated Blocks & their BlockItems, if applicable
         if (autoRegisterBlock.hasStairs()) {
             Block stairBlock = StairBlockAccessor.createStairBlock(block.defaultBlockState(), BlockBehaviour.Properties.ofLegacyCopy(block));
-            ResourceLocation name = new ResourceLocation(namespace, path + "_stairs");
+            ResourceLocation name = ResourceLocation.fromNamespaceAndPath(namespace, path + "_stairs");
             Registry.register(BuiltInRegistries.BLOCK, name, stairBlock);
             autoRegisterBlock.setStairs(stairBlock);
             if (autoRegisterBlock.hasItemProperties()) {
@@ -52,7 +52,7 @@ public class BlockModuleFabric {
         }
         if (autoRegisterBlock.hasSlab()) {
             Block slabBlock = new SlabBlock(BlockBehaviour.Properties.ofLegacyCopy(block));
-            ResourceLocation name = new ResourceLocation(namespace, path + "_slab");
+            ResourceLocation name = ResourceLocation.fromNamespaceAndPath(namespace, path + "_slab");
             Registry.register(BuiltInRegistries.BLOCK, name, slabBlock);
             autoRegisterBlock.setSlab(slabBlock);
             if (autoRegisterBlock.hasItemProperties()) {
@@ -61,7 +61,7 @@ public class BlockModuleFabric {
         }
         if (autoRegisterBlock.hasFence()) {
             Block fenceBlock = new FenceBlock(BlockBehaviour.Properties.ofLegacyCopy(block));
-            ResourceLocation name = new ResourceLocation(namespace, path + "_fence");
+            ResourceLocation name = ResourceLocation.fromNamespaceAndPath(namespace, path + "_fence");
             Registry.register(BuiltInRegistries.BLOCK, name, fenceBlock);
             autoRegisterBlock.setFence(fenceBlock);
             if (autoRegisterBlock.hasItemProperties()) {
@@ -70,7 +70,7 @@ public class BlockModuleFabric {
         }
         if (autoRegisterBlock.hasFenceGate()) {
             Block fenceGateBlock = new FenceGateBlock(autoRegisterBlock.getFenceGateWoodType(), BlockBehaviour.Properties.ofLegacyCopy(block));
-            ResourceLocation name = new ResourceLocation(namespace, path + "_fence_gate");
+            ResourceLocation name = ResourceLocation.fromNamespaceAndPath(namespace, path + "_fence_gate");
             Registry.register(BuiltInRegistries.BLOCK, name, fenceGateBlock);
             autoRegisterBlock.setFenceGate(fenceGateBlock);
             if (autoRegisterBlock.hasItemProperties()) {
@@ -79,7 +79,7 @@ public class BlockModuleFabric {
         }
         if (autoRegisterBlock.hasWall()) {
             Block wallBlock = new WallBlock(BlockBehaviour.Properties.ofLegacyCopy(block));
-            ResourceLocation name = new ResourceLocation(namespace, path + "_wall");
+            ResourceLocation name = ResourceLocation.fromNamespaceAndPath(namespace, path + "_wall");
             Registry.register(BuiltInRegistries.BLOCK, name, wallBlock);
             autoRegisterBlock.setWall(wallBlock);
             if (autoRegisterBlock.hasItemProperties()) {

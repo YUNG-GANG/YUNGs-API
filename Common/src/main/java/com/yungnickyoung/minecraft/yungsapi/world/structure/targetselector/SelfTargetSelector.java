@@ -1,8 +1,8 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure.targetselector;
 
-import com.mojang.serialization.Codec;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.PieceEntry;
+import com.mojang.serialization.MapCodec;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.PieceEntry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class SelfTargetSelector extends StructureTargetSelector {
     private static final SelfTargetSelector INSTANCE = new SelfTargetSelector();
-    public static final Codec<SelfTargetSelector> CODEC = Codec.unit(() -> INSTANCE);
+    public static final MapCodec<SelfTargetSelector> CODEC = MapCodec.unit(() -> INSTANCE);
 
     public SelfTargetSelector() {
     }

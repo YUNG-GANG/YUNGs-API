@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure.condition;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.SinglePoolElementAccessor;
@@ -29,9 +30,9 @@ import java.util.List;
  * If you instead need to search for pieces within any horizontal or vertical distance, use {@link PieceInRangeCondition} instead.
  */
 public class PieceInHorizontalDirectionCondition extends StructureCondition {
-    private static final ResourceLocation ALL = new ResourceLocation(YungsApiCommon.MOD_ID, "all");
+    private static final ResourceLocation ALL = ResourceLocation.fromNamespaceAndPath(YungsApiCommon.MOD_ID, "all");
 
-    public static final Codec<PieceInHorizontalDirectionCondition> CODEC = RecordCodecBuilder.create((builder) -> builder
+    public static final MapCodec<PieceInHorizontalDirectionCondition> CODEC = RecordCodecBuilder.mapCodec((builder) -> builder
             .group(
                     ResourceLocation.CODEC.listOf().optionalFieldOf("pieces", new ArrayList<>()).forGetter(conditon -> conditon.matchPieces),
                     Codec.INT.fieldOf("range").forGetter(conditon -> conditon.range),

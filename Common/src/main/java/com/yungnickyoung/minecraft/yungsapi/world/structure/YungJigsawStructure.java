@@ -2,6 +2,7 @@ package com.yungnickyoung.minecraft.yungsapi.world.structure;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.api.YungJigsawManager;
 import com.yungnickyoung.minecraft.yungsapi.module.StructureTypeModule;
@@ -21,35 +22,37 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
+import net.minecraft.world.level.levelgen.structure.pools.DimensionPadding;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
+import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * Enhanced jigsaw structure that uses the {@link YungJigsawManager} to assemble jigsaw structures.
  */
 public class YungJigsawStructure extends Structure {
     public static final int MAX_TOTAL_STRUCTURE_RADIUS = 128;
-    public static final Codec<YungJigsawStructure> CODEC = RecordCodecBuilder.<YungJigsawStructure>mapCodec(builder -> builder
-            .group(
-                    settingsCodec(builder),
-                    StructureTemplatePool.CODEC.fieldOf("start_pool").forGetter(structure -> structure.startPool),
-                    ResourceLocation.CODEC.optionalFieldOf("start_jigsaw_name").forGetter(structure -> structure.startJigsawName),
-                    Codec.intRange(0, 128).fieldOf("size").forGetter(structure -> structure.maxDepth),
-                    HeightProvider.CODEC.fieldOf("start_height").forGetter(structure -> structure.startHeight),
-                    IntProvider.codec(0, 15).optionalFieldOf("x_offset_in_chunk", ConstantInt.of(0)).forGetter(structure -> structure.xOffsetInChunk),
-                    IntProvider.codec(0, 15).optionalFieldOf("z_offset_in_chunk", ConstantInt.of(0)).forGetter(structure -> structure.zOffsetInChunk),
-                    Codec.BOOL.optionalFieldOf("use_expansion_hack", false).forGetter(structure -> structure.useExpansionHack),
-                    Heightmap.Types.CODEC.optionalFieldOf("project_start_to_heightmap").forGetter(structure -> structure.projectStartToHeightmap),
-                    Codec.intRange(1, MAX_TOTAL_STRUCTURE_RADIUS).fieldOf("max_distance_from_center").forGetter(structure -> structure.maxDistanceFromCenter),
-                    Codec.INT.optionalFieldOf("max_y").forGetter(structure -> structure.maxY),
-                    Codec.INT.optionalFieldOf("min_y").forGetter(structure -> structure.minY),
-                    EnhancedTerrainAdaptationType.ADAPTATION_CODEC.optionalFieldOf("enhanced_terrain_adaptation", EnhancedTerrainAdaptation.NONE).forGetter(structure -> structure.enhancedTerrainAdaptation))
-            .apply(builder, YungJigsawStructure::new))
-            .flatXmap(verifyRange(), verifyRange())
-            .codec();
+    public static final MapCodec<YungJigsawStructure> CODEC = RecordCodecBuilder.<YungJigsawStructure>mapCodec(builder -> builder
+                    .group(
+                            settingsCodec(builder),
+                            StructureTemplatePool.CODEC.fieldOf("start_pool").forGetter(structure -> structure.startPool),
+                            ResourceLocation.CODEC.optionalFieldOf("start_jigsaw_name").forGetter(structure -> structure.startJigsawName),
+                            Codec.intRange(0, 128).fieldOf("size").forGetter(structure -> structure.maxDepth),
+                            HeightProvider.CODEC.fieldOf("start_height").forGetter(structure -> structure.startHeight),
+                            IntProvider.codec(0, 15).optionalFieldOf("x_offset_in_chunk", ConstantInt.of(0)).forGetter(structure -> structure.xOffsetInChunk),
+                            IntProvider.codec(0, 15).optionalFieldOf("z_offset_in_chunk", ConstantInt.of(0)).forGetter(structure -> structure.zOffsetInChunk),
+                            Codec.BOOL.optionalFieldOf("use_expansion_hack", false).forGetter(structure -> structure.useExpansionHack),
+                            Heightmap.Types.CODEC.optionalFieldOf("project_start_to_heightmap").forGetter(structure -> structure.projectStartToHeightmap),
+                            Codec.intRange(1, MAX_TOTAL_STRUCTURE_RADIUS).fieldOf("max_distance_from_center").forGetter(structure -> structure.maxDistanceFromCenter),
+                            Codec.INT.optionalFieldOf("max_y").forGetter(structure -> structure.maxY),
+                            Codec.INT.optionalFieldOf("min_y").forGetter(structure -> structure.minY),
+                            EnhancedTerrainAdaptationType.ADAPTATION_CODEC.optionalFieldOf("enhanced_terrain_adaptation", EnhancedTerrainAdaptation.NONE).forGetter(structure -> structure.enhancedTerrainAdaptation),
+                            DimensionPadding.CODEC.optionalFieldOf("dimension_padding", DimensionPadding.ZERO).forGetter(structure -> structure.dimensionPadding),
+                            LiquidSettings.CODEC.optionalFieldOf("liquid_settings", LiquidSettings.APPLY_WATERLOGGING).forGetter(structure -> structure.liquidSettings))
+                    .apply(builder, YungJigsawStructure::new))
+            .validate(YungJigsawStructure::validateRange);
 
     /**
      * The template pool to use for the starting piece.
@@ -107,10 +110,10 @@ public class YungJigsawStructure extends Structure {
      * Optional integer for specifying the max possible y-value of the structure.
      * If provided, no pieces of the structure will generate above this value.
      * If not provided, no max y-value will be enforced.
-     * This is useful for structures that should only generate underground.
+     * This is useful for structures that should only generate underground, for example.
      * Note that this is not the same as the max height of the structure.
-     * The max height of the structure is determined by the max height of the
-     * pieces in the structure's pool.
+     * The max height of the structure is determined by the max height of the pieces in the structure's pool,
+     * and the ways in which they can be placed.
      */
     public final Optional<Integer> maxY;
 
@@ -130,6 +133,18 @@ public class YungJigsawStructure extends Structure {
      */
     public final EnhancedTerrainAdaptation enhancedTerrainAdaptation;
 
+    /**
+     * Dimension padding for the structure. Same as vanilla.
+     * Usually not necessary since we have the maxY and minY fields.
+     */
+    private final DimensionPadding dimensionPadding;
+
+    /**
+     * Liquid settings for the structure. Same as vanilla.
+     * Can be overridden on a piece-by-piece basis.
+     */
+    private final LiquidSettings liquidSettings;
+
     public YungJigsawStructure(
             StructureSettings structureSettings,
             Holder<StructureTemplatePool> startPool,
@@ -143,7 +158,9 @@ public class YungJigsawStructure extends Structure {
             int maxBlockDistanceFromCenter,
             Optional<Integer> maxY,
             Optional<Integer> minY,
-            EnhancedTerrainAdaptation enhancedTerrainAdaptation
+            EnhancedTerrainAdaptation enhancedTerrainAdaptation,
+            DimensionPadding dimensionPadding,
+            LiquidSettings liquidSettings
     ) {
         super(structureSettings);
         this.startPool = startPool;
@@ -158,32 +175,32 @@ public class YungJigsawStructure extends Structure {
         this.maxY = maxY;
         this.minY = minY;
         this.enhancedTerrainAdaptation = enhancedTerrainAdaptation;
+        this.dimensionPadding = dimensionPadding;
+        this.liquidSettings = liquidSettings;
     }
 
-    private static Function<YungJigsawStructure, DataResult<YungJigsawStructure>> verifyRange() {
-        return structure -> {
-            if (structure.terrainAdaptation() != TerrainAdjustment.NONE && structure.enhancedTerrainAdaptation != EnhancedTerrainAdaptation.NONE) {
-                return DataResult.error(() -> "YUNG Structure cannot use both vanilla terrain_adaptation and enhanced_terrain_adaptation");
-            }
+    private static DataResult<YungJigsawStructure> validateRange(YungJigsawStructure structure) {
+        if (structure.terrainAdaptation() != TerrainAdjustment.NONE && structure.enhancedTerrainAdaptation != EnhancedTerrainAdaptation.NONE) {
+            return DataResult.error(() -> "YUNG Structure cannot use both vanilla terrain_adaptation and enhanced_terrain_adaptation");
+        }
 
-            // Vanilla boundary check
-            int vanillaEdgeBuffer = switch (structure.terrainAdaptation()) {
-                case NONE -> 0;
-                case BURY, BEARD_THIN, BEARD_BOX -> 12;
-            };
-            if (structure.maxDistanceFromCenter + vanillaEdgeBuffer > 128) {
-                return DataResult.error(() -> "YUNG Structure size including terrain adaptation must not exceed 128");
-            }
-
-            // Enhanced boundary check.
-            // Note that it's still possible to have structure overflow issues if one of the structure's pieces
-            // has its own enhanced_terrain_adaptation with an even bigger kernel radius than that of the
-            // rest of the structure!
-            int enhancedEdgeBuffer = structure.enhancedTerrainAdaptation.getKernelRadius();
-            return structure.maxDistanceFromCenter + enhancedEdgeBuffer > 128
-                    ? DataResult.error(() -> "YUNG Structure size including enhanced terrain adaptation must not exceed 128")
-                    : DataResult.success(structure);
+        // Vanilla boundary check
+        int vanillaEdgeBuffer = switch (structure.terrainAdaptation()) {
+            case NONE -> 0;
+            case BURY, BEARD_THIN, BEARD_BOX, ENCAPSULATE -> 12;
         };
+        if (structure.maxDistanceFromCenter + vanillaEdgeBuffer > 128) {
+            return DataResult.error(() -> "YUNG Structure size including terrain adaptation must not exceed 128");
+        }
+
+        // Enhanced boundary check.
+        // Note that it's still possible to have structure overflow issues if one of the structure's pieces
+        // has its own enhanced_terrain_adaptation with an even bigger kernel radius than that of the
+        // rest of the structure!
+        int enhancedEdgeBuffer = structure.enhancedTerrainAdaptation.getKernelRadius();
+        return structure.maxDistanceFromCenter + enhancedEdgeBuffer > 128
+                ? DataResult.error(() -> "YUNG Structure size including enhanced terrain adaptation must not exceed 128")
+                : DataResult.success(structure);
     }
 
     @Override
@@ -204,7 +221,9 @@ public class YungJigsawStructure extends Structure {
                 this.projectStartToHeightmap,
                 this.maxDistanceFromCenter,
                 this.maxY,
-                this.minY
+                this.minY,
+                this.dimensionPadding,
+                this.liquidSettings
         );
     }
 

@@ -2,6 +2,7 @@ package com.yungnickyoung.minecraft.yungsapi.world.structure.condition;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import net.minecraft.resources.ResourceLocation;
 
@@ -48,7 +49,7 @@ public interface StructureConditionType<C extends StructureCondition> {
     /**
      * Utility method for registering StructureConditionTypes.
      */
-    static <C extends StructureCondition> StructureConditionType<C> register(ResourceLocation resourceLocation, Codec<C> codec) {
+    static <C extends StructureCondition> StructureConditionType<C> register(ResourceLocation resourceLocation, MapCodec<C> codec) {
         StructureConditionType<C> conditionType = () -> codec;
         CONDITION_TYPES_BY_NAME.put(resourceLocation, conditionType);
         NAME_BY_CONDITION_TYPES.put(conditionType, resourceLocation);
@@ -58,12 +59,12 @@ public interface StructureConditionType<C extends StructureCondition> {
     /**
      * Private utility method for registering StructureConditionTypes native to YUNG's API.
      */
-    private static <C extends StructureCondition> StructureConditionType<C> register(String id, Codec<C> codec) {
-        return register(new ResourceLocation(YungsApiCommon.MOD_ID, id), codec);
+    private static <C extends StructureCondition> StructureConditionType<C> register(String id, MapCodec<C> codec) {
+        return register(ResourceLocation.fromNamespaceAndPath(YungsApiCommon.MOD_ID, id), codec);
     }
 
     /**
      * Supplies the codec for the {@link StructureCondition} corresponding to this StructureConditionType.
      */
-    Codec<C> codec();
+    MapCodec<C> codec();
 }

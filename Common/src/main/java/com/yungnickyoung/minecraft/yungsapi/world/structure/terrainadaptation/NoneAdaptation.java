@@ -1,10 +1,10 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 
 public class NoneAdaptation extends EnhancedTerrainAdaptation {
     private static final NoneAdaptation INSTANCE = new NoneAdaptation();
-    public static final Codec<NoneAdaptation> CODEC = Codec.unit(() -> INSTANCE);
+    public static final MapCodec<NoneAdaptation> CODEC = MapCodec.unit(() -> INSTANCE);
 
     public NoneAdaptation() {
         super(0, 0, false, false);

@@ -7,8 +7,10 @@ import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.pools.DimensionPadding;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
+import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
 
 import java.util.Optional;
 
@@ -54,6 +56,8 @@ public class YungJigsawManager {
      *                                   If provided, no pieces of the structure will generate above this value.
      * @param minY                       Optional integer for specifying the min possible y-value of the structure.
      *                                   If provided, no pieces of the structure will generate below this value.
+     * @param dimensionPadding           Dimension padding for the structure.
+     * @param liquidSettings             Liquid settings for the structure.
      */
     public static Optional<Structure.GenerationStub> assembleJigsawStructure(
             Structure.GenerationContext generationContext,
@@ -65,9 +69,11 @@ public class YungJigsawManager {
             Optional<Heightmap.Types> projectStartToHeightmap,
             int maxDistanceFromCenter,
             Optional<Integer> maxY,
-            Optional<Integer> minY
+            Optional<Integer> minY,
+            DimensionPadding dimensionPadding,
+            LiquidSettings liquidSettings
     ) {
         return JigsawManager.assembleJigsawStructure(generationContext, startPool, startJigsawNameOptional, maxDepth,
-                startPos, useExpansionHack, projectStartToHeightmap, maxDistanceFromCenter, maxY, minY);
+                startPos, useExpansionHack, projectStartToHeightmap, maxDistanceFromCenter, maxY, minY, dimensionPadding, liquidSettings);
     }
 }

@@ -25,9 +25,11 @@ import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.pools.DimensionPadding;
 import net.minecraft.world.level.levelgen.structure.pools.EmptyPoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
+import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.phys.AABB;
@@ -47,7 +49,10 @@ public class JigsawManager {
             Optional<Heightmap.Types> projectStartToHeightmap,
             int maxDistanceFromCenter, // Used to be structureBoundingBoxRadius
             Optional<Integer> maxY,
-            Optional<Integer> minY
+            Optional<Integer> minY,
+            DimensionPadding dimensionPadding,
+            LiquidSettings liquidSettings
+
     ) {
         // Extract data from context
         RegistryAccess registryAccess = generationContext.registryAccess();
@@ -58,7 +63,7 @@ public class JigsawManager {
         Registry<StructureTemplatePool> registry = registryAccess.registryOrThrow(Registries.TEMPLATE_POOL);
 
         // Grab a random starting piece from the start pool
-        Optional<PoolElementStructurePiece> startPieceOptional = getStartPiece(startPool, startJigsawNameOptional, locatePos, structureManager, worldgenRandom);
+        Optional<PoolElementStructurePiece> startPieceOptional = getStartPiece(startPool, startJigsawNameOptional, locatePos, structureManager, worldgenRandom, liquidSettings);
         if (startPieceOptional.isEmpty()) {
             return Optional.empty();
         }
@@ -111,7 +116,9 @@ public class JigsawManager {
                             .maxY(maxY)
                             .minY(minY)
                             .useExpansionHack(useExpansionHack)
-                            .levelHeightAccessor(levelHeightAccessor));
+                            .levelHeightAccessor(levelHeightAccessor)
+                            .dimensionPadding(dimensionPadding)
+                            .liquidSettings(liquidSettings));
 
                     // Add the start piece to the assembler & assemble the structure
                     assembler.assembleStructure(startPiece, maxStructureBounds);
@@ -131,7 +138,8 @@ public class JigsawManager {
             Optional<ResourceLocation> startJigsawNameOptional,
             BlockPos locatePos,
             StructureTemplateManager structureTemplateManager,
-            RandomSource rand
+            RandomSource rand,
+            LiquidSettings liquidSettings
     ) {
         StructureTemplatePool startPool = startPoolHolder.value();
         ObjectArrayList<Pair<StructurePoolElement, Integer>> candidatePoolElements = new ObjectArrayList<>(((StructureTemplatePoolAccessor) startPool).getRawTemplates());
@@ -225,7 +233,8 @@ public class JigsawManager {
                     adjustedStartPos,
                     chosenPoolElement.getGroundLevelDelta(),
                     rotation,
-                    chosenPoolElement.getBoundingBox(structureTemplateManager, adjustedStartPos, rotation)
+                    chosenPoolElement.getBoundingBox(structureTemplateManager, adjustedStartPos, rotation),
+                    liquidSettings
             ));
         }
         return Optional.empty();

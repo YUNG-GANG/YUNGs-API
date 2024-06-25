@@ -47,7 +47,7 @@ public class BlockModuleForge {
         // Register associated Blocks and their BlockItems, if applicable
         if (autoRegisterBlock.hasStairs()) {
             Block stairBlock = new StairBlock(block.defaultBlockState(), BlockBehaviour.Properties.ofLegacyCopy(block));
-            ResourceLocation name = new ResourceLocation(namespace, path + "_stairs");
+            ResourceLocation name = ResourceLocation.fromNamespaceAndPath(namespace, path + "_stairs");
             helper.register(name, stairBlock);
             autoRegisterBlock.setStairs(stairBlock);
             if (autoRegisterBlock.hasItemProperties()) {
@@ -56,7 +56,7 @@ public class BlockModuleForge {
         }
         if (autoRegisterBlock.hasSlab()) {
             Block slabBlock = new SlabBlock(BlockBehaviour.Properties.ofLegacyCopy(block));
-            ResourceLocation name = new ResourceLocation(namespace, path + "_slab");
+            ResourceLocation name = ResourceLocation.fromNamespaceAndPath(namespace, path + "_slab");
             helper.register(name, slabBlock);
             autoRegisterBlock.setSlab(slabBlock);
             if (autoRegisterBlock.hasItemProperties()) {
@@ -65,7 +65,7 @@ public class BlockModuleForge {
         }
         if (autoRegisterBlock.hasFence()) {
             Block fenceBlock = new FenceBlock(BlockBehaviour.Properties.ofLegacyCopy(block));
-            ResourceLocation name = new ResourceLocation(namespace, path + "_fence");
+            ResourceLocation name = ResourceLocation.fromNamespaceAndPath(namespace, path + "_fence");
             helper.register(name, fenceBlock);
             autoRegisterBlock.setFence(fenceBlock);
             if (autoRegisterBlock.hasItemProperties()) {
@@ -74,7 +74,7 @@ public class BlockModuleForge {
         }
         if (autoRegisterBlock.hasFenceGate()) {
             Block fenceGateBlock = new FenceGateBlock(autoRegisterBlock.getFenceGateWoodType(), BlockBehaviour.Properties.ofLegacyCopy(block));
-            ResourceLocation name = new ResourceLocation(namespace, path + "_fence_gate");
+            ResourceLocation name = ResourceLocation.fromNamespaceAndPath(namespace, path + "_fence_gate");
             helper.register(name, fenceGateBlock);
             autoRegisterBlock.setFenceGate(fenceGateBlock);
             if (autoRegisterBlock.hasItemProperties()) {
@@ -83,7 +83,7 @@ public class BlockModuleForge {
         }
         if (autoRegisterBlock.hasWall()) {
             Block wallBlock = new WallBlock(BlockBehaviour.Properties.ofLegacyCopy(block));
-            ResourceLocation name = new ResourceLocation(namespace, path + "_wall");
+            ResourceLocation name = ResourceLocation.fromNamespaceAndPath(namespace, path + "_wall");
             helper.register(name, wallBlock);
             autoRegisterBlock.setWall(wallBlock);
             if (autoRegisterBlock.hasItemProperties()) {

@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
@@ -17,6 +18,7 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
+import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.phys.AABB;
@@ -33,7 +35,7 @@ public class TransformAction extends StructureAction {
     private static final Codec<Either<ResourceLocation, StructureTemplate>> TEMPLATE_CODEC =
             Codec.of(TransformAction::encodeTemplate, ResourceLocation.CODEC.map(Either::left));
 
-    public static final Codec<TransformAction> CODEC = RecordCodecBuilder.create((builder) -> builder
+    public static final MapCodec<TransformAction> CODEC = RecordCodecBuilder.mapCodec((builder) -> builder
             .group(
                     TEMPLATE_CODEC.listOf().fieldOf("output").forGetter(action -> action.output),
                     Codec.INT.optionalFieldOf("x_offset", 0).forGetter(action -> action.xOffset),
@@ -95,7 +97,7 @@ public class TransformAction extends StructureAction {
         // Randomly choose output piece
         Either<ResourceLocation, StructureTemplate> newTemplate = this.output.get(rand.nextInt(this.output.size()));
         StructurePoolElement newElement = new YungJigsawSinglePoolElement(newTemplate, old.processors,
-                old.getProjection(), old.name, old.maxCount, old.minRequiredDepth, old.maxPossibleDepth,
+                old.getProjection(), old.overrideLiquidSettings, old.name, old.maxCount, old.minRequiredDepth, old.maxPossibleDepth,
                 old.isPriority, old.ignoreBounds, old.condition, old.enhancedTerrainAdaptation,
                 old.deadendPool, old.modifiers);
 
@@ -116,7 +118,8 @@ public class TransformAction extends StructureAction {
                 newPos,
                 targetPieceEntry.getPiece().getGroundLevelDelta(),
                 targetPieceEntry.getPiece().getRotation(),
-                newBoundingBox
+                newBoundingBox,
+                old.overrideLiquidSettings.orElse(LiquidSettings.APPLY_WATERLOGGING)
         );
 
         targetPieceEntry.setPiece(newPiece);

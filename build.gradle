@@ -7,7 +7,7 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'signing'
     apply plugin: 'maven-publish'
-    java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+    java.toolchain.languageVersion = JavaLanguageVersion.of(java_version)
     java.withSourcesJar()
     java.withJavadocJar()
     jar {
@@ -35,7 +35,7 @@ subprojects {
     }
     tasks.withType(JavaCompile).configureEach {
         it.options.encoding = 'UTF-8'
-        it.options.release = 17
+        it.options.release = java_version.toInteger()
     }
     // Disables Gradle's custom module metadata from being published to maven. The
     // metadata includes mapped dependencies which are not reasonably consumable by

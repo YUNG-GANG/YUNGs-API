@@ -36,7 +36,7 @@ import java.util.Optional;
  * Allows for processing entities in Jigsaw structures.
  */
 @Mixin(StructureTemplate.class)
-public class EntityProcessorMixin {
+public class EntityProcessorMixinFabric {
     @Shadow
     @Final
     private List<StructureTemplate.StructureEntityInfo> entityInfoList;
@@ -104,7 +104,7 @@ public class EntityProcessorMixin {
                     f += entity.getYRot() - entity.rotate(ctx.structurePlaceSettings().getRotation());
                     entity.moveTo(entityPos.x, entityPos.y, entityPos.z, f, entity.getXRot());
                     if (ctx.structurePlaceSettings().shouldFinalizeEntities() && entity instanceof Mob) {
-                        ((Mob) entity).finalizeSpawn(serverLevelAccessor, serverLevelAccessor.getCurrentDifficultyAt(BlockPos.containing(entityPos)), MobSpawnType.STRUCTURE, null, entityNbt);
+                        ((Mob) entity).finalizeSpawn(serverLevelAccessor, serverLevelAccessor.getCurrentDifficultyAt(BlockPos.containing(entityPos)), MobSpawnType.STRUCTURE, null);
                     }
 
                     serverLevelAccessor.addFreshEntityWithPassengers(entity);

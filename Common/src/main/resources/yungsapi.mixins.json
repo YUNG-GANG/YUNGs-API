@@ -7,13 +7,10 @@
   "refmap": "yungsapi.refmap.json",
   "mixins": [
     "BeardifierMixin",
-    "MinecraftServerMixin",
-    "ServerPlayerEntityTickMixin",
     "accessor.BeardifierAccessor",
     "accessor.BoundingBoxAccessor",
     "accessor.FeaturePoolElementAccessor",
     "accessor.ListPoolElementAccessor",
-    "accessor.PotionBrewingAccessor",
     "accessor.SinglePoolElementAccessor",
     "accessor.StructureTemplatePoolAccessor"
   ],

@@ -2,6 +2,7 @@ package com.yungnickyoung.minecraft.yungsapi.world.structure.targetselector;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import net.minecraft.resources.ResourceLocation;
 
@@ -37,7 +38,7 @@ public interface StructureTargetSelectorType<C extends StructureTargetSelector> 
     /**
      * Utility method for registering TargetSelectorTypes.
      */
-    static <C extends StructureTargetSelector> StructureTargetSelectorType<C> register(ResourceLocation resourceLocation, Codec<C> codec) {
+    static <C extends StructureTargetSelector> StructureTargetSelectorType<C> register(ResourceLocation resourceLocation, MapCodec<C> codec) {
         StructureTargetSelectorType<C> targetSelectorType = () -> codec;
         TARGET_SELECTOR_TYPES_BY_NAME.put(resourceLocation, targetSelectorType);
         NAME_BY_TARGET_SELECTOR_TYPES.put(targetSelectorType, resourceLocation);
@@ -47,12 +48,12 @@ public interface StructureTargetSelectorType<C extends StructureTargetSelector> 
     /**
      * Private utility method for registering TargetSelectorTypes native to YUNG's API.
      */
-    private static <C extends StructureTargetSelector> StructureTargetSelectorType<C> register(String id, Codec<C> codec) {
-        return register(new ResourceLocation(YungsApiCommon.MOD_ID, id), codec);
+    private static <C extends StructureTargetSelector> StructureTargetSelectorType<C> register(String id, MapCodec<C> codec) {
+        return register(ResourceLocation.fromNamespaceAndPath(YungsApiCommon.MOD_ID, id), codec);
     }
 
     /**
      * Supplies the codec for the {@link StructureTargetSelector} corresponding to this TargetSelectorTypes.
      */
-    Codec<C> codec();
+    MapCodec<C> codec();
 }

@@ -2,6 +2,7 @@ package com.yungnickyoung.minecraft.yungsapi.world.structure.action;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import net.minecraft.resources.ResourceLocation;
 
@@ -38,7 +39,7 @@ public interface StructureActionType<C extends StructureAction> {
     /**
      * Utility method for registering StructureActionTypes.
      */
-    static <C extends StructureAction> StructureActionType<C> register(ResourceLocation resourceLocation, Codec<C> codec) {
+    static <C extends StructureAction> StructureActionType<C> register(ResourceLocation resourceLocation, MapCodec<C> codec) {
         StructureActionType<C> actionType = () -> codec;
         ACTION_TYPES_BY_NAME.put(resourceLocation, actionType);
         NAME_BY_ACTION_TYPES.put(actionType, resourceLocation);
@@ -48,12 +49,12 @@ public interface StructureActionType<C extends StructureAction> {
     /**
      * Private utility method for registering StructureActionTypes native to YUNG's API.
      */
-    private static <C extends StructureAction> StructureActionType<C> register(String id, Codec<C> codec) {
-        return register(new ResourceLocation(YungsApiCommon.MOD_ID, id), codec);
+    private static <C extends StructureAction> StructureActionType<C> register(String id, MapCodec<C> codec) {
+        return register(ResourceLocation.fromNamespaceAndPath(YungsApiCommon.MOD_ID, id), codec);
     }
 
     /**
      * Supplies the codec for the {@link StructureAction} corresponding to this StructureActionTypes.
      */
-    Codec<C> codec();
+    MapCodec<C> codec();
 }

@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure.condition;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.services.Services;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
@@ -13,8 +14,7 @@ import java.util.stream.Collectors;
  * String values are case-insensitive.
  */
 public class ModLoaderCondition extends StructureCondition {
-
-    public static final Codec<ModLoaderCondition> CODEC = RecordCodecBuilder.create((builder) -> builder
+    public static final MapCodec<ModLoaderCondition> CODEC = RecordCodecBuilder.mapCodec((builder) -> builder
             .group(
                     Codec.STRING.listOf().fieldOf("loaders").forGetter(conditon -> conditon.validLoaders))
             .apply(builder, ModLoaderCondition::new));

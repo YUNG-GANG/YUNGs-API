@@ -1,11 +1,12 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.ExtraCodecs;
 
 public class CustomAdaptation extends EnhancedTerrainAdaptation {
-    public static final Codec<CustomAdaptation> CODEC = RecordCodecBuilder.create((builder) -> builder
+    public static final MapCodec<CustomAdaptation> CODEC = RecordCodecBuilder.mapCodec((builder) -> builder
             .group(
                     Codec.BOOL.optionalFieldOf("carves", true).forGetter(EnhancedTerrainAdaptation::carves),
                     Codec.BOOL.optionalFieldOf("beards", true).forGetter(EnhancedTerrainAdaptation::beards),

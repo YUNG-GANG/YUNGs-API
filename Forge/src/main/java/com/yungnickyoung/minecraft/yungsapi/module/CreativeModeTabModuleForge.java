@@ -31,7 +31,7 @@ public class CreativeModeTabModuleForge {
                 .title(autoRegisterCreativeTab.getDisplayName())
                 .icon(autoRegisterCreativeTab.getIconItemStackSupplier())
                 .displayItems(autoRegisterCreativeTab.getDisplayItemsGenerator())
-                .backgroundSuffix(autoRegisterCreativeTab.getBackgroundSuffix());
+                .backgroundTexture(autoRegisterCreativeTab.getBackgroundTexture());
         if (!autoRegisterCreativeTab.canScroll()) {
             creativeModeTabBuilder.noScrollBar();
         }

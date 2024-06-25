@@ -38,7 +38,7 @@ public class ItemAdapter extends TypeAdapter<Item> {
     public static Item resolveItem(String itemString) {
         Item item;
         try {
-            item = BuiltInRegistries.ITEM.get(new ResourceLocation(itemString));
+            item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemString));
         } catch (Exception e) {
             YungsApiCommon.LOGGER.error("JSON: Unable to read item '{}': {}", itemString, e.toString());
             YungsApiCommon.LOGGER.error("Using air instead...");

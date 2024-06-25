@@ -53,9 +53,8 @@ public class EntityTypeModuleForge {
         ENTITY_ATTRIBUTES.forEach((entityType, builderSupplier) -> {
             AttributeSupplier.Builder builder = builderSupplier.get();
             // Attach required Forge attributes and register
-            builder.add(ForgeMod.SWIM_SPEED.get())
-                    .add(ForgeMod.NAMETAG_DISTANCE.get())
-                    .add(ForgeMod.ENTITY_GRAVITY.get());
+            builder.add(ForgeMod.SWIM_SPEED.getHolder().get())
+                    .add(ForgeMod.NAMETAG_DISTANCE.getHolder().get());
             event.put(entityType.get(), builder.build());
         });
     }
