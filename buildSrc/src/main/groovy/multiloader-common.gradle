@@ -5,8 +5,8 @@ plugins {
 }
 
 base {
-    archivesName = "${mod_name}-${mc_version}-${project.name}"
-    version = project.version
+    archivesName = "${mod_name}"
+    version = "${mc_version}-${project.name}-${project.version}"
 }
 
 group = maven_group
@@ -117,8 +117,31 @@ processResources {
 publishing {
     publications {
         register('mavenJava', MavenPublication) {
-            artifactId base.archivesName.get()
+            artifactId mod_name
             from components.java
+            pom {
+                name = "YUNG's API"
+                description = "A common API for YUNG's Minecraft mods"
+                url = 'https://github.com/yungnickyoung/YUNGs-Api'
+                scm {
+                    url = 'https://github.com/yungnickyoung/YUNGs-Api'
+                    connection = 'scm:git:git://github.com/yungnickyoung/YUNGs-Api.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:yungnickyoung/YUNGs-Api.git'
+                }
+                licenses {
+                    license {
+                        name = 'GNU LGPLv3'
+                        url = 'https://github.com/yungnickyoung/YUNGs-Api/blob/forge/1.18/LICENSE'
+                        distribution = 'repo'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'YUNGNICKYOUNG'
+                        email = 'yungnickyoung@gmail.com'
+                    }
+                }
+            }
         }
     }
     repositories {

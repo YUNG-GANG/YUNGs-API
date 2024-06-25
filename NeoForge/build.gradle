@@ -74,7 +74,7 @@ task publishCurseForgeNeoForge(type: net.darkhax.curseforgegradle.TaskPublishCur
     mainFile.changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "No changelog provided"
     mainFile.releaseType = 'release'
     mainFile.addModLoader('neoforge')
-    mainFile.displayName = "[${mc_version}] ${mod_full_name} v${version} (NeoForge)"
+    mainFile.displayName = "[${mc_version}] ${mod_full_name} v${rawVersion} (NeoForge)"
     compatibleVersions.each { version ->
         mainFile.addGameVersion(version)
     }
@@ -85,7 +85,7 @@ modrinth {
     token = modrinthToken
     projectId = modrinth_project_id
     versionNumber = version
-    versionName = "[${mc_version}] v${version} (NeoForge)"
+    versionName = "[${mc_version}] v${rawVersion} (NeoForge)"
     versionType = "release"
     uploadFile = jar
     gameVersions = compatibleVersionsList

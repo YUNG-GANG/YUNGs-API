@@ -101,7 +101,7 @@ task publishCurseForgeForge(type: net.darkhax.curseforgegradle.TaskPublishCurseF
     mainFile.changelogType = 'markdown'
     mainFile.changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "No changelog provided"
     mainFile.releaseType = 'release'
-    mainFile.displayName = "[${mc_version}] ${mod_full_name} v${version} (Forge)"
+    mainFile.displayName = "[${mc_version}] ${mod_full_name} v${rawVersion} (Forge)"
     compatibleVersions.each { version ->
         mainFile.addGameVersion(version)
     }
@@ -112,7 +112,7 @@ modrinth {
     token = modrinthToken
     projectId = modrinth_project_id
     versionNumber = version
-    versionName = "[${mc_version}] v${version} (Forge)"
+    versionName = "[${mc_version}] v${rawVersion} (Forge)"
     versionType = "release"
     uploadFile = jar
     gameVersions = compatibleVersionsList

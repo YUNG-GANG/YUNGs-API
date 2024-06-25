@@ -57,7 +57,7 @@ task publishCurseForgeFabric(type: net.darkhax.curseforgegradle.TaskPublishCurse
     mainFile.changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "No changelog provided"
     mainFile.releaseType = 'release'
     mainFile.addRequirement('fabric-api')
-    mainFile.displayName = "[${mc_version}] ${mod_full_name} v${version} (Fabric)"
+    mainFile.displayName = "[${mc_version}] ${mod_full_name} v${rawVersion} (Fabric)"
     compatibleVersions.each { version ->
         mainFile.addGameVersion(version)
     }
@@ -68,7 +68,7 @@ modrinth {
     token = modrinthToken
     projectId = modrinth_project_id
     versionNumber = version
-    versionName = "[${mc_version}] v${version} (Fabric)"
+    versionName = "[${mc_version}] v${rawVersion} (Fabric)"
     versionType = "release"
     uploadFile = remapJar
     gameVersions = compatibleVersionsList

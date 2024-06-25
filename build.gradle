@@ -1,9 +1,9 @@
 plugins {
     id 'fabric-loom' version '1.7-SNAPSHOT' apply false
-    id "org.jetbrains.gradle.plugin.idea-ext" version "1.1.7" // this is required for VanillaGradle and NeoForge to exist in harmony
+    id "org.jetbrains.gradle.plugin.idea-ext" version "1.1.7" // required for VanillaGradle and NeoForge to work together?
     id 'org.spongepowered.mixin' version '0.7-SNAPSHOT' apply false
-    id 'net.darkhax.curseforgegradle' version "${cursegradle_version}" apply false
-    id "com.modrinth.minotaur" version "2.+" apply false
+    id 'net.darkhax.curseforgegradle' version "${cursegradle_version}" apply false // curseforge publishing
+    id "com.modrinth.minotaur" version "2.+" apply false // modrinth publishing
 }
 
 subprojects {
@@ -12,6 +12,11 @@ subprojects {
             cacheChangingModulesFor 60, 'seconds'
             cacheDynamicVersionsFor 60, 'seconds'
         }
+    }
+    // Pass the raw project version string as an extra property to each subproject
+    // since the version property will be overwritten by the complete version string
+    ext {
+        rawVersion = project.version
     }
 }
 
