@@ -28,46 +28,34 @@ minecraft {
     runs {
         client {
             workingDirectory file('runs/client')
-//            args "-mixin.config=${mod_id}.mixins.json", "-mixin.config=${mod_id}_forge.mixins.json"
             ideaModule "${rootProject.name}.${project.name}.main"
             taskName 'Client'
-//            property 'mixin.env.remapRefMap', 'true'
-//            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             mods {
                 modClientRun {
                     source sourceSets.main
-//                    source project(":Common").sourceSets.main
                 }
             }
         }
 
         server {
             workingDirectory file('runs/server')
-//            args "-mixin.config=${mod_id}.mixins.json", "-mixin.config=${mod_id}_forge.mixins.json"
             ideaModule "${rootProject.name}.${project.name}.main"
             taskName 'Server'
-//            property 'mixin.env.remapRefMap', 'true'
-//            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             mods {
                 modServerRun {
                     source sourceSets.main
-//                    source project(":Common").sourceSets.main
                 }
             }
         }
 
         data {
             workingDirectory file('runs/data')
-//            args "-mixin.config=${mod_id}.mixins.json", "-mixin.config=${mod_id}_forge.mixins.json"
             args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
             ideaModule "${rootProject.name}.${project.name}.main"
             taskName 'Data'
-//            property 'mixin.env.remapRefMap', 'true'
-//            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             mods {
                 modDataRun {
                     source sourceSets.main
-//                    source project(":Common").sourceSets.main
                 }
             }
         }
@@ -79,25 +67,18 @@ sourceSets.main.resources.srcDir 'src/generated/resources'
 dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-//    compileOnly project(":Common")
 
     // Hack fix for now, force jopt-simple to be exactly 5.0.4 because Mojang ships that version, but some transitive dependencies request 6.0+
-    // copied from the Forge MDK
+    // copied from the Forge MDK.
+    // Recommended by Forge.
     implementation('net.sf.jopt-simple:jopt-simple:5.0.4') { version { strictly '5.0.4' } }
 }
 
-//tasks.withType(JavaCompile) {
-//    source(project(":Common").sourceSets.main.allSource)
-//}
-
 mixin {
-//    add project(":Common").sourceSets.main, "${mod_id}.refmap.json"
     add(sourceSets.main, "${mod_id}.refmap.json")
     config "${mod_id}.mixins.json"
     config "${mod_id}_forge.mixins.json"
 }
-
-//jar.finalizedBy('reobfJar')
 
 // Merge the resources and classes into the same directory.
 // This is done because java expects modules to be in a single directory.
@@ -108,12 +89,6 @@ sourceSets.each {
     it.output.resourcesDir = dir
     it.java.destinationDirectory = dir
 }
-
-//javadoc {
-//    if(JavaVersion.current().isJava9Compatible()) {
-//        options.addBooleanOption('html5', true)
-//    }
-//}
 
 String[] compatibleVersions = project.curseforge_compatible_versions.split(',')
 task publishCurseForgeForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {

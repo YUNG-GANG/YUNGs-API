@@ -7,7 +7,6 @@ plugins {
 
 dependencies {
     minecraft "com.mojang:minecraft:${mc_version}"
-//    mappings loom.officialMojangMappings()
     mappings loom.layered {
         officialMojangMappings()
         parchment("org.parchmentmc.data:parchment-${parchment_minecraft}:${parchment_version}@zip")
@@ -18,8 +17,6 @@ dependencies {
     include("org.reflections:reflections:0.10.2")
     implementation("org.javassist:javassist:3.29.2-GA")
     include("org.javassist:javassist:3.29.2-GA")
-//    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
-//    compileOnly project(":Common")
 }
 
 loom {
@@ -47,22 +44,6 @@ loom {
         }
     }
 }
-
-//tasks.withType(JavaCompile) {
-//    source(project(":Common").sourceSets.main.allSource)
-//}
-//
-//jar {
-//    from("LICENSE") {
-//        rename { "${it}_${mod_name}" }
-//    }
-//}
-//
-//javadoc {
-//    if (JavaVersion.current().isJava9Compatible()) {
-//        options.addBooleanOption('html5', true)
-//    }
-//}
 
 String[] compatibleVersions = project.curseforge_compatible_versions.split(',')
 task publishCurseForgeFabric(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
