@@ -3,10 +3,6 @@ plugins {
     id 'org.spongepowered.gradle.vanilla' version '0.2.1-SNAPSHOT'
 }
 
-//archivesBaseName = "${mod_name}"
-//version = "${mc_version}-Common-${version}"
-//group = maven_group
-
 minecraft {
     version(mc_version)
     def aw = file("src/main/resources/${mod_id}.accesswidener")
@@ -54,51 +50,4 @@ artifacts {
     commonJava sourceSets.main.java.sourceDirectories.singleFile
     commonResources sourceSets.main.resources.sourceDirectories.singleFile
     commonGeneratedResources sourceSets.generated.resources.sourceDirectories.singleFile
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId = mod_name
-            from components.java
-            pom {
-                name = "YUNG's API"
-                description = "A common API for YUNG's Minecraft mods"
-                url = 'https://github.com/yungnickyoung/YUNGs-Api'
-                scm {
-                    url = 'https://github.com/yungnickyoung/YUNGs-Api'
-                    connection = 'scm:git:git://github.com/yungnickyoung/YUNGs-Api.git'
-                    developerConnection = 'scm:git:ssh://git@github.com:yungnickyoung/YUNGs-Api.git'
-                }
-                licenses {
-                    license {
-                        name = 'GNU LGPLv3'
-                        url = 'https://github.com/yungnickyoung/YUNGs-Api/blob/forge/1.18/LICENSE'
-                        distribution = 'repo'
-                    }
-                }
-                developers {
-                    developer {
-                        name = 'YUNGNICKYOUNG'
-                        email = 'yungnickyoung@gmail.com'
-                    }
-                }
-            }
-        }
-    }
-    repositories {
-        maven {
-            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            credentials {
-                username ossrhUsername
-                password ossrhPassword
-            }
-        }
-    }
-}
-
-// signing.keyId, signing.password, and signing.secretKeyRingFile are defined separately
-// in my global gradle.properties for protection
-signing {
-    sign publishing.publications.mavenJava
 }

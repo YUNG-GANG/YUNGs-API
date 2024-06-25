@@ -1,20 +1,9 @@
 plugins {
     id 'multiloader-loader'
-//    id 'idea'
-//    id 'maven-publish'
     id 'net.neoforged.gradle.userdev' version '7.0.145'
-//    id 'net.neoforged.moddev'
-//    id 'java-library'
     id 'net.darkhax.curseforgegradle'
     id 'com.modrinth.minotaur'
 }
-
-def modVersion = version
-
-//archivesBaseName = "${mod_name}"
-//version = "${mc_version}-NeoForge-${version}"
-//group = maven_group
-
 
 // Automatically enable neoforge AccessTransformers if the file exists
 // This location is hardcoded in FML and can not be changed.
@@ -74,38 +63,6 @@ dependencies {
 //    compileOnly project(":Common")
 }
 
-//processResources {
-//    from project(":Common").sourceSets.main.resources
-//    inputs.property "version", project.version
-//    inputs.property "mc_version", project.mc_version
-//    inputs.property "mod_description", project.mod_description
-//    inputs.property "mod_full_name", project.mod_full_name
-//    inputs.property "mod_id", project.mod_id
-//    inputs.property "neoforge_version", project.neoforge_version
-//
-//    filesMatching("META-INF/mods.toml") {
-//        expand "version": project.version,
-//                "mc_version": project.mc_version,
-//                "mod_description": project.mod_description,
-//                "mod_full_name": project.mod_full_name,
-//                "mod_id": project.mod_id,
-//                "neoforge_version": project.neoforge_version
-//    }
-
-//    doLast {
-//        // Mixins for NeoForge don't need refmapping and no refmap file will exist. This is to avoid a console warning
-//        def pattern = ~/"refmap"\s*:\s*".*?"\s*,/
-//        // Traverse all subdirectories to find mixin jsons
-//        fileTree(dir: '.', includes: ['**/*.mixins.json']).forEach { file ->
-//            if (file.path.contains('/build/')) {
-//                // Copy all lines excluding refmap line
-//                file.text = file.readLines().findAll { line ->
-//                    !pattern.matcher(line).find()
-//                }.join('\n')
-//            }
-//        }
-//    }
-//}
 //
 //// NeoGradle compiles the game, but we don't want to add our common code to the game's code
 //Spec<Task> notNeoTask = { Task it -> !it.name.startsWithIgnoreCase("neo") } as Spec<Task>
@@ -125,85 +82,35 @@ dependencies {
 //tasks.withType(ProcessResources).matching(notNeoTask).configureEach {
 //    from project(":Common").sourceSets.main.resources
 //}
-//
-//publishing {
-//    publications  {
-//        mavenJava(MavenPublication) {
-//            artifactId project.archivesBaseName
-//            artifact jar
-//            artifact sourcesJar
-//            artifact javadocJar
-////            from components.java
-//            pom {
-//                name = "YUNG's API"
-//                description = "A common API for YUNG's Minecraft mods"
-//                url = 'https://github.com/yungnickyoung/YUNGs-Api'
-//                scm {
-//                    url = 'https://github.com/yungnickyoung/YUNGs-Api'
-//                    connection = 'scm:git:git://github.com/yungnickyoung/YUNGs-Api.git'
-//                    developerConnection = 'scm:git:ssh://git@github.com:yungnickyoung/YUNGs-Api.git'
-//                }
-//                licenses {
-//                    license {
-//                        name = 'GNU LGPLv3'
-//                        url = 'https://github.com/yungnickyoung/YUNGs-Api/blob/1.20.4/LICENSE'
-//                        distribution = 'repo'
-//                    }
-//                }
-//                developers {
-//                    developer {
-//                        name = 'YUNGNICKYOUNG'
-//                        email = 'yungnickyoung@gmail.com'
-//                    }
-//                }
-//            }
-//        }
-//    }
-//    repositories {
-//        maven {
-//            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-//            credentials {
-//                username ossrhUsername
-//                password ossrhPassword
-//            }
-//        }
-//    }
-//}
-//
-//// signing.keyId, signing.password, and signing.secretKeyRingFile are defined separately
-//// in my global gradle.properties for protection
-//signing {
-//    sign publishing.publications.mavenJava
-//}
-//
-//String[] compatibleVersions = project.compatible_versions.split(',')
-//task publishCurseForgeNeoForge(type: TaskPublishCurseForge) {
-//    dependsOn(tasks.jar)
-//    apiToken = curseforgeApiKey
-//
-//    debugMode = false
-//
-//    def mainFile = upload(curseforge_project_id_neoforge, tasks.jar.archiveFile)
-//    mainFile.changelogType = 'markdown'
-//    mainFile.changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "No changelog provided"
-//    mainFile.releaseType = 'release'
-//    mainFile.addModLoader('neoforge')
-//    mainFile.displayName = "[${mc_version}] ${mod_full_name} v${modVersion} (NeoForge)"
-//    compatibleVersions.each { version ->
-//        mainFile.addGameVersion(version)
-//    }
-//}
-//
-//List compatibleVersionsList = project.compatible_versions.split(',')
-//modrinth {
-//    token = modrinthToken
-//    projectId = modrinth_project_id
-//    versionNumber = version
-//    versionName = "[${mc_version}] v${modVersion} (NeoForge)"
-//    versionType = "release"
-//    uploadFile = jar
-//    gameVersions = compatibleVersionsList
-//    debugMode = false
-//    changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "No changelog provided"
-//}
-//tasks.modrinth.dependsOn(tasks.jar)
+
+String[] compatibleVersions = project.compatible_versions.split(',')
+task publishCurseForgeNeoForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
+    dependsOn(tasks.jar)
+    apiToken = curseforgeApiKey
+
+    debugMode = false
+
+    def mainFile = upload(curseforge_project_id_neoforge, tasks.jar.archiveFile)
+    mainFile.changelogType = 'markdown'
+    mainFile.changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "No changelog provided"
+    mainFile.releaseType = 'release'
+    mainFile.addModLoader('neoforge')
+    mainFile.displayName = "[${mc_version}] ${mod_full_name} v${version} (NeoForge)"
+    compatibleVersions.each { version ->
+        mainFile.addGameVersion(version)
+    }
+}
+
+List compatibleVersionsList = project.compatible_versions.split(',')
+modrinth {
+    token = modrinthToken
+    projectId = modrinth_project_id
+    versionNumber = version
+    versionName = "[${mc_version}] v${version} (NeoForge)"
+    versionType = "release"
+    uploadFile = jar
+    gameVersions = compatibleVersionsList
+    debugMode = false
+    changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "No changelog provided"
+}
+tasks.modrinth.dependsOn(tasks.jar)

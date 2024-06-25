@@ -5,11 +5,11 @@ plugins {
 }
 
 base {
-//    archivesName = "${mod_name}"
-//    version = "${mc_version}-${project.name}-${version}"
-    archivesName = "${mod_id}-${project.name}-${mc_version}"
+    archivesName = "${mod_name}-${mc_version}-${project.name}"
     version = project.version
 }
+
+group = maven_group
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(java_version)
@@ -114,16 +114,26 @@ processResources {
     inputs.properties(expandProps)
 }
 
-//publishing {
-//    publications {
-//        register('mavenJava', MavenPublication) {
-//            artifactId base.archivesName.get()
-//            from components.java
-//        }
-//    }
-//    repositories {
-//        maven {
-//            url System.getenv("local_maven_url")
-//        }
-//    }
-//}
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            artifactId base.archivesName.get()
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username ossrhToken
+                password ossrhTokenPassword
+            }
+        }
+    }
+}
+
+// signing.keyId, signing.password, and signing.secretKeyRingFile are defined separately
+// in my global gradle.properties for protection
+signing {
+    sign publishing.publications
+}

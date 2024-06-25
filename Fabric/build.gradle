@@ -5,17 +5,6 @@ plugins {
     id 'com.modrinth.minotaur'
 }
 
-def modVersion = version
-
-//archivesBaseName = "${mod_name}"
-//version = "${mc_version}-Fabric-${version}"
-//group = maven_group
-
-//repositories {
-//    mavenCentral()
-//    maven { url "https://maven.fabricmc.net" }
-//}
-
 dependencies {
     minecraft "com.mojang:minecraft:${mc_version}"
 //    mappings loom.officialMojangMappings()
@@ -59,27 +48,6 @@ loom {
     }
 }
 
-//processResources {
-//    from project(":Common").sourceSets.main.resources
-//    inputs.property "version", project.version
-//    inputs.property "mc_version", project.mc_version
-//    inputs.property "mod_description", project.mod_description
-//    inputs.property "mod_full_name", project.mod_full_name
-//    inputs.property "mod_id", project.mod_id
-//    inputs.property "fabric_loader_version", project.fabric_loader_version
-//    inputs.property "fabric_version", project.fabric_version
-//
-//    filesMatching("fabric.mod.json") {
-//        expand "version": project.version,
-//                "mc_version": project.mc_version,
-//                "mod_description": project.mod_description,
-//                "mod_full_name": project.mod_full_name,
-//                "mod_id": project.mod_id,
-//                "fabric_loader_version": project.fabric_loader_version,
-//                "fabric_version": project.fabric_version
-//    }
-//}
-
 //tasks.withType(JavaCompile) {
 //    source(project(":Common").sourceSets.main.allSource)
 //}
@@ -96,53 +64,6 @@ loom {
 //    }
 //}
 
-publishing {
-    publications  {
-        mavenJava(MavenPublication) {
-            artifactId = mod_name
-            from components.java
-            pom {
-                name = "YUNG's API"
-                description = "A common API for YUNG's Minecraft mods"
-                url = 'https://github.com/yungnickyoung/YUNGs-Api'
-                scm {
-                    url = 'https://github.com/yungnickyoung/YUNGs-Api'
-                    connection = 'scm:git:git://github.com/yungnickyoung/YUNGs-Api.git'
-                    developerConnection = 'scm:git:ssh://git@github.com:yungnickyoung/YUNGs-Api.git'
-                }
-                licenses {
-                    license {
-                        name = 'GNU LGPLv3'
-                        url = 'https://github.com/yungnickyoung/YUNGs-Api/blob/forge/1.18/LICENSE'
-                        distribution = 'repo'
-                    }
-                }
-                developers {
-                    developer {
-                        name = 'YUNGNICKYOUNG'
-                        email = 'yungnickyoung@gmail.com'
-                    }
-                }
-            }
-        }
-    }
-    repositories {
-        maven {
-            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            credentials {
-                username ossrhUsername
-                password ossrhPassword
-            }
-        }
-    }
-}
-
-// signing.keyId, signing.password, and signing.secretKeyRingFile are defined separately
-// in my global gradle.properties for protection
-signing {
-    sign publishing.publications.mavenJava
-}
-
 String[] compatibleVersions = project.compatible_versions.split(',')
 task publishCurseForgeFabric(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
     dependsOn(tasks.remapJar)
@@ -155,7 +76,7 @@ task publishCurseForgeFabric(type: net.darkhax.curseforgegradle.TaskPublishCurse
     mainFile.changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "No changelog provided"
     mainFile.releaseType = 'release'
     mainFile.addRequirement('fabric-api')
-    mainFile.displayName = "[${mc_version}] ${mod_full_name} v${modVersion} (Fabric)"
+    mainFile.displayName = "[${mc_version}] ${mod_full_name} v${version} (Fabric)"
     compatibleVersions.each { version ->
         mainFile.addGameVersion(version)
     }
@@ -166,7 +87,7 @@ modrinth {
     token = modrinthToken
     projectId = modrinth_project_id
     versionNumber = version
-    versionName = "[${mc_version}] v${modVersion} (Fabric)"
+    versionName = "[${mc_version}] v${version} (Fabric)"
     versionType = "release"
     uploadFile = remapJar
     gameVersions = compatibleVersionsList
