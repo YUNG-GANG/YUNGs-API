@@ -64,12 +64,12 @@ loom {
 //    }
 //}
 
-String[] compatibleVersions = project.compatible_versions.split(',')
+String[] compatibleVersions = project.curseforge_compatible_versions.split(',')
 task publishCurseForgeFabric(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
     dependsOn(tasks.remapJar)
     apiToken = curseforgeApiKey
 
-    debugMode = false
+    debugMode = debug_publish.toBoolean()
 
     def mainFile = upload(curseforge_project_id_fabric, tasks.remapJar.archiveFile)
     mainFile.changelogType = 'markdown'
@@ -82,7 +82,7 @@ task publishCurseForgeFabric(type: net.darkhax.curseforgegradle.TaskPublishCurse
     }
 }
 
-List compatibleVersionsList = project.compatible_versions.split(',')
+List compatibleVersionsList = project.curseforge_compatible_versions.split(',')
 modrinth {
     token = modrinthToken
     projectId = modrinth_project_id
@@ -91,7 +91,7 @@ modrinth {
     versionType = "release"
     uploadFile = remapJar
     gameVersions = compatibleVersionsList
-    debugMode = false
+    debugMode = debug_publish.toBoolean()
     changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "No changelog provided"
     dependencies { // A special DSL for creating dependencies
         // scope.type

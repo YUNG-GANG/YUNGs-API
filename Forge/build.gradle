@@ -6,9 +6,6 @@ plugins {
     id 'com.modrinth.minotaur'
 }
 
-group = maven_group
-
-
 minecraft {
     mappings channel: 'official', version: mc_version
 
@@ -112,18 +109,18 @@ sourceSets.each {
     it.java.destinationDirectory = dir
 }
 
-javadoc {
-    if(JavaVersion.current().isJava9Compatible()) {
-        options.addBooleanOption('html5', true)
-    }
-}
+//javadoc {
+//    if(JavaVersion.current().isJava9Compatible()) {
+//        options.addBooleanOption('html5', true)
+//    }
+//}
 
-String[] compatibleVersions = project.compatible_versions.split(',')
+String[] compatibleVersions = project.curseforge_compatible_versions.split(',')
 task publishCurseForgeForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
     dependsOn(tasks.jar)
     apiToken = curseforgeApiKey
 
-    debugMode = false
+    debugMode = debug_publish.toBoolean()
 
     def mainFile = upload(curseforge_project_id_forge, tasks.jar.archiveFile)
     mainFile.changelogType = 'markdown'
@@ -135,7 +132,7 @@ task publishCurseForgeForge(type: net.darkhax.curseforgegradle.TaskPublishCurseF
     }
 }
 
-List compatibleVersionsList = project.compatible_versions.split(',')
+List compatibleVersionsList = project.curseforge_compatible_versions.split(',')
 modrinth {
     token = modrinthToken
     projectId = modrinth_project_id
@@ -144,7 +141,7 @@ modrinth {
     versionType = "release"
     uploadFile = jar
     gameVersions = compatibleVersionsList
-    debugMode = false
+    debugMode = debug_publish.toBoolean()
     changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "No changelog provided"
 }
 tasks.modrinth.dependsOn(tasks.jar)

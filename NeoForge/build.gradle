@@ -83,12 +83,12 @@ dependencies {
 //    from project(":Common").sourceSets.main.resources
 //}
 
-String[] compatibleVersions = project.compatible_versions.split(',')
+String[] compatibleVersions = project.curseforge_compatible_versions.split(',')
 task publishCurseForgeNeoForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
     dependsOn(tasks.jar)
     apiToken = curseforgeApiKey
 
-    debugMode = false
+    debugMode = debug_publish.toBoolean()
 
     def mainFile = upload(curseforge_project_id_neoforge, tasks.jar.archiveFile)
     mainFile.changelogType = 'markdown'
@@ -101,7 +101,7 @@ task publishCurseForgeNeoForge(type: net.darkhax.curseforgegradle.TaskPublishCur
     }
 }
 
-List compatibleVersionsList = project.compatible_versions.split(',')
+List compatibleVersionsList = project.curseforge_compatible_versions.split(',')
 modrinth {
     token = modrinthToken
     projectId = modrinth_project_id
@@ -110,7 +110,7 @@ modrinth {
     versionType = "release"
     uploadFile = jar
     gameVersions = compatibleVersionsList
-    debugMode = false
+    debugMode = debug_publish.toBoolean()
     changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "No changelog provided"
 }
 tasks.modrinth.dependsOn(tasks.jar)
