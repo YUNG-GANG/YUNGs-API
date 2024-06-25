@@ -5,7 +5,10 @@ plugins {
 }
 
 base {
+//    archivesName = "${mod_name}"
+//    version = "${mc_version}-${project.name}-${version}"
     archivesName = "${mod_id}-${project.name}-${mc_version}"
+    version = project.version
 }
 
 java {
@@ -25,6 +28,15 @@ repositories {
             }
         }
         filter { includeGroupAndSubgroups("org.spongepowered") }
+    }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'ParchmentMC'
+                url = 'https://maven.parchmentmc.org/'
+            }
+        }
+        filter { includeGroup('org.parchmentmc.data') }
     }
     maven {
         name = 'BlameJared'
@@ -83,13 +95,15 @@ processResources {
             "mc_version_range": mc_version_range,
             "fabric_version": fabric_version,
             "fabric_loader_version": fabric_loader_version,
+            "neoforge_version": neoforge_version,
+            "neoforge_loader_version_range": neoforge_loader_version_range,
+            "forge_version": forge_version,
+            "forge_loader_version_range": forge_loader_version_range,
             "mod_full_name": mod_full_name,
             "mod_author": mod_author,
             "mod_id": mod_id,
             "license": license,
             "mod_description": project.mod_description,
-            "neoforge_version": neoforge_version,
-            "neoforge_loader_version_range": neoforge_loader_version_range,
             "mod_credits": mod_credits,
             "java_version": java_version
     ]

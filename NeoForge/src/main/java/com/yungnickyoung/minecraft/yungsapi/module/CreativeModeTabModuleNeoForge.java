@@ -25,7 +25,7 @@ public class CreativeModeTabModuleNeoForge {
                 .title(autoRegisterCreativeTab.getDisplayName())
                 .icon(autoRegisterCreativeTab.getIconItemStackSupplier())
                 .displayItems(autoRegisterCreativeTab.getDisplayItemsGenerator())
-                .backgroundSuffix(autoRegisterCreativeTab.getBackgroundSuffix());
+                .backgroundTexture(autoRegisterCreativeTab.getBackgroundTexture());
         if (!autoRegisterCreativeTab.canScroll()) {
             creativeModeTabBuilder.noScrollBar();
         }
@@ -37,7 +37,6 @@ public class CreativeModeTabModuleNeoForge {
         }
 
         CreativeModeTab creativeModeTab = creativeModeTabBuilder.build();
-
 
         // Update supplier to retrieve tab
         autoRegisterCreativeTab.setSupplier(() -> creativeModeTab);

@@ -23,12 +23,19 @@ public class YungsApiNeoForge {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Consumer<RegisterEvent> buildSimpleRegistrar(final ResourceKey<Registry<T>> registryKey, final List<AutoRegisterField> registerables) {
-		return buildAutoRegistrar(registryKey, registerables, data -> (T) data.object());
+    public static <T> Consumer<RegisterEvent> buildSimpleRegistrar(
+            final ResourceKey<Registry<T>> registryKey,
+            final List<AutoRegisterField> registerables
+    ) {
+        return buildAutoRegistrar(registryKey, registerables, data -> (T) data.object());
     }
 
     @NotNull
-    public static <T> Consumer<RegisterEvent> buildAutoRegistrar(final ResourceKey<Registry<T>> registryKey, final List<AutoRegisterField> registerables, final Function<AutoRegisterField, T> unwrapper) {
+    public static <T> Consumer<RegisterEvent> buildAutoRegistrar(
+            final ResourceKey<Registry<T>> registryKey,
+            final List<AutoRegisterField> registerables,
+            final Function<AutoRegisterField, T> unwrapper
+    ) {
         return event -> event.register(registryKey, helper -> registerables.stream()
                 .filter(data -> !data.processed())
                 .forEach(data -> {

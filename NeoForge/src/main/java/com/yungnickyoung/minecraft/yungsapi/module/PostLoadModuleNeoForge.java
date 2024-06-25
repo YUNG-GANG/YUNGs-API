@@ -38,10 +38,6 @@ public class PostLoadModuleNeoForge {
             });
         });
 
-        // Register brewing recipes in case any were added during annotated method execution
-        // with AutoRegisterUtils#registerBrewingRecipe
-        PotionModuleNeoForge.registerBrewingRecipes();
-
         // Register compostables in case any were added during annotated method execution
         // with AutoRegisterUtils#addCompostableItem
         CompostModuleNeoForge.registerCompostables();

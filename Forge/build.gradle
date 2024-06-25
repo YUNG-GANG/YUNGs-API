@@ -1,28 +1,30 @@
-buildscript {
-    repositories {
-        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
-    }
-    dependencies {
-        classpath 'org.spongepowered:mixingradle:0.7.+'
-    }
-}
+//buildscript {
+//    repositories {
+//        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+//    }
+//    dependencies {
+//        classpath 'org.spongepowered:mixingradle:0.7.+'
+//    }
+//}
 
 plugins {
-    id 'eclipse'
-    id 'idea'
+//    id 'eclipse'
+//    id 'idea'
+    id 'multiloader-loader'
     id 'net.minecraftforge.gradle' version '[6.0.25,6.2)'
-    id 'net.darkhax.curseforgegradle' version "${cursegradle_version}"
-    id 'com.modrinth.minotaur' version '2.+'
+    id 'org.spongepowered.mixin'
+    id 'net.darkhax.curseforgegradle'
+    id 'com.modrinth.minotaur'
 //    id "com.github.johnrengelman.shadow" version "8.1.0"
 }
 
-apply plugin: 'org.spongepowered.mixin'
+//apply plugin: 'org.spongepowered.mixin'
 
 def modVersion = version
 
-archivesBaseName = "${mod_name}"
-version = "${mc_version}-Forge-${version}"
-group = maven_group
+//archivesBaseName = "${mod_name}"
+//version = "${mc_version}-Forge-${version}"
+//group = maven_group
 
 minecraft {
     mappings channel: 'official', version: mc_version
@@ -35,56 +37,57 @@ minecraft {
     // See https://docs.gradle.org/current/dsl/org.gradle.language.jvm.tasks.ProcessResources.html
     copyIdeResources = true
 
-    if (project.hasProperty('forge_ats_enabled') && project.findProperty('forge_ats_enabled').toBoolean()) {
-        // This location is hardcoded in Forge and can not be changed.
-        // https://github.com/MinecraftForge/MinecraftForge/blob/be1698bb1554f9c8fa2f58e32b9ab70bc4385e60/fmlloader/src/main/java/net/minecraftforge/fml/loading/moddiscovery/ModFile.java#L123
-        accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-        project.logger.debug('Forge Access Transformers are enabled for this project.')
+    // Automatically enable forge AccessTransformers if the file exists
+    // This location is hardcoded in Forge and can not be changed.
+    // https://github.com/MinecraftForge/MinecraftForge/blob/be1698bb1554f9c8fa2f58e32b9ab70bc4385e60/fmlloader/src/main/java/net/minecraftforge/fml/loading/moddiscovery/ModFile.java#L123
+    def at = file('src/main/resources/META-INF/accesstransformer.cfg')
+    if (at.exists()) {
+        accessTransformer = at
     }
 
     runs {
         client {
-            workingDirectory project.file('run')
-            args "-mixin.config=${mod_id}.mixins.json", "-mixin.config=${mod_id}_forge.mixins.json"
+            workingDirectory file('runs/client')
+//            args "-mixin.config=${mod_id}.mixins.json", "-mixin.config=${mod_id}_forge.mixins.json"
             ideaModule "${rootProject.name}.${project.name}.main"
             taskName 'Client'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+//            property 'mixin.env.remapRefMap', 'true'
+//            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             mods {
                 modClientRun {
                     source sourceSets.main
-                    source project(":Common").sourceSets.main
+//                    source project(":Common").sourceSets.main
                 }
             }
         }
 
         server {
-            workingDirectory project.file('run')
-            args "-mixin.config=${mod_id}.mixins.json", "-mixin.config=${mod_id}_forge.mixins.json"
+            workingDirectory file('runs/server')
+//            args "-mixin.config=${mod_id}.mixins.json", "-mixin.config=${mod_id}_forge.mixins.json"
             ideaModule "${rootProject.name}.${project.name}.main"
             taskName 'Server'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+//            property 'mixin.env.remapRefMap', 'true'
+//            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             mods {
                 modServerRun {
                     source sourceSets.main
-                    source project(":Common").sourceSets.main
+//                    source project(":Common").sourceSets.main
                 }
             }
         }
 
         data {
-            workingDirectory project.file('run')
-            args "-mixin.config=${mod_id}.mixins.json", "-mixin.config=${mod_id}_forge.mixins.json"
+            workingDirectory file('runs/data')
+//            args "-mixin.config=${mod_id}.mixins.json", "-mixin.config=${mod_id}_forge.mixins.json"
             args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
             ideaModule "${rootProject.name}.${project.name}.main"
             taskName 'Data'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+//            property 'mixin.env.remapRefMap', 'true'
+//            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             mods {
                 modDataRun {
                     source sourceSets.main
-                    source project(":Common").sourceSets.main
+//                    source project(":Common").sourceSets.main
                 }
             }
         }
@@ -108,7 +111,7 @@ sourceSets.main.resources.srcDir 'src/generated/resources'
 dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-    compileOnly project(":Common")
+//    compileOnly project(":Common")
 
 //    shadow(annotationProcessor("io.github.llamalad7:mixinextras-common:0.3.6"))
 
@@ -117,42 +120,43 @@ dependencies {
     implementation('net.sf.jopt-simple:jopt-simple:5.0.4') { version { strictly '5.0.4' } }
 }
 
-tasks.withType(JavaCompile) {
-    source(project(":Common").sourceSets.main.allSource)
-}
+//tasks.withType(JavaCompile) {
+//    source(project(":Common").sourceSets.main.allSource)
+//}
 
-processResources {
-    from project(":Common").sourceSets.main.resources
-    inputs.property "version", project.version
-    inputs.property "mc_version", project.mc_version
-    inputs.property "mod_description", project.mod_description
-    inputs.property "mod_full_name", project.mod_full_name
-    inputs.property "mod_id", project.mod_id
-    inputs.property "forge_version", project.forge_version
-    inputs.property "forge_loader_version_range", project.forge_loader_version_range
-    inputs.property "license", project.license
-    inputs.property "mod_credits", project.mod_credits
-
-    filesMatching("META-INF/mods.toml") {
-        expand "version": project.version,
-                "mc_version": project.mc_version,
-                "mod_description": project.mod_description,
-                "mod_full_name": project.mod_full_name,
-                "mod_id": project.mod_id,
-                "forge_loader_version_range": project.forge_loader_version_range,
-                "license": project.license,
-                "mod_credits": project.mod_credits,
-                "forge_version": project.forge_version
-    }
-}
+//processResources {
+//    from project(":Common").sourceSets.main.resources
+//    inputs.property "version", project.version
+//    inputs.property "mc_version", project.mc_version
+//    inputs.property "mod_description", project.mod_description
+//    inputs.property "mod_full_name", project.mod_full_name
+//    inputs.property "mod_id", project.mod_id
+//    inputs.property "forge_version", project.forge_version
+//    inputs.property "forge_loader_version_range", project.forge_loader_version_range
+//    inputs.property "license", project.license
+//    inputs.property "mod_credits", project.mod_credits
+//
+//    filesMatching("META-INF/mods.toml") {
+//        expand "version": project.version,
+//                "mc_version": project.mc_version,
+//                "mod_description": project.mod_description,
+//                "mod_full_name": project.mod_full_name,
+//                "mod_id": project.mod_id,
+//                "forge_loader_version_range": project.forge_loader_version_range,
+//                "license": project.license,
+//                "mod_credits": project.mod_credits,
+//                "forge_version": project.forge_version
+//    }
+//}
 
 mixin {
-    add project(":Common").sourceSets.main, "${mod_id}.refmap.json"
+//    add project(":Common").sourceSets.main, "${mod_id}.refmap.json"
+    add(sourceSets.main, "${mod_id}.refmap.json")
     config "${mod_id}.mixins.json"
     config "${mod_id}_forge.mixins.json"
 }
 
-jar.finalizedBy('reobfJar')
+//jar.finalizedBy('reobfJar')
 
 // Merge the resources and classes into the same directory.
 // This is done because java expects modules to be in a single directory.

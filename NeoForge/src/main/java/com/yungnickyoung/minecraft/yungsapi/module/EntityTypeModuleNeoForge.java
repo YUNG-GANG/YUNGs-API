@@ -10,7 +10,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
-import net.neoforged.neoforge.registries.RegisterEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,9 +43,8 @@ public class EntityTypeModuleNeoForge {
         ENTITY_ATTRIBUTES.forEach((entityType, builderSupplier) -> {
             AttributeSupplier.Builder builder = builderSupplier.get();
             // Attach required Forge attributes and register
-            builder.add(NeoForgeMod.SWIM_SPEED.value())
-                    .add(NeoForgeMod.NAMETAG_DISTANCE.value())
-                    .add(NeoForgeMod.ENTITY_GRAVITY.value());
+            builder.add(NeoForgeMod.SWIM_SPEED.getDelegate())
+                    .add(NeoForgeMod.NAMETAG_DISTANCE.getDelegate());
             event.put(entityType.get(), builder.build());
         });
     }
