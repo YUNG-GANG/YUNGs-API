@@ -68,6 +68,13 @@ dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
+    // MixinExtras
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${mixinextras_version_forge}"))
+    implementation(jarJar("io.github.llamalad7:mixinextras-forge:${mixinextras_version_forge}")) {
+        jarJar.ranged(it, "[${mixinextras_version_forge},)")
+    }
+
+
     // Hack fix for now, force jopt-simple to be exactly 5.0.4 because Mojang ships that version, but some transitive dependencies request 6.0+
     // copied from the Forge MDK.
     // Recommended by Forge.
