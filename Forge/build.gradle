@@ -6,6 +6,14 @@ plugins {
     id 'com.modrinth.minotaur'
 }
 
+jar {
+    manifest {
+        attributes([
+                'MixinConfigs': "${mod_id}.mixins.json,${mod_id}_forge.mixins.json",
+        ])
+    }
+}
+
 minecraft {
     mappings channel: 'official', version: mc_version
 
@@ -82,7 +90,6 @@ dependencies {
 }
 
 mixin {
-    add(sourceSets.main, "${mod_id}.refmap.json")
     config "${mod_id}.mixins.json"
     config "${mod_id}_forge.mixins.json"
 }
