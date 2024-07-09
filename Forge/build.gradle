@@ -6,6 +6,8 @@ plugins {
     id 'com.modrinth.minotaur'
 }
 
+// Forge no longer uses reobf task which previously automatically added MixinConfigs to the manifest,
+// so we have to do it manually.
 jar {
     manifest {
         attributes([
