@@ -25,7 +25,7 @@ public class BeardifierMixin implements EnhancedBeardifierData {
     @Unique
     private ObjectListIterator<EnhancedJigsawJunction> enhancedJunctionIterator;
     @Unique
-    private ObjectListIterator<EnhancedBeardifierRigid> enhancedRigidIterator;
+    private ObjectListIterator<EnhancedBeardifierRigid> enhancedPieceIterator;
 
     @Inject(method = "forStructuresInChunk", at = @At("RETURN"), cancellable = true)
     private static void yungsapi_supportCustomTerrainAdaptations(StructureManager structureManager, ChunkPos chunkPos, CallbackInfoReturnable<Beardifier> cir) {
@@ -41,13 +41,13 @@ public class BeardifierMixin implements EnhancedBeardifierData {
     }
 
     @Override
-    public ObjectListIterator<EnhancedBeardifierRigid> getEnhancedRigidIterator() {
-        return this.enhancedRigidIterator;
+    public ObjectListIterator<EnhancedBeardifierRigid> getEnhancedPieceIterator() {
+        return this.enhancedPieceIterator;
     }
 
     @Override
-    public void setEnhancedRigidIterator(ObjectListIterator<EnhancedBeardifierRigid> enhancedRigidIterator) {
-        this.enhancedRigidIterator = enhancedRigidIterator;
+    public void setEnhancedPieceIterator(ObjectListIterator<EnhancedBeardifierRigid> enhancedPieceIterator) {
+        this.enhancedPieceIterator = enhancedPieceIterator;
     }
 
     @Override

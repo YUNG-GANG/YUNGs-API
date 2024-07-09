@@ -190,17 +190,18 @@ public class YungJigsawStructure extends Structure {
             case BURY, BEARD_THIN, BEARD_BOX, ENCAPSULATE -> 12;
         };
         if (structure.maxDistanceFromCenter + vanillaEdgeBuffer > 128) {
-            return DataResult.error(() -> "YUNG Structure size including terrain adaptation must not exceed 128");
+            return DataResult.error(() -> "YUNG Structure's max_distance_from_center must not exceed 116 when using vanilla terrain_adaptation");
         }
 
         // Enhanced boundary check.
-        // Note that it's still possible to have structure overflow issues if one of the structure's pieces
-        // has its own enhanced_terrain_adaptation with an even bigger kernel radius than that of the
-        // rest of the structure!
+        // Note that it's still possible to have structure overflow issues if one of the structure's pieces has its own
+        // enhanced_terrain_adaptation with an even bigger kernel radius than that of the rest of the structure!
         int enhancedEdgeBuffer = structure.enhancedTerrainAdaptation.getKernelRadius();
-        return structure.maxDistanceFromCenter + enhancedEdgeBuffer > 128
-                ? DataResult.error(() -> "YUNG Structure size including enhanced terrain adaptation must not exceed 128")
-                : DataResult.success(structure);
+        if (structure.maxDistanceFromCenter + enhancedEdgeBuffer > 128) {
+            return DataResult.error(() -> "YUNG Structure's max_distance_from_center + kernel radius (equal to half the enhanced_terrain_adaptation's kernel size) must not exceed 128");
+        }
+
+        return DataResult.success(structure);
     }
 
     @Override

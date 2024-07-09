@@ -7,7 +7,7 @@ public class NoneAdaptation extends EnhancedTerrainAdaptation {
     public static final MapCodec<NoneAdaptation> CODEC = MapCodec.unit(() -> INSTANCE);
 
     public NoneAdaptation() {
-        super(0, 0, false, false);
+        super(0, 0, TerrainAction.NONE, TerrainAction.NONE);
     }
 
     @Override
@@ -16,7 +16,7 @@ public class NoneAdaptation extends EnhancedTerrainAdaptation {
     }
 
     @Override
-    public double computeDensityFactor(int xDistance, int yDistance, int zDistance, int yDistanceToBeardBase) {
+    public double computeDensityFactor(int xDistance, int yDistance, int zDistance, int yDistanceToPieceBottom) {
         return 0;
     }
 }

@@ -13,16 +13,16 @@ public abstract class EnhancedTerrainAdaptation {
     public static final EnhancedTerrainAdaptation NONE = new NoneAdaptation();
 
     /**
-     * Whether blocks above a structure piece's bounding box y-value should be carved.
-     * Used to give structures some space when they generate within terrain, such as for villages and ancient cities.
-     **/
-    private final boolean doCarving;
+     * The action to perform on the top of the structure piece.
+     * "Top" refers to any blocks above the piece's bounding box minimum y-value.
+     */
+    private final TerrainAction topAction;
 
     /**
-     * Whether blocks below a structure piece's bounding box y-value should be solid.
-     * Used to ensure pieces like village houses don't spawn floating in air.
+     * The action to perform on the bottom of the structure piece.
+     * "Bottom" refers to any blocks below the piece's bounding box minimum y-value.
      */
-    private final boolean doBearding;
+    private final TerrainAction bottomAction;
 
     /**
      * The length of each dimension in the kernel.
@@ -44,11 +44,11 @@ public abstract class EnhancedTerrainAdaptation {
 
     abstract public EnhancedTerrainAdaptationType<?> type();
 
-    EnhancedTerrainAdaptation(int kernelSize, int kernelDistance, boolean doCarving, boolean doBearding) {
+    EnhancedTerrainAdaptation(int kernelSize, int kernelDistance, TerrainAction topAction, TerrainAction bottomAction) {
         this.kernelSize = kernelSize;
         this.kernelDistance = kernelDistance;
-        this.doCarving = doCarving;
-        this.doBearding = doBearding;
+        this.topAction = topAction;
+        this.bottomAction = bottomAction;
         int kernelRadius = this.getKernelRadius();
         this.kernel = Util.make(new float[kernelSize * kernelSize * kernelSize], (kernel) -> {
             for (int x = 0; x < kernelSize; ++x) {
@@ -75,12 +75,12 @@ public abstract class EnhancedTerrainAdaptation {
         return (float) Math.pow(Math.E, -squaredDistance / this.kernelDistance);
     }
 
-    public boolean carves() {
-        return this.doCarving;
+    public TerrainAction topAction() {
+        return this.topAction;
     }
 
-    public boolean beards() {
-        return this.doBearding;
+    public TerrainAction bottomAction() {
+        return this.bottomAction;
     }
 
     public int getKernelSize() {
@@ -102,18 +102,18 @@ public abstract class EnhancedTerrainAdaptation {
     /**
      * Computes the noise density factor at a single location given the provided values.
      *
-     * @param xDistance            Distance in the x-axis
-     * @param yDistance            Distance in the y-axis
-     * @param zDistance            Distance in the z-axis
-     * @param yDistanceToBeardBase Distance in the y-axis to the beard base,
-     *                             the point at which carving and bearding meet
+     * @param xDistance              Distance in the x-axis
+     * @param yDistance              Distance in the y-axis
+     * @param zDistance              Distance in the z-axis
+     * @param yDistanceToPieceBottom Distance in the y-axis to the base of the piece,
+     *                               the point at which carving and bearding meet
      * @return Noise density factor due to enhanced terrain adaptation
      */
     public double computeDensityFactor(
             int xDistance,
             int yDistance,
             int zDistance,
-            int yDistanceToBeardBase
+            int yDistanceToPieceBottom
     ) {
         int kernelRadius = this.getKernelRadius();
         int kernelX = xDistance + kernelRadius;
@@ -125,25 +125,21 @@ public abstract class EnhancedTerrainAdaptation {
             int i = index(kernelX, kernelY, kernelZ);
             float kernelValue = this.getKernel()[i];
 
-            double actualYDistanceToAdjustedBottom = (double) yDistanceToBeardBase + 0.5;
+            double actualYDistanceToPieceBottom = (double) yDistanceToPieceBottom + 0.5;
 
-            // Calculate squared distance from point to bottom of piece bounding box.
-            // We use the bottom of the box as our target since that is the y-position that determines bearding vs carving.
-            double squaredDistance = Mth.lengthSquared(xDistance, actualYDistanceToAdjustedBottom, zDistance);
+            // Calculate squared distance from point to the beard base.
+            // We use the bottom of the piece as our target since that is the y-position that determines using topAction vs bottomAction.
+            double squaredDistance = Mth.lengthSquared(xDistance, actualYDistanceToPieceBottom, zDistance);
 
-            /* Calculate multiplier for final noise value.
-             * The closer we are (i.e. smaller distance), the greater the amplitude (i.e. more negative number).
-             *
-             * If we are above the beard base (i.e. yDistanceToBeardBase is positive),
-             * then the multiplier is negative, and therefore contributes to carving.
-             *
-             * If we are below the beard base (i.e. yDistanceToBeardBase is negative),
-             * then the multiplier is positive, and therefore contributes to solid terrain.
-             */
-            double multiplier = -actualYDistanceToAdjustedBottom * Mth.invSqrt(squaredDistance / 2.0) / 2.0;
-            if (multiplier > 0 && !this.beards()) return 0;
-            if (multiplier < 0 && !this.carves()) return 0;
-            return multiplier * kernelValue;
+            // Calculate multiplier for final noise value.
+            // The closer we are (i.e. smaller distance), the larger the multiplier.
+            double multiplier = Math.abs(actualYDistanceToPieceBottom * Mth.invSqrt(squaredDistance / 2.0) / 2.0);
+
+            // Get the density modifier for the action we are performing.
+            boolean isAboveBeardBase = actualYDistanceToPieceBottom > 0;
+            int densityModifier = isAboveBeardBase ? this.topAction.getDensityModifier() : this.bottomAction.getDensityModifier();
+
+            return multiplier * kernelValue * densityModifier;
         } else {
             return 0;
         }

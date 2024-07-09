@@ -111,7 +111,7 @@ public class EnhancedBeardifierHelper {
         }
 
         Beardifier newBeardifier = new Beardifier(((BeardifierAccessor) original).getPieceIterator(), ((BeardifierAccessor) original).getJunctionIterator());
-        ((EnhancedBeardifierData) newBeardifier).setEnhancedRigidIterator(enhancedBeardifierRigidList.iterator());
+        ((EnhancedBeardifierData) newBeardifier).setEnhancedPieceIterator(enhancedBeardifierRigidList.iterator());
         ((EnhancedBeardifierData) newBeardifier).setEnhancedJunctionIterator(enhancedJunctionList.iterator());
         return newBeardifier;
     }
@@ -128,10 +128,9 @@ public class EnhancedBeardifierHelper {
         int y = ctx.blockY();
         int z = ctx.blockZ();
 
-        while (data.getEnhancedRigidIterator() != null && data.getEnhancedRigidIterator().hasNext()) {
-            EnhancedBeardifierRigid rigid = data.getEnhancedRigidIterator().next();
+        while (data.getEnhancedPieceIterator() != null && data.getEnhancedPieceIterator().hasNext()) {
+            EnhancedBeardifierRigid rigid = data.getEnhancedPieceIterator().next();
             BoundingBox pieceBoundingBox = rigid.pieceBoundingBox();
-            int adjustedPieceMinY = pieceBoundingBox.minY();
             EnhancedTerrainAdaptation pieceTerrainAdaptation = rigid.pieceTerrainAdaptation();
 
             /* Get the distance from the pieceBoundingBox along each axis.
@@ -141,9 +140,9 @@ public class EnhancedBeardifierHelper {
              * I don't know, I'm just recreating vanilla logic here.
              */
             int xDistanceToBoundingBox = Math.max(0, Math.max(pieceBoundingBox.minX() - x, x - pieceBoundingBox.maxX()));
-            int yDistanceToBoundingBox = Math.max(0, Math.max(adjustedPieceMinY - y, y - pieceBoundingBox.maxY()));
+            int yDistanceToBoundingBox = Math.max(0, Math.max(pieceBoundingBox.minY() - y, y - pieceBoundingBox.maxY()));
             int zDistanceToBoundingBox = Math.max(0, Math.max(pieceBoundingBox.minZ() - z, z - pieceBoundingBox.maxZ()));
-            int yDistanceToAdjustedPieceBottom = y - adjustedPieceMinY;
+            int yDistanceToPieceBottom = y - pieceBoundingBox.minY();
 
             // Calculate density factor and add to density value
             double densityFactor = 0;
@@ -152,13 +151,13 @@ public class EnhancedBeardifierHelper {
                         xDistanceToBoundingBox,
                         yDistanceToBoundingBox,
                         zDistanceToBoundingBox,
-                        yDistanceToAdjustedPieceBottom
+                        yDistanceToPieceBottom
                 ) * 0.8D;
             }
 
             density += densityFactor;
         }
-        data.getEnhancedRigidIterator().back(Integer.MAX_VALUE);
+        data.getEnhancedPieceIterator().back(Integer.MAX_VALUE);
 
         // Vanilla logic
         while (data.getEnhancedJunctionIterator() != null && data.getEnhancedJunctionIterator().hasNext()) {

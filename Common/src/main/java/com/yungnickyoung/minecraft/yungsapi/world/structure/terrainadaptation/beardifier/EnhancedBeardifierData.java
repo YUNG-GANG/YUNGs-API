@@ -7,8 +7,8 @@ import it.unimi.dsi.fastutil.objects.ObjectListIterator;
  * Utility interface for use with {@link BeardifierMixin}.
  */
 public interface EnhancedBeardifierData {
-    ObjectListIterator<EnhancedBeardifierRigid> getEnhancedRigidIterator();
-    void setEnhancedRigidIterator(ObjectListIterator<EnhancedBeardifierRigid> enhancedRigidIterator);
+    ObjectListIterator<EnhancedBeardifierRigid> getEnhancedPieceIterator();
+    void setEnhancedPieceIterator(ObjectListIterator<EnhancedBeardifierRigid> enhancedPieceIterator);
     ObjectListIterator<EnhancedJigsawJunction> getEnhancedJunctionIterator();
     void setEnhancedJunctionIterator(ObjectListIterator<EnhancedJigsawJunction> enhancedJunctionIterator);
 }

@@ -7,7 +7,7 @@ public class SmallCarvedTopNoBeardAdaptation extends EnhancedTerrainAdaptation {
     public static final MapCodec<SmallCarvedTopNoBeardAdaptation> CODEC = MapCodec.unit(() -> INSTANCE);
 
     public SmallCarvedTopNoBeardAdaptation() {
-        super(12, 6, true, false);
+        super(12, 6, TerrainAction.CARVE, TerrainAction.NONE);
     }
 
     @Override
