@@ -30,7 +30,7 @@ issueTrackerURL="https://github.com/yungnickyoung/YUNGs-Api/issues"
     ordering = "NONE"
 
 [[mixins]]
-    config = "yungsapi.mixins.json"
+    config = "${mod_id}.mixins.json"
 
 [[mixins]]
-    config = "yungsapi_neoforge.mixins.json"
+    config = "${mod_id}_neoforge.mixins.json"
