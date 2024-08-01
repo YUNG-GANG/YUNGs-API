@@ -56,14 +56,14 @@ public class JigsawManager {
     ) {
         // Extract data from context
         RegistryAccess registryAccess = generationContext.registryAccess();
+        Registry<StructureTemplatePool> registry = registryAccess.registryOrThrow(Registries.TEMPLATE_POOL);
         ChunkGenerator chunkGenerator = generationContext.chunkGenerator();
         StructureTemplateManager structureManager = generationContext.structureTemplateManager();
         LevelHeightAccessor levelHeightAccessor = generationContext.heightAccessor();
         WorldgenRandom worldgenRandom = generationContext.random();
-        Registry<StructureTemplatePool> registry = registryAccess.registryOrThrow(Registries.TEMPLATE_POOL);
 
         // Grab a random starting piece from the start pool
-        Optional<PoolElementStructurePiece> startPieceOptional = getStartPiece(startPool, startJigsawNameOptional, locatePos, structureManager, worldgenRandom, liquidSettings);
+        Optional<PoolElementStructurePiece> startPieceOptional = getStartPiece(startPool, startJigsawNameOptional, locatePos, liquidSettings, generationContext);
         if (startPieceOptional.isEmpty()) {
             return Optional.empty();
         }
@@ -112,6 +112,7 @@ public class JigsawManager {
                             .chunkGenerator(chunkGenerator)
                             .structureTemplateManager(structureManager)
                             .randomState(generationContext.randomState())
+                            .biomeSource(generationContext.biomeSource())
                             .rand(worldgenRandom)
                             .maxY(maxY)
                             .minY(minY)
@@ -137,10 +138,12 @@ public class JigsawManager {
             Holder<StructureTemplatePool> startPoolHolder,
             Optional<ResourceLocation> startJigsawNameOptional,
             BlockPos locatePos,
-            StructureTemplateManager structureTemplateManager,
-            RandomSource rand,
-            LiquidSettings liquidSettings
+            LiquidSettings liquidSettings,
+            Structure.GenerationContext generationContext
     ) {
+        StructureTemplateManager structureTemplateManager = generationContext.structureTemplateManager();
+        RandomSource rand = generationContext.random();
+
         StructureTemplatePool startPool = startPoolHolder.value();
         ObjectArrayList<Pair<StructurePoolElement, Integer>> candidatePoolElements = new ObjectArrayList<>(((StructureTemplatePoolAccessor) startPool).getRawTemplates());
 
@@ -218,6 +221,8 @@ public class JigsawManager {
                         .rotation(rotation)
                         .depth(0)
                         .random(rand)
+                        .randomState(generationContext.randomState())
+                        .biomeSource(generationContext.biomeSource())
                         .build();
                 if (!yungElement.passesConditions(ctx)) {
                     totalWeightSum -= chosenPieceWeight;

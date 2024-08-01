@@ -24,6 +24,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.JigsawBlock;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -545,6 +546,8 @@ public class JigsawStructureAssembler {
                                 .pieceMaxY(adjustedCandidateBoundingBox.maxY())
                                 .depth(context.depth + 1)
                                 .random(this.settings.rand)
+                                .randomState(this.settings.randomState)
+                                .biomeSource(this.settings.biomeSource)
                                 .build();
                         if (!yungElement.passesConditions(ctx)) {
                             continue; // Abort this piece & rotation if it doesn't pass conditions check
@@ -623,6 +626,8 @@ public class JigsawStructureAssembler {
                             .pieceMaxY(piece.getBoundingBox().maxY())
                             .pieceMinY(piece.getBoundingBox().minY())
                             .random(this.settings.rand)
+                            .randomState(this.settings.randomState)
+                            .biomeSource(this.settings.biomeSource)
                             .build();
                     yungElement.modifiers.forEach(modifier -> modifier.apply(structureContext));
                 }
@@ -699,6 +704,8 @@ public class JigsawStructureAssembler {
 
         private LiquidSettings liquidSettings;
 
+        private BiomeSource biomeSource;
+
         public Settings() {
         }
 
@@ -759,6 +766,11 @@ public class JigsawStructureAssembler {
 
         public Settings liquidSettings(LiquidSettings liquidSettings) {
             this.liquidSettings = liquidSettings;
+            return this;
+        }
+
+        public Settings biomeSource(BiomeSource biomeSource) {
+            this.biomeSource = biomeSource;
             return this;
         }
 

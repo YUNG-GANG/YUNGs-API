@@ -3,7 +3,9 @@ package com.yungnickyoung.minecraft.yungsapi.world.structure.context;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.PieceEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 import java.util.List;
@@ -23,6 +25,8 @@ public class StructureContext {
     private final List<PieceEntry> pieces;
     private final PieceEntry pieceEntry;
     private final RandomSource random;
+    private final RandomState randomState;
+    private final BiomeSource biomeSource;
 
     private StructureContext(StructureContext.Builder builder) {
         this.pieceMinY = builder.pieceMinY;
@@ -34,6 +38,8 @@ public class StructureContext {
         this.pieceEntry = builder.pieceEntry;
         this.rotation = builder.rotation;
         this.random = builder.random;
+        this.randomState = builder.randomState;
+        this.biomeSource = builder.biomeSource;
     }
 
     public int pieceMinY() {
@@ -72,6 +78,14 @@ public class StructureContext {
         return this.random;
     }
 
+    public RandomState randomState() {
+        return this.randomState;
+    }
+
+    public BiomeSource biomeSource() {
+        return this.biomeSource;
+    }
+
     public static class Builder {
         private int pieceMinY = 0;
         private int pieceMaxY = 0;
@@ -82,6 +96,8 @@ public class StructureContext {
         private List<PieceEntry> pieces = null;
         private PieceEntry pieceEntry = null;
         private RandomSource random = null;
+        private RandomState randomState = null;
+        private BiomeSource biomeSource = null;
 
         public Builder() {
         }
@@ -128,6 +144,16 @@ public class StructureContext {
 
         public Builder random(RandomSource random) {
             this.random = random;
+            return this;
+        }
+
+        public Builder randomState(RandomState randomState) {
+            this.randomState = randomState;
+            return this;
+        }
+
+        public Builder biomeSource(BiomeSource biomeSource) {
+            this.biomeSource = biomeSource;
             return this;
         }
 

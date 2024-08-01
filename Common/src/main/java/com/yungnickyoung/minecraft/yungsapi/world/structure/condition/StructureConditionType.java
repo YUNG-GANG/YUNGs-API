@@ -45,6 +45,7 @@ public interface StructureConditionType<C extends StructureCondition> {
     StructureConditionType<ModLoadedCondition> MOD_LOADED = register("mod_loaded", ModLoadedCondition.CODEC);
     StructureConditionType<PieceInHorizontalDirectionCondition> PIECE_IN_HORIZONTAL_DIRECTION = register("piece_in_horizontal_direction", PieceInHorizontalDirectionCondition.CODEC);
     StructureConditionType<RotationCondition> ROTATION = register("rotation", RotationCondition.CODEC);
+    StructureConditionType<BiomeCondition> BIOME = register("biome", BiomeCondition.CODEC);
 
     /**
      * Utility method for registering StructureConditionTypes.
