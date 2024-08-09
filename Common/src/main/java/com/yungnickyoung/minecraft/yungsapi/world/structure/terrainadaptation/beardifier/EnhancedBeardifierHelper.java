@@ -133,6 +133,9 @@ public class EnhancedBeardifierHelper {
             BoundingBox pieceBoundingBox = rigid.pieceBoundingBox();
             EnhancedTerrainAdaptation pieceTerrainAdaptation = rigid.pieceTerrainAdaptation();
 
+            // Apply bottom offset to the piece's bounding box
+            pieceBoundingBox = pieceBoundingBox.moved(0, (int) pieceTerrainAdaptation.getBottomOffset(), 0);
+
             /* Get the distance from the pieceBoundingBox along each axis.
              * If within the bounding box, all of these are simply 0.
              * Notably, the below equations grab the maximum *positive* distance. I'm not sure why,
@@ -164,8 +167,12 @@ public class EnhancedBeardifierHelper {
             EnhancedJigsawJunction enhancedJigsawJunction = data.getEnhancedJunctionIterator().next();
             JigsawJunction jigsawJunction = enhancedJigsawJunction.jigsawJunction();
             EnhancedTerrainAdaptation pieceTerrainAdaptation = enhancedJigsawJunction.pieceTerrainAdaptation();
+
+            // Apply bottom offset to the junction's ground position
+            int groundY = jigsawJunction.getSourceGroundY() + (int) pieceTerrainAdaptation.getBottomOffset();
+
             int xDistanceToJunction = x - jigsawJunction.getSourceX();
-            int yDistanceToJunction = y - jigsawJunction.getSourceGroundY();
+            int yDistanceToJunction = y - groundY;
             int zDistanceToJunction = z - jigsawJunction.getSourceZ();
             density += pieceTerrainAdaptation.computeDensityFactor(
                     xDistanceToJunction,

@@ -36,6 +36,12 @@ public abstract class EnhancedTerrainAdaptation {
     private final int kernelDistance;
 
     /**
+     * Offsets the piece's "ground" position (the point at which carving and bearding meet).
+     * By default, this offset is zero and "ground" equals the bounding box minimum y-value.
+     */
+    private final double bottomOffset;
+
+    /**
      * 3-dimensional kernel for smoothing terrain.
      * Values will vary from near-zero along the edges, to near-1 in the middle.
      * These values are used as noise to modify the noise density at specific positions during terrain generation.
@@ -44,11 +50,12 @@ public abstract class EnhancedTerrainAdaptation {
 
     abstract public EnhancedTerrainAdaptationType<?> type();
 
-    EnhancedTerrainAdaptation(int kernelSize, int kernelDistance, TerrainAction topAction, TerrainAction bottomAction) {
+    EnhancedTerrainAdaptation(int kernelSize, int kernelDistance, TerrainAction topAction, TerrainAction bottomAction, double bottomOffset) {
         this.kernelSize = kernelSize;
         this.kernelDistance = kernelDistance;
         this.topAction = topAction;
         this.bottomAction = bottomAction;
+        this.bottomOffset = bottomOffset;
         int kernelRadius = this.getKernelRadius();
         this.kernel = Util.make(new float[kernelSize * kernelSize * kernelSize], (kernel) -> {
             for (int x = 0; x < kernelSize; ++x) {
@@ -81,6 +88,10 @@ public abstract class EnhancedTerrainAdaptation {
 
     public TerrainAction bottomAction() {
         return this.bottomAction;
+    }
+
+    public double getBottomOffset() {
+        return this.bottomOffset;
     }
 
     public int getKernelSize() {
