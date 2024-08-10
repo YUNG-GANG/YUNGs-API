@@ -1,5 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.YungJigsawStructure;
 import net.minecraft.Util;
 import net.minecraft.util.Mth;
@@ -42,6 +44,15 @@ public abstract class EnhancedTerrainAdaptation {
     private final double bottomOffset;
 
     /**
+     * Padding to apply to the piece's bounding box when applying the terrain adaptation.
+     * This can be used to effectively change the size of the adaptation in specific dimensions.
+     * For example, if you use a padding of top=1, the piece's bounding box will be temporarily expanded by 1 block in the y-axis,
+     * effectively making the terrain adaptation an ellipsoid instead of a sphere.
+     * Note that padding values can also be negative to shrink the adaptation in specific dimensions.
+     */
+    private final Padding padding;
+
+    /**
      * 3-dimensional kernel for smoothing terrain.
      * Values will vary from near-zero along the edges, to near-1 in the middle.
      * These values are used as noise to modify the noise density at specific positions during terrain generation.
@@ -50,12 +61,13 @@ public abstract class EnhancedTerrainAdaptation {
 
     abstract public EnhancedTerrainAdaptationType<?> type();
 
-    EnhancedTerrainAdaptation(int kernelSize, int kernelDistance, TerrainAction topAction, TerrainAction bottomAction, double bottomOffset) {
+    EnhancedTerrainAdaptation(int kernelSize, int kernelDistance, TerrainAction topAction, TerrainAction bottomAction, double bottomOffset, Padding padding) {
         this.kernelSize = kernelSize;
         this.kernelDistance = kernelDistance;
         this.topAction = topAction;
         this.bottomAction = bottomAction;
         this.bottomOffset = bottomOffset;
+        this.padding = padding;
         int kernelRadius = this.getKernelRadius();
         this.kernel = Util.make(new float[kernelSize * kernelSize * kernelSize], (kernel) -> {
             for (int x = 0; x < kernelSize; ++x) {
@@ -92,6 +104,10 @@ public abstract class EnhancedTerrainAdaptation {
 
     public double getBottomOffset() {
         return this.bottomOffset;
+    }
+
+    public Padding getPadding() {
+        return this.padding;
     }
 
     public int getKernelSize() {
@@ -162,5 +178,16 @@ public abstract class EnhancedTerrainAdaptation {
 
     private int index(int x, int y, int z) {
         return z * this.kernelSize * this.kernelSize + x * this.kernelSize + y;
+    }
+
+    public record Padding(int x, int top, int bottom, int z) {
+            public static final Padding ZERO = new Padding(0, 0, 0, 0);
+            public static final Codec<Padding> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
+                    Codec.INT.optionalFieldOf("x", 0).forGetter((padding) -> padding.x),
+                    Codec.INT.optionalFieldOf("top", 0).forGetter((padding) -> padding.top),
+                    Codec.INT.optionalFieldOf("bottom", 0).forGetter((padding) -> padding.bottom),
+                    Codec.INT.optionalFieldOf("z", 0).forGetter((padding) -> padding.z)
+            ).apply(instance, Padding::new));
+
     }
 }

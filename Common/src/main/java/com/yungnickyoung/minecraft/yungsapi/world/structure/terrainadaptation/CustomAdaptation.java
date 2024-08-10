@@ -12,11 +12,12 @@ public class CustomAdaptation extends EnhancedTerrainAdaptation {
                     ExtraCodecs.NON_NEGATIVE_INT.fieldOf("kernel_distance").forGetter(EnhancedTerrainAdaptation::getKernelDistance),
                     TerrainAction.CODEC.fieldOf("top").forGetter(EnhancedTerrainAdaptation::topAction),
                     TerrainAction.CODEC.fieldOf("bottom").forGetter(EnhancedTerrainAdaptation::bottomAction),
-                    Codec.DOUBLE.optionalFieldOf("bottom_offset", 0.0).forGetter(EnhancedTerrainAdaptation::getBottomOffset))
+                    Codec.DOUBLE.optionalFieldOf("bottom_offset", 0.0).forGetter(EnhancedTerrainAdaptation::getBottomOffset),
+                    EnhancedTerrainAdaptation.Padding.CODEC.optionalFieldOf("padding", EnhancedTerrainAdaptation.Padding.ZERO).forGetter(EnhancedTerrainAdaptation::getPadding))
             .apply(builder, CustomAdaptation::new));
 
-    CustomAdaptation(int kernelSize, int kernelDistance, TerrainAction topAction, TerrainAction bottomAction, double bottomOffset) {
-        super(kernelSize, kernelDistance, topAction, bottomAction, bottomOffset);
+    CustomAdaptation(int kernelSize, int kernelDistance, TerrainAction topAction, TerrainAction bottomAction, double bottomOffset, Padding padding) {
+        super(kernelSize, kernelDistance, topAction, bottomAction, bottomOffset, padding);
     }
 
     @Override

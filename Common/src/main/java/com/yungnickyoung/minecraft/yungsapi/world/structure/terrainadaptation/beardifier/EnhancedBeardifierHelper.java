@@ -7,8 +7,10 @@ import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJ
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.EnhancedTerrainAdaptation;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.Beardifier;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -84,7 +86,8 @@ public class EnhancedBeardifierHelper {
                                 new EnhancedBeardifierRigid(
                                         poolElementPiece.getBoundingBox(),
                                         pieceTerrainAdaptation,
-                                        poolElementPiece.getGroundLevelDelta()
+                                        poolElementPiece.getGroundLevelDelta(),
+                                        poolElementPiece.getRotation()
                                 )
                         );
                     }
@@ -105,7 +108,8 @@ public class EnhancedBeardifierHelper {
                     enhancedBeardifierRigidList.add(new EnhancedBeardifierRigid(
                             nearbyPiece.getBoundingBox(),
                             structureTerrainAdaptation,
-                            0));
+                            0,
+                            Rotation.NONE));
                 }
             }
         }
@@ -132,15 +136,33 @@ public class EnhancedBeardifierHelper {
             EnhancedBeardifierRigid rigid = data.getEnhancedPieceIterator().next();
             BoundingBox pieceBoundingBox = rigid.pieceBoundingBox();
             EnhancedTerrainAdaptation pieceTerrainAdaptation = rigid.pieceTerrainAdaptation();
+            Rotation pieceRotation = rigid.rotation();
 
-            // Apply bottom offset to the piece's bounding box
+            // Apply properties from the piece's terrain adaptation to the bounding box:
+            // - bottom offset
             pieceBoundingBox = pieceBoundingBox.moved(0, (int) pieceTerrainAdaptation.getBottomOffset(), 0);
+
+            // - x/z padding
+            Direction.Axis xPaddingDirection = pieceRotation.rotate(Direction.EAST).getAxis();
+            int xPadding = xPaddingDirection == Direction.Axis.X ? pieceTerrainAdaptation.getPadding().x() : pieceTerrainAdaptation.getPadding().z();
+            int zPadding = xPaddingDirection == Direction.Axis.X ? pieceTerrainAdaptation.getPadding().z() : pieceTerrainAdaptation.getPadding().x();
+            pieceBoundingBox = pieceBoundingBox.inflatedBy(xPadding, 0, zPadding);
+
+            // - top/bottom padding
+            if (pieceTerrainAdaptation.getPadding().top() != 0) {
+                pieceBoundingBox = new BoundingBox(
+                        pieceBoundingBox.minX(), pieceBoundingBox.minY(), pieceBoundingBox.minZ(),
+                        pieceBoundingBox.maxX(), pieceBoundingBox.maxY() + pieceTerrainAdaptation.getPadding().top(), pieceBoundingBox.maxZ());
+            }
+            if (pieceTerrainAdaptation.getPadding().bottom() != 0) {
+                pieceBoundingBox = new BoundingBox(
+                        pieceBoundingBox.minX(), pieceBoundingBox.minY() - pieceTerrainAdaptation.getPadding().bottom(), pieceBoundingBox.minZ(),
+                        pieceBoundingBox.maxX(), pieceBoundingBox.maxY(), pieceBoundingBox.maxZ());
+            }
 
             /* Get the distance from the pieceBoundingBox along each axis.
              * If within the bounding box, all of these are simply 0.
-             * Notably, the below equations grab the maximum *positive* distance. I'm not sure why,
-             * as it seems a negative distance value would also work in the call to computeDensityFactor.
-             * I don't know, I'm just recreating vanilla logic here.
+             * Notably, the below equations grab the maximum *positive* distance.
              */
             int xDistanceToBoundingBox = Math.max(0, Math.max(pieceBoundingBox.minX() - x, x - pieceBoundingBox.maxX()));
             int yDistanceToBoundingBox = Math.max(0, Math.max(pieceBoundingBox.minY() - y, y - pieceBoundingBox.maxY()));
