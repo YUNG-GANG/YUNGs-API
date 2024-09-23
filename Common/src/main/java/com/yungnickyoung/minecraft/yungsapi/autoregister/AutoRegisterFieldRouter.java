@@ -42,6 +42,8 @@ public class AutoRegisterFieldRouter {
             AutoRegistrationManager.MOB_EFFECTS.add(registerData);
         } else if (registerData.object() instanceof AutoRegisterPotion) {
             AutoRegistrationManager.POTIONS.add(registerData);
+        } else if (registerData.object() instanceof AutoRegisterParticleType<?>) {
+            AutoRegistrationManager.PARTICLE_TYPES.add(registerData);
         } else if (registerData.object() instanceof AutoRegisterSoundEvent) {
             AutoRegistrationManager.SOUND_EVENTS.add(registerData);
         } else if (registerData.object() instanceof AutoRegisterCommand) {
