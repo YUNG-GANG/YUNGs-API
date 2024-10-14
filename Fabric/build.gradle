@@ -45,7 +45,7 @@ loom {
     }
 }
 
-String[] compatibleVersions = project.curseforge_compatible_versions.split(',')
+String[] compatibleVersions = project.compatible_versions.compatible_versions(',')
 task publishCurseForgeFabric(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
     dependsOn(tasks.remapJar)
     apiToken = curseforgeApiKey
@@ -63,7 +63,7 @@ task publishCurseForgeFabric(type: net.darkhax.curseforgegradle.TaskPublishCurse
     }
 }
 
-List compatibleVersionsList = project.curseforge_compatible_versions.split(',')
+List compatibleVersionsList = project.compatible_versions.compatible_versions(',')
 modrinth {
     token = modrinthToken
     projectId = modrinth_project_id

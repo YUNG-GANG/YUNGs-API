@@ -62,7 +62,7 @@ dependencies {
     implementation "net.neoforged:neoforge:${neoforge_version}"
 }
 
-String[] compatibleVersions = project.curseforge_compatible_versions.split(',')
+String[] compatibleVersions = project.compatible_versions.compatible_versions(',')
 task publishCurseForgeNeoForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
     dependsOn(tasks.jar)
     apiToken = curseforgeApiKey
@@ -80,7 +80,7 @@ task publishCurseForgeNeoForge(type: net.darkhax.curseforgegradle.TaskPublishCur
     }
 }
 
-List compatibleVersionsList = project.curseforge_compatible_versions.split(',')
+List compatibleVersionsList = project.compatible_versions.compatible_versions(',')
 modrinth {
     token = modrinthToken
     projectId = modrinth_project_id
