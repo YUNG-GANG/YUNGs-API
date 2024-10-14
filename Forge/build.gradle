@@ -106,7 +106,7 @@ sourceSets.each {
     it.java.destinationDirectory = dir
 }
 
-String[] compatibleVersions = project.compatible_versions.compatible_versions(',')
+String[] compatibleVersions = project.compatible_versions.split(',')
 task publishCurseForgeForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
     dependsOn(tasks.jar)
     apiToken = curseforgeApiKey
@@ -123,7 +123,7 @@ task publishCurseForgeForge(type: net.darkhax.curseforgegradle.TaskPublishCurseF
     }
 }
 
-List compatibleVersionsList = project.compatible_versions.compatible_versions(',')
+List compatibleVersionsList = project.compatible_versions.split(',')
 modrinth {
     token = modrinthToken
     projectId = modrinth_project_id
