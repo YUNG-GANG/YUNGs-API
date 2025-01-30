@@ -136,7 +136,7 @@ public class ItemRandomizer {
         float currTotal = entries.stream().map(entry -> entry.probability).reduce(Float::sum).orElse(0f);
         float newTotal = currTotal + chance;
         if (newTotal > 1) { // Total probability cannot exceed 1
-            YungsApiCommon.LOGGER.warn("WARNING: item {} added to ItemRandomizer exceeds max probabiltiy of 1!", item.toString());
+            YungsApiCommon.LOGGER.warn("WARNING: item {} added to ItemRandomizer exceeds max probability of 1!", item.toString());
             return this;
         }
         entries.add(new Entry(item, chance));
