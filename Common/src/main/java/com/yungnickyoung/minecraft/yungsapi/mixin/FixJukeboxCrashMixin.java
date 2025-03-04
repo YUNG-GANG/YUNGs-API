@@ -11,7 +11,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-
+/**
+ * Fixes a crash that occurs when a jukebox is overwritten during worldgen.
+ */
 @Mixin(JukeboxBlockEntity.class)
 public abstract class FixJukeboxCrashMixin extends BlockEntity {
     public FixJukeboxCrashMixin(BlockEntityType<?> $$0, BlockPos $$1, BlockState $$2) {
