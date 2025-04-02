@@ -132,7 +132,7 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
     }
 
     @Override
-    public List<StructureTemplate.StructureBlockInfo> getShuffledJigsawBlocks(
+    public List<StructureTemplate.JigsawBlockInfo> getShuffledJigsawBlocks(
             StructureTemplateManager structureTemplateManager,
             BlockPos blockPos,
             Rotation rotation,
@@ -141,7 +141,11 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
         StructureTemplate structureTemplate = this.getTemplate(structureTemplateManager);
         ObjectArrayList<StructureTemplate.StructureBlockInfo> jigsawBlocks = structureTemplate.filterBlocks(blockPos, (new StructurePlaceSettings()).setRotation(rotation), Blocks.JIGSAW, true);
         Util.shuffle(jigsawBlocks, randomSource);
-        return jigsawBlocks;
+        List<StructureTemplate.JigsawBlockInfo> jigsawBlocksList = new ArrayList<>(jigsawBlocks.size());
+        for (StructureTemplate.StructureBlockInfo blockInfo : jigsawBlocks) {
+            jigsawBlocksList.add(StructureTemplate.JigsawBlockInfo.of( blockInfo));
+        }
+        return jigsawBlocksList;
     }
 
     @Override
@@ -224,7 +228,7 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
         List<StructureTemplate.StructureBlockInfo> dataBlocks = Lists.newArrayList();
 
         for (StructureTemplate.StructureBlockInfo block : structureBlocks) {
-            StructureMode structureMode = StructureMode.valueOf(block.nbt().getString("mode"));
+            StructureMode structureMode = StructureMode.valueOf(block.nbt().getString("mode").get());
             if (structureMode == StructureMode.DATA) {
                 dataBlocks.add(block);
             }

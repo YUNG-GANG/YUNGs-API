@@ -2,6 +2,11 @@ package com.yungnickyoung.minecraft.yungsapi.api.autoregister;
 
 import com.google.common.collect.ImmutableSet;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterEntry;
+import net.minecraft.Util;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.DependantName;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
@@ -11,7 +16,9 @@ import net.minecraft.world.flag.FeatureFlag;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.storage.loot.LootTable;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -72,8 +79,12 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
         private float spawnDimensionsScale = 1.0F;
         private EntityDimensions dimensions = EntityDimensions.scalable(0.6F, 1.8F);
         private FeatureFlagSet requiredFeatures = FeatureFlags.VANILLA_SET;
+        private DependantName<EntityType<?>, Optional<ResourceKey<LootTable>>> lootTable;
+        private DependantName<EntityType<?>, String> descriptionId;
 
         private Builder(EntityType.EntityFactory<T> entityFactory, MobCategory mobCategory) {
+            this.descriptionId = ($$0x) -> Util.makeDescriptionId("entity", $$0x.location());
+            this.lootTable = ($$0x) -> Optional.of(ResourceKey.create(Registries.LOOT_TABLE, $$0x.location().withPrefix("entities/")));
             this.factory = entityFactory;
             this.category = mobCategory;
             this.canSpawnFarFromPlayer = mobCategory == MobCategory.CREATURE || mobCategory == MobCategory.MISC;
@@ -133,8 +144,12 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
             return this;
         }
 
-        public EntityType<T> build() {
-            return new EntityType<>(this.factory, this.category, this.serialize, this.summon, this.fireImmune, this.canSpawnFarFromPlayer, this.immuneTo, this.dimensions, this.spawnDimensionsScale, this.clientTrackingRange, this.updateInterval, this.requiredFeatures);
+        public EntityType<T> build(ResourceKey<EntityType<?>> $$0) {
+            if (this.serialize) {
+                Util.fetchChoiceType(References.ENTITY_TREE, $$0.location().toString());
+            }
+            
+            return new EntityType<T>(this.factory, this.category, this.serialize, this.summon, this.fireImmune, this.canSpawnFarFromPlayer, this.immuneTo, this.dimensions, this.spawnDimensionsScale, this.clientTrackingRange, this.updateInterval, (String)this.descriptionId.get($$0), (Optional)this.lootTable.get($$0), this.requiredFeatures);
         }
     }
 }

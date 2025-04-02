@@ -69,14 +69,14 @@ public class BlockStateRandomizer {
      * @param compoundTag The CompoundTag
      */
     public BlockStateRandomizer(CompoundTag compoundTag) {
-        this.defaultBlockState = Block.BLOCK_STATE_REGISTRY.byId(compoundTag.getInt("defaultBlockStateId"));
+        this.defaultBlockState = Block.BLOCK_STATE_REGISTRY.byId(compoundTag.getInt("defaultBlockStateId").get());
         this.entries = new ArrayList<>();
 
-        ListTag entriesTag = compoundTag.getList("entries", 10);
+        ListTag entriesTag = compoundTag.getList("entries").get();
         entriesTag.forEach(entryTag -> {
             CompoundTag entryCompoundTag = ((CompoundTag) entryTag);
-            BlockState blockState = Block.BLOCK_STATE_REGISTRY.byId(entryCompoundTag.getInt("entryBlockStateId"));
-            float chance = entryCompoundTag.getFloat("entryChance");
+            BlockState blockState = Block.BLOCK_STATE_REGISTRY.byId(entryCompoundTag.getInt("entryBlockStateId").get());
+            float chance = entryCompoundTag.getFloat("entryChance").get();
             this.addBlock(blockState, chance);
         });
     }

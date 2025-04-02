@@ -82,14 +82,14 @@ public class YungJigsawFeatureElement extends YungJigsawPoolElement {
     }
 
     @Override
-    public List<StructureTemplate.StructureBlockInfo> getShuffledJigsawBlocks(
+    public List<StructureTemplate.JigsawBlockInfo> getShuffledJigsawBlocks(
             StructureTemplateManager structureTemplateManager,
             BlockPos blockPos,
             Rotation rotation,
             RandomSource randomSource
     ) {
-        List<StructureTemplate.StructureBlockInfo> jigsawBlocks = Lists.newArrayList();
-        jigsawBlocks.add(new StructureTemplate.StructureBlockInfo(blockPos, Blocks.JIGSAW.defaultBlockState().setValue(JigsawBlock.ORIENTATION, FrontAndTop.fromFrontAndTop(Direction.DOWN, Direction.SOUTH)), this.defaultJigsawNBT));
+        List<StructureTemplate.JigsawBlockInfo> jigsawBlocks = Lists.newArrayList();
+        jigsawBlocks.add(StructureTemplate.JigsawBlockInfo.of(new StructureTemplate.StructureBlockInfo(blockPos, Blocks.JIGSAW.defaultBlockState().setValue(JigsawBlock.ORIENTATION, FrontAndTop.fromFrontAndTop(Direction.DOWN, Direction.SOUTH)), this.defaultJigsawNBT)));
         return jigsawBlocks;
     }
 

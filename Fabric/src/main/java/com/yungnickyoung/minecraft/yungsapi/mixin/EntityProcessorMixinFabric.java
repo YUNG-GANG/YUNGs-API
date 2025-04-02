@@ -8,9 +8,9 @@ import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -102,9 +102,18 @@ public class EntityProcessorMixinFabric {
                 tryCreateEntity(serverLevelAccessor, entityNbt).ifPresent((entity) -> {
                     float f = entity.mirror(ctx.structurePlaceSettings().getMirror());
                     f += entity.getYRot() - entity.rotate(ctx.structurePlaceSettings().getRotation());
-                    entity.moveTo(entityPos.x, entityPos.y, entityPos.z, f, entity.getXRot());
+                    Vec3 newPos = StructureTemplate
+                            .transform(entityInfo.pos,
+                                    ctx.structurePlaceSettings().getMirror(),
+                                    ctx.structurePlaceSettings().getRotation(),
+                                    ctx.structurePlaceSettings().getRotationPivot());
+                    entity.moveOrInterpolateTo(
+                            newPos,
+                            f,
+                            entity.getXRot() // Keep the original X rotation
+                    );
                     if (ctx.structurePlaceSettings().shouldFinalizeEntities() && entity instanceof Mob) {
-                        ((Mob) entity).finalizeSpawn(serverLevelAccessor, serverLevelAccessor.getCurrentDifficultyAt(BlockPos.containing(entityPos)), MobSpawnType.STRUCTURE, null);
+                        ((Mob) entity).finalizeSpawn(serverLevelAccessor, serverLevelAccessor.getCurrentDifficultyAt(BlockPos.containing(entityPos)), EntitySpawnReason.STRUCTURE, null);
                     }
 
                     serverLevelAccessor.addFreshEntityWithPassengers(entity);
@@ -173,7 +182,7 @@ public class EntityProcessorMixinFabric {
     @Unique
     private static Optional<Entity> tryCreateEntity(ServerLevelAccessor serverLevelAccessor, CompoundTag compoundTag) {
         try {
-            return EntityType.create(compoundTag, serverLevelAccessor.getLevel());
+            return EntityType.create(compoundTag, serverLevelAccessor.getLevel(), EntitySpawnReason.STRUCTURE);
         } catch (Exception exception) {
             return Optional.empty();
         }

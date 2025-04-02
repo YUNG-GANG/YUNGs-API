@@ -7,7 +7,7 @@ plugins {
 }
 
 subprojects {
-    configurations.all {
+    configurations.configureEach {
         resolutionStrategy {
             cacheChangingModulesFor 60, 'seconds'
             cacheDynamicVersionsFor 60, 'seconds'
@@ -20,9 +20,12 @@ subprojects {
     }
 }
 
-task publishCurseForge(dependsOn: [':Forge:publishCurseForgeForge', ':Fabric:publishCurseForgeFabric', ':NeoForge:publishCurseForgeNeoForge']) {
+tasks.register('publishCurseForge') {
+    dependsOn[':Forge:publishCurseForgeForge', ':Fabric:publishCurseForgeFabric', ':NeoForge:publishCurseForgeNeoForge']
 }
-task publishModrinth(dependsOn: [':Forge:modrinth', ':Fabric:modrinth', ':NeoForge:modrinth']) {
+tasks.register('publishModrinth') {
+    dependsOn[':Forge:modrinth', ':Fabric:modrinth', ':NeoForge:modrinth']
 }
-task publishCurseAndModrinth(dependsOn: ['publishCurseForge', 'publishModrinth']) {
+tasks.register('publishCurseAndModrinth') {
+    dependsOn['publishCurseForge', 'publishModrinth']
 }
