@@ -9,6 +9,6 @@ import org.jetbrains.annotations.Nullable;
 public class NeoForgeBlockEntityTypeHelper implements IBlockEntityTypeHelper {
     @Override
     public <T extends BlockEntity> BlockEntityType<T> build(AutoRegisterBlockEntityType.Builder<T> builder, @Nullable Type<?> type) {
-        return BlockEntityType.Builder.<T>of(builder.getFactory()::create, builder.getBlocks()).build(type);
+        return builder.build(type);
     }
 }
