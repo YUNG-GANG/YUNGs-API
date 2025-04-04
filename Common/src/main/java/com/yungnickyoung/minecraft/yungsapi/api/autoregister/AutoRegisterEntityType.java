@@ -2,6 +2,10 @@ package com.yungnickyoung.minecraft.yungsapi.api.autoregister;
 
 import com.google.common.collect.ImmutableSet;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterEntry;
+import net.minecraft.Util;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.DependantName;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
@@ -11,7 +15,9 @@ import net.minecraft.world.flag.FeatureFlag;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.storage.loot.LootTable;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -72,11 +78,17 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
         private float spawnDimensionsScale = 1.0F;
         private EntityDimensions dimensions = EntityDimensions.scalable(0.6F, 1.8F);
         private FeatureFlagSet requiredFeatures = FeatureFlags.VANILLA_SET;
+        private DependantName<EntityType<?>, String> descriptionId;
+        private DependantName<EntityType<?>, Optional<ResourceKey<LootTable>>> lootTable;
 
         private Builder(EntityType.EntityFactory<T> entityFactory, MobCategory mobCategory) {
             this.factory = entityFactory;
             this.category = mobCategory;
             this.canSpawnFarFromPlayer = mobCategory == MobCategory.CREATURE || mobCategory == MobCategory.MISC;
+            this.lootTable = resourceKey -> Optional.of(ResourceKey.create(
+                    Registries.LOOT_TABLE,
+                    resourceKey.location().withPrefix("entities/")));
+            this.descriptionId = resourceKey -> Util.makeDescriptionId("entity", resourceKey.location());
         }
 
         public static <T extends Entity> Builder<T> of(EntityType.EntityFactory<T> entityFactory, MobCategory mobCategory) {
@@ -133,8 +145,17 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
             return this;
         }
 
-        public EntityType<T> build() {
-            return new EntityType<>(this.factory, this.category, this.serialize, this.summon, this.fireImmune, this.canSpawnFarFromPlayer, this.immuneTo, this.dimensions, this.spawnDimensionsScale, this.clientTrackingRange, this.updateInterval, this.requiredFeatures);
+        public Builder<T> noLootTable() {
+            this.lootTable = DependantName.fixed(Optional.empty());
+            return this;
+        }
+
+        public EntityType<T> build(ResourceKey<EntityType<?>> resourceKey) {
+            return new EntityType<>(this.factory, this.category, this.serialize, this.summon, this.fireImmune,
+                    this.canSpawnFarFromPlayer, this.immuneTo, this.dimensions, this.spawnDimensionsScale,
+                    this.clientTrackingRange, this.updateInterval,
+                    this.descriptionId.get(resourceKey), this.lootTable.get(resourceKey),
+                    this.requiredFeatures);
         }
     }
 }

@@ -30,7 +30,7 @@ public class MixinUtils {
      * @return true if the provided position is inside a structure that is tagged with the provided tag
      */
     public static boolean isPositionInTaggedStructure(WorldGenRegion worldGenRegion, BlockPos pos, TagKey<Structure> structureTagKey) {
-        Registry<Structure> structureRegistry = worldGenRegion.registryAccess().registryOrThrow(Registries.STRUCTURE);
+        Registry<Structure> structureRegistry = worldGenRegion.registryAccess().lookupOrThrow(Registries.STRUCTURE);
         SectionPos sectionPos = SectionPos.of(pos);
 
         // Ensure chunk has generated structure references
@@ -44,7 +44,7 @@ public class MixinUtils {
             LongSet references = entry.getValue();
 
             Optional<ResourceKey<Structure>> structureKey = structureRegistry.getResourceKey(structure);
-            boolean isTaggedStructure = structureKey.isPresent() && structureRegistry.getHolderOrThrow(structureKey.get()).is(structureTagKey);
+            boolean isTaggedStructure = structureKey.isPresent() && structureRegistry.getOrThrow(structureKey.get()).is(structureTagKey);
 
             if (isTaggedStructure) {
                 if (isAnyReferenceValidStartForStructure(worldGenRegion, structure, references, structureStart -> structureStart.getBoundingBox().isInside(pos))) {
@@ -71,7 +71,7 @@ public class MixinUtils {
         StructureManager structureManager = worldGenRegion.getLevel().structureManager();
 
         for (long reference : references) {
-            SectionPos structureStartSectionPos = SectionPos.of(new ChunkPos(reference), worldGenRegion.getMinSection());
+            SectionPos structureStartSectionPos = SectionPos.of(new ChunkPos(reference), worldGenRegion.getMinSectionY());
             if (!worldGenRegion.hasChunk(structureStartSectionPos.x(), structureStartSectionPos.z())) {
                 continue;
             }

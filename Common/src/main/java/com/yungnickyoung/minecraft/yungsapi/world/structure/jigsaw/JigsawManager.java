@@ -56,7 +56,7 @@ public class JigsawManager {
     ) {
         // Extract data from context
         RegistryAccess registryAccess = generationContext.registryAccess();
-        Registry<StructureTemplatePool> registry = registryAccess.registryOrThrow(Registries.TEMPLATE_POOL);
+        Registry<StructureTemplatePool> registry = registryAccess.lookupOrThrow(Registries.TEMPLATE_POOL);
         ChunkGenerator chunkGenerator = generationContext.chunkGenerator();
         StructureTemplateManager structureManager = generationContext.structureTemplateManager();
         LevelHeightAccessor levelHeightAccessor = generationContext.heightAccessor();
@@ -263,11 +263,10 @@ public class JigsawManager {
         // Wrap in try-catch because for some reason, getShuffledJigsawBlocks rarely throws a ConcurrentModificationException.
         // We'd rather just ignore the anchor jigsaw block than crash the game.
         try {
-            List<StructureTemplate.StructureBlockInfo> shuffledJigsawBlocks = structurePoolElement.getShuffledJigsawBlocks(structureTemplateManager, startPos, rotation, rand);
-            for (StructureTemplate.StructureBlockInfo jigsawBlockInfo : shuffledJigsawBlocks) {
-                ResourceLocation jigsawBlockName = ResourceLocation.tryParse(jigsawBlockInfo.nbt().getString("name"));
-                if (name.equals(jigsawBlockName)) {
-                    return Optional.of(jigsawBlockInfo.pos());
+            List<StructureTemplate.JigsawBlockInfo> shuffledJigsawBlocks = structurePoolElement.getShuffledJigsawBlocks(structureTemplateManager, startPos, rotation, rand);
+            for (StructureTemplate.JigsawBlockInfo jigsawBlockInfo : shuffledJigsawBlocks) {
+                if (name.equals(jigsawBlockInfo.name())) {
+                    return Optional.of(jigsawBlockInfo.info().pos());
                 }
             }
         } catch (ConcurrentModificationException e) {

@@ -59,11 +59,7 @@ public class AutoRegisterBlockEntityType <T extends BlockEntity> extends AutoReg
         }
 
         public BlockEntityType<T> build() {
-            return build(null);
-        }
-
-        public BlockEntityType<T> build(Type<?> type) {
-            return Services.BLOCK_ENTITY_TYPE_HELPER.build(this, type);
+            return Services.BLOCK_ENTITY_TYPE_HELPER.build(this);
         }
 
         @ApiStatus.Internal
