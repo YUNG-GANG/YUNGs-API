@@ -44,7 +44,7 @@ public class MixinUtils {
             LongSet references = entry.getValue();
 
             Optional<ResourceKey<Structure>> structureKey = structureRegistry.getResourceKey(structure);
-            boolean isTaggedStructure = structureKey.isPresent() && structureRegistry.containsKey((structureKey.get()));
+            boolean isTaggedStructure = structureKey.isPresent() && structureRegistry.getOrThrow(structureKey.get()).is(structureTagKey);
 
             if (isTaggedStructure) {
                 if (isAnyReferenceValidStartForStructure(worldGenRegion, structure, references, structureStart -> structureStart.getBoundingBox().isInside(pos))) {

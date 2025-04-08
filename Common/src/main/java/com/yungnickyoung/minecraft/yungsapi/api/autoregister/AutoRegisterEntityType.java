@@ -148,8 +148,21 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
             if (this.serialize) {
                 Util.fetchChoiceType(References.ENTITY_TREE, $$0.location().toString());
             }
-            
-            return new EntityType<T>(this.factory, this.category, this.serialize, this.summon, this.fireImmune, this.canSpawnFarFromPlayer, this.immuneTo, this.dimensions, this.spawnDimensionsScale, this.clientTrackingRange, this.updateInterval, (String)this.descriptionId.get($$0), (Optional)this.lootTable.get($$0), this.requiredFeatures);
+
+            return EntityType.Builder
+                .<T>of(this.factory, this.category)
+                .sized(this.dimensions.width(), this.dimensions.height())
+                .noSummon()
+                .noSave()
+                .fireImmune()
+                .immuneTo(this.immuneTo.toArray(new Block[0]))
+                .canSpawnFarFromPlayer()
+                .clientTrackingRange(this.clientTrackingRange)
+                .updateInterval(this.updateInterval)
+                .spawnDimensionsScale(this.spawnDimensionsScale)
+                .requiredFeatures()
+                .build($$0);
+
         }
     }
 }

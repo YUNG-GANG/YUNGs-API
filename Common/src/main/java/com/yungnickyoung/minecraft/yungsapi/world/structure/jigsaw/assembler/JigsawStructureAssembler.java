@@ -782,8 +782,8 @@ public class JigsawStructureAssembler {
         public boolean isInBounds(int y) {
             if (maxY.isPresent() && y > maxY.get()) return false;
             if (minY.isPresent() && y < minY.get()) return false;
-            if (y < levelHeightAccessor.getMinSectionY() + dimensionPadding.bottom()) return false;
-            if (y > levelHeightAccessor.getMaxSectionY() - dimensionPadding.top()) return false;
+            if (y < levelHeightAccessor.getMinY() + dimensionPadding.bottom()) return false;
+            if (y > levelHeightAccessor.getMaxY() - dimensionPadding.top()) return false;
             return true;
         }
     }

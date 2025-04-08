@@ -21,11 +21,11 @@ subprojects {
 }
 
 tasks.register('publishCurseForge') {
-    dependsOn[':Forge:publishCurseForgeForge', ':Fabric:publishCurseForgeFabric', ':NeoForge:publishCurseForgeNeoForge']
+    dependsOn ':Forge:publishCurseForgeForge', ':Fabric:publishCurseForgeFabric', ':NeoForge:publishCurseForgeNeoForge'
 }
 tasks.register('publishModrinth') {
-    dependsOn[':Forge:modrinth', ':Fabric:modrinth', ':NeoForge:modrinth']
+    dependsOn ':Forge:modrinth', ':Fabric:modrinth', ':NeoForge:modrinth'
 }
 tasks.register('publishCurseAndModrinth') {
-    dependsOn['publishCurseForge', 'publishModrinth']
+    dependsOn 'publishCurseForge', 'publishModrinth'
 }
