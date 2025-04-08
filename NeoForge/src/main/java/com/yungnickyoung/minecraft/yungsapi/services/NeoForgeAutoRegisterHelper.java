@@ -140,6 +140,7 @@ public class NeoForgeAutoRegisterHelper implements IAutoRegisterHelper {
         BlockEntityTypeModuleNeoForge.processEntries();
         StructureProcessorTypeModuleNeoForge.processEntries();
         StructurePlacementTypeModuleNeoForge.processEntries();
+        ParticleTypeModuleNeoForge.processEntries();
         EntityTypeModuleNeoForge.processEntries();
         MobEffectModuleNeoForge.processEntries();
         PotionModuleNeoForge.processEntries();

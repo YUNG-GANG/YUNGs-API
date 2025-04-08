@@ -10,6 +10,8 @@ import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 
+// TODO never refactor this. We will continue to add more if statements until the end of time.
+// One day the entire AutoRegister system will be one giant if statement.
 public class AutoRegisterFieldRouter {
     public static void queueField(AutoRegisterField registerData) {
         if (registerData.object() instanceof StructureType<?>) {
@@ -42,6 +44,8 @@ public class AutoRegisterFieldRouter {
             AutoRegistrationManager.MOB_EFFECTS.add(registerData);
         } else if (registerData.object() instanceof AutoRegisterPotion) {
             AutoRegistrationManager.POTIONS.add(registerData);
+        } else if (registerData.object() instanceof AutoRegisterParticleType<?>) {
+            AutoRegistrationManager.PARTICLE_TYPES.add(registerData);
         } else if (registerData.object() instanceof AutoRegisterSoundEvent) {
             AutoRegistrationManager.SOUND_EVENTS.add(registerData);
         } else if (registerData.object() instanceof AutoRegisterCommand) {
