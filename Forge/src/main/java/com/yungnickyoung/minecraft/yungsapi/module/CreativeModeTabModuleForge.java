@@ -1,5 +1,6 @@
 package com.yungnickyoung.minecraft.yungsapi.module;
 
+import com.yungnickyoung.minecraft.yungsapi.YungsApiForge;
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterCreativeTab;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
@@ -13,7 +14,7 @@ import net.minecraftforge.registries.RegisterEvent;
  */
 public class CreativeModeTabModuleForge {
     public static void processEntries() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(CreativeModeTabModuleForge::registerTabs);
+        YungsApiForge.loadingContextEventBus.addListener(CreativeModeTabModuleForge::registerTabs);
     }
 
     private static void registerTabs(final RegisterEvent event) {

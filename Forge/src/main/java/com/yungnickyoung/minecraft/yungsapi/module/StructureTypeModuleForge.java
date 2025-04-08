@@ -1,5 +1,6 @@
 package com.yungnickyoung.minecraft.yungsapi.module;
 
+import com.yungnickyoung.minecraft.yungsapi.YungsApiForge;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import net.minecraft.core.registries.Registries;
@@ -12,18 +13,6 @@ import net.minecraftforge.registries.RegisterEvent;
  */
 public class StructureTypeModuleForge {
     public static void processEntries() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(StructureTypeModuleForge::registerStructureTypes);
-    }
-
-    private static void registerStructureTypes(RegisterEvent event) {
-        event.register(Registries.STRUCTURE_TYPE, helper -> AutoRegistrationManager.STRUCTURE_TYPES.stream()
-                .filter(data -> !data.processed())
-                .forEach(data -> registerStructureType(data, helper)));
-    }
-
-    private static void registerStructureType(AutoRegisterField data, RegisterEvent.RegisterHelper<StructureType<?>> helper) {
-        StructureType<?> structureType = (StructureType<?>) data.object();
-        helper.register(data.name(), structureType);
-        data.markProcessed();
+        YungsApiForge.loadingContextEventBus.addListener(YungsApiForge.buildSimpleRegistrar(Registries.STRUCTURE_TYPE, AutoRegistrationManager.STRUCTURE_TYPES));
     }
 }

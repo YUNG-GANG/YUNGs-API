@@ -1,5 +1,6 @@
 package com.yungnickyoung.minecraft.yungsapi.module;
 
+import com.yungnickyoung.minecraft.yungsapi.YungsApiForge;
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterEntityType;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
@@ -23,8 +24,8 @@ public class EntityTypeModuleForge {
     public static final Map<AutoRegisterEntityType<? extends LivingEntity>, Supplier<AttributeSupplier.Builder>> ENTITY_ATTRIBUTES = new HashMap<>();
 
     public static void processEntries() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(EntityTypeModuleForge::registerEntityTypes);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(EntityTypeModuleForge::registerEntityAttributes);
+        YungsApiForge.loadingContextEventBus.addListener(EntityTypeModuleForge::registerEntityTypes);
+        YungsApiForge.loadingContextEventBus.addListener(EntityTypeModuleForge::registerEntityAttributes);
     }
 
     private static void registerEntityTypes(RegisterEvent event) {

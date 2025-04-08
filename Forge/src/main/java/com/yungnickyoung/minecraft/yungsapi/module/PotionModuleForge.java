@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.module;
 
 
+import com.yungnickyoung.minecraft.yungsapi.YungsApiForge;
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegister;
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterPotion;
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterUtils;
@@ -31,7 +32,7 @@ public class PotionModuleForge {
     public static final List<IBrewingRecipe> BREWING_RECIPES = new ArrayList<>();
 
     public static void processEntries() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(PotionModuleForge::registerPotions);
+        YungsApiForge.loadingContextEventBus.addListener(PotionModuleForge::registerPotions);
         MinecraftForge.EVENT_BUS.addListener(PotionModuleForge::registerBrewingRecipes);
     }
 

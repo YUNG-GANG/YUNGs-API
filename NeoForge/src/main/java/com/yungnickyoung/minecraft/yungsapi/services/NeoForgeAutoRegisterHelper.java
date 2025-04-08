@@ -129,7 +129,7 @@ public class NeoForgeAutoRegisterHelper implements IAutoRegisterHelper {
     public void processQueuedAutoRegEntries() {
         SoundEventModuleNeoForge.processEntries();
         StructurePieceTypeModuleNeoForge.processEntries();
-        StructurePoolElementTypeModuleForge.processEntries();
+        StructurePoolElementTypeModuleNeoForge.processEntries();
         CriteriaModuleNeoForge.processEntries();
         StructureTypeModuleNeoForge.processEntries();
         FeatureModuleNeoForge.processEntries();

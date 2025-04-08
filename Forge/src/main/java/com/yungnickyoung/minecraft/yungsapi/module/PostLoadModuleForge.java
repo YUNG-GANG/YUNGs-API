@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.module;
 
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
+import com.yungnickyoung.minecraft.yungsapi.YungsApiForge;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
@@ -16,7 +17,7 @@ public class PostLoadModuleForge {
     public static List<Method> METHODS = new ArrayList<>();
 
     public static void init() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(PostLoadModuleForge::commonSetup);
+        YungsApiForge.loadingContextEventBus.addListener(PostLoadModuleForge::commonSetup);
     }
 
     private static void commonSetup(final FMLCommonSetupEvent event) {

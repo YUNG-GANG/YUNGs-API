@@ -1,5 +1,6 @@
 package com.yungnickyoung.minecraft.yungsapi.module;
 
+import com.yungnickyoung.minecraft.yungsapi.YungsApiForge;
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterBlock;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
@@ -27,7 +28,7 @@ public class BlockModuleForge {
     public static final List<ExtraBlockData> EXTRA_BLOCKS = new ArrayList<>();
 
     public static void processEntries() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(BlockModuleForge::registerBlocks);
+        YungsApiForge.loadingContextEventBus.addListener(BlockModuleForge::registerBlocks);
     }
 
     private static void registerBlocks(RegisterEvent event) {
