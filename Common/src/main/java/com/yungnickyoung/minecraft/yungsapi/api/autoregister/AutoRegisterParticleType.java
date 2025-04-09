@@ -5,9 +5,21 @@ import com.yungnickyoung.minecraft.yungsapi.services.Services;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.core.particles.ParticleType;
 
 import java.util.function.Supplier;
 
+/**
+ * Wrapper for registering {@link ParticleType}s with AutoRegister.
+ * <br />
+ * Example usage:
+ * <pre>
+ * {@code
+ * @AutoRegister("spell")
+ * public static final AutoRegisterParticleType<SimpleParticleType> SPELL = AutoRegisterParticleType.simple();
+ * }
+ * </pre>
+ */
 public class AutoRegisterParticleType<T extends ParticleOptions> extends AutoRegisterEntry<ParticleType<T>> {
 
     public static <U extends ParticleOptions> AutoRegisterParticleType<U> of(Supplier<ParticleType<U>> particleTypeSupplier) {
