@@ -157,7 +157,7 @@ public class JigsawManager {
         // When choosing a piece, we will remove its weight from this sum.
         int totalWeightSum = candidatePoolElements.stream().mapToInt(Pair::getSecond).reduce(0, Integer::sum);
 
-        while (candidatePoolElements.size() > 0 && totalWeightSum > 0) {
+        while (!candidatePoolElements.isEmpty() && totalWeightSum > 0) {
             Pair<StructurePoolElement, Integer> chosenPoolElementPair = null;
 
             // First, check for any priority pieces
@@ -202,7 +202,6 @@ public class JigsawManager {
                             .orElse("<unregistered>"));
                     return Optional.empty();
                 }
-
                 anchorPos = optional.get();
             } else {
                 anchorPos = locatePos;
@@ -265,7 +264,7 @@ public class JigsawManager {
         try {
             List<StructureTemplate.JigsawBlockInfo> shuffledJigsawBlocks = structurePoolElement.getShuffledJigsawBlocks(structureTemplateManager, startPos, rotation, rand);
             for (StructureTemplate.JigsawBlockInfo jigsawBlockInfo : shuffledJigsawBlocks) {
-                ResourceLocation jigsawBlockName = ResourceLocation.tryParse(String.valueOf(jigsawBlockInfo.info().nbt().getString("name")));
+                ResourceLocation jigsawBlockName = jigsawBlockInfo.name();
                 if (name.equals(jigsawBlockName)) {
                     return Optional.of(jigsawBlockInfo.info().pos());
                 }

@@ -643,7 +643,7 @@ public class JigsawStructureAssembler {
     }
 
     private static ResourceKey<StructureTemplatePool> readPoolName(StructureTemplate.StructureBlockInfo jigsawBlockInfo) {
-        return ResourceKey.create(Registries.TEMPLATE_POOL, ResourceLocation.parse(String.valueOf(jigsawBlockInfo.nbt().getString("pool"))));
+        return ResourceKey.create(Registries.TEMPLATE_POOL, ResourceLocation.parse(String.valueOf(jigsawBlockInfo.nbt().getString("pool").get())));
     }
 
     public static class Settings {
