@@ -8,6 +8,7 @@ public class Services {
     public static final IPlatformHelper PLATFORM = load(IPlatformHelper.class);
     public static final IAutoRegisterHelper AUTO_REGISTER = load(IAutoRegisterHelper.class);
     public static final IBlockEntityTypeHelper BLOCK_ENTITY_TYPE_HELPER = load(IBlockEntityTypeHelper.class);
+    public static final IParticleTypeHelper PARTICLE_HELPER = load(IParticleTypeHelper.class);
 
     public static <T> T load(Class<T> clazz) {
         final T loadedService = ServiceLoader.load(clazz)
