@@ -18,8 +18,9 @@ import java.util.Optional;
 
 /**
  * Equivalent of vanilla {@link LegacySinglePoolElement} with additional support for max_count setting.
- * Prefer using {@link YungJigsawSinglePoolElement} if possible instead.
+ * Deprecated. Prefer using {@link YungJigsawSinglePoolElement} if possible instead.
  */
+@Deprecated
 public class MaxCountLegacySinglePoolElement extends LegacySinglePoolElement implements IMaxCountJigsawPoolElement {
     public static final MapCodec<MaxCountLegacySinglePoolElement> CODEC = RecordCodecBuilder.mapCodec((builder) -> builder
             .group(

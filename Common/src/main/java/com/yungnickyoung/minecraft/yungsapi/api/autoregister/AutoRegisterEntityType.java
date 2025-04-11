@@ -79,15 +79,17 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
         private float spawnDimensionsScale = 1.0F;
         private EntityDimensions dimensions = EntityDimensions.scalable(0.6F, 1.8F);
         private FeatureFlagSet requiredFeatures = FeatureFlags.VANILLA_SET;
-        private DependantName<EntityType<?>, Optional<ResourceKey<LootTable>>> lootTable;
         private DependantName<EntityType<?>, String> descriptionId;
+        private DependantName<EntityType<?>, Optional<ResourceKey<LootTable>>> lootTable;
 
         private Builder(EntityType.EntityFactory<T> entityFactory, MobCategory mobCategory) {
-            this.descriptionId = ($$0x) -> Util.makeDescriptionId("entity", $$0x.location());
-            this.lootTable = ($$0x) -> Optional.of(ResourceKey.create(Registries.LOOT_TABLE, $$0x.location().withPrefix("entities/")));
             this.factory = entityFactory;
             this.category = mobCategory;
             this.canSpawnFarFromPlayer = mobCategory == MobCategory.CREATURE || mobCategory == MobCategory.MISC;
+            this.lootTable = resourceKey -> Optional.of(ResourceKey.create(
+                    Registries.LOOT_TABLE,
+                    resourceKey.location().withPrefix("entities/")));
+            this.descriptionId = resourceKey -> Util.makeDescriptionId("entity", resourceKey.location());
         }
 
         public static <T extends Entity> Builder<T> of(EntityType.EntityFactory<T> entityFactory, MobCategory mobCategory) {
@@ -144,25 +146,29 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
             return this;
         }
 
+        public Builder<T> noLootTable() {
+            this.lootTable = DependantName.fixed(Optional.empty());
+            return this;
+        }
+
         public EntityType<T> build(ResourceKey<EntityType<?>> $$0) {
             if (this.serialize) {
                 Util.fetchChoiceType(References.ENTITY_TREE, $$0.location().toString());
             }
 
             return EntityType.Builder
-                .<T>of(this.factory, this.category)
-                .sized(this.dimensions.width(), this.dimensions.height())
-                .noSummon()
-                .noSave()
-                .fireImmune()
-                .immuneTo(this.immuneTo.toArray(new Block[0]))
-                .canSpawnFarFromPlayer()
-                .clientTrackingRange(this.clientTrackingRange)
-                .updateInterval(this.updateInterval)
-                .spawnDimensionsScale(this.spawnDimensionsScale)
-                .requiredFeatures()
-                .build($$0);
-
+                    .of(this.factory, this.category)
+                    .sized(this.dimensions.width(), this.dimensions.height())
+                    .noSummon()
+                    .noSave()
+                    .fireImmune()
+                    .immuneTo(this.immuneTo.toArray(new Block[0]))
+                    .canSpawnFarFromPlayer()
+                    .clientTrackingRange(this.clientTrackingRange)
+                    .updateInterval(this.updateInterval)
+                    .spawnDimensionsScale(this.spawnDimensionsScale)
+                    .requiredFeatures()
+                    .build($$0);
         }
     }
 }

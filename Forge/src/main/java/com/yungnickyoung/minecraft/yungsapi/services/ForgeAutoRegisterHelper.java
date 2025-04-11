@@ -140,7 +140,9 @@ public class ForgeAutoRegisterHelper implements IAutoRegisterHelper {
         BlockEntityTypeModuleForge.processEntries();
         StructureProcessorTypeModuleForge.processEntries();
         StructurePlacementTypeModuleForge.processEntries();
+        ParticleTypeModuleForge.processEntries();
         EntityTypeModuleForge.processEntries();
+        EntityDataSerializerModuleForge.processEntries();
         MobEffectModuleForge.processEntries();
         PotionModuleForge.processEntries();
         CommandModuleForge.processEntries();

@@ -6,9 +6,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+import java.util.HashSet;
+
 public class ForgeBlockEntityTypeHelper implements IBlockEntityTypeHelper {
     @Override
-    public <T extends BlockEntity> BlockEntityType<T> build(AutoRegisterBlockEntityType.Builder<T> builder, @Nullable Type<?> type) {
-        return builder.build();
+    public <T extends BlockEntity> BlockEntityType<T> build(AutoRegisterBlockEntityType.Builder<T> builder) {
+        return new BlockEntityType<>(builder.getFactory()::create, new HashSet<>(Arrays.asList(builder.getBlocks())));
     }
 }

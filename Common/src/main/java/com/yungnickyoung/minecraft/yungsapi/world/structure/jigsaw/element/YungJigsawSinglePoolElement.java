@@ -11,7 +11,6 @@ import com.yungnickyoung.minecraft.yungsapi.module.StructurePoolElementTypeModul
 import com.yungnickyoung.minecraft.yungsapi.world.structure.condition.StructureCondition;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.modifier.StructureModifier;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.adaptations.EnhancedTerrainAdaptation;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -40,6 +39,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -50,7 +50,9 @@ import java.util.function.Function;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
-    private static final Codec<Either<ResourceLocation, StructureTemplate>> TEMPLATE_CODEC = Codec.of(YungJigsawSinglePoolElement::encodeTemplate, ResourceLocation.CODEC.map(Either::left));
+    private static final Codec<Either<ResourceLocation, StructureTemplate>> TEMPLATE_CODEC = Codec.of(
+            YungJigsawSinglePoolElement::encodeTemplate, ResourceLocation.CODEC.map(Either::left));
+
     public static final MapCodec<YungJigsawSinglePoolElement> CODEC = RecordCodecBuilder.mapCodec((builder) -> builder
             .group(
                     templateCodec(),
@@ -69,10 +71,12 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
                     StructureModifier.CODEC.listOf().optionalFieldOf("modifiers", new ArrayList<>()).forGetter(element -> element.modifiers)
             ).apply(builder, YungJigsawSinglePoolElement::new));
 
+    private static final Comparator<StructureTemplate.JigsawBlockInfo> HIGHEST_SELECTION_PRIORITY_FIRST =
+            Comparator.comparingInt(StructureTemplate.JigsawBlockInfo::selectionPriority).reversed();
+
+
     public final Either<ResourceLocation, StructureTemplate> template;
-
     public final Holder<StructureProcessorList> processors;
-
     public final Optional<LiquidSettings> overrideLiquidSettings;
 
     /**
@@ -138,14 +142,14 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
             Rotation rotation,
             RandomSource randomSource
     ) {
-        StructureTemplate structureTemplate = this.getTemplate(structureTemplateManager);
-        ObjectArrayList<StructureTemplate.StructureBlockInfo> jigsawBlocks = structureTemplate.filterBlocks(blockPos, (new StructurePlaceSettings()).setRotation(rotation), Blocks.JIGSAW, true);
+        List<StructureTemplate.JigsawBlockInfo> jigsawBlocks = this.getTemplate(structureTemplateManager).getJigsaws(blockPos, rotation);
         Util.shuffle(jigsawBlocks, randomSource);
-        List<StructureTemplate.JigsawBlockInfo> jigsawBlocksList = new ArrayList<>(jigsawBlocks.size());
-        for (StructureTemplate.StructureBlockInfo blockInfo : jigsawBlocks) {
-            jigsawBlocksList.add(StructureTemplate.JigsawBlockInfo.of( blockInfo));
-        }
-        return jigsawBlocksList;
+        sortBySelectionPriority(jigsawBlocks);
+        return jigsawBlocks;
+    }
+
+    private static void sortBySelectionPriority(List<StructureTemplate.JigsawBlockInfo> jigsawBlocks) {
+        jigsawBlocks.sort(HIGHEST_SELECTION_PRIORITY_FIRST);
     }
 
     @Override

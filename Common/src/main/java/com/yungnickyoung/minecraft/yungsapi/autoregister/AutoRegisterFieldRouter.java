@@ -2,6 +2,7 @@ package com.yungnickyoung.minecraft.yungsapi.autoregister;
 
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.*;
 import net.minecraft.advancements.CriterionTrigger;
+import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
 import net.minecraft.world.level.levelgen.structure.StructureType;
@@ -38,10 +39,14 @@ public class AutoRegisterFieldRouter {
             AutoRegistrationManager.CREATIVE_MODE_TABS.add(registerData);
         } else if (registerData.object() instanceof AutoRegisterEntityType) {
             AutoRegistrationManager.ENTITY_TYPES.add(registerData);
+        } else if (registerData.object() instanceof EntityDataSerializer<?>) {
+            AutoRegistrationManager.ENTITY_DATA_SERIALIZERS.add(registerData);
         } else if (registerData.object() instanceof AutoRegisterMobEffect) {
             AutoRegistrationManager.MOB_EFFECTS.add(registerData);
         } else if (registerData.object() instanceof AutoRegisterPotion) {
             AutoRegistrationManager.POTIONS.add(registerData);
+        } else if (registerData.object() instanceof AutoRegisterParticleType<?>) {
+            AutoRegistrationManager.PARTICLE_TYPES.add(registerData);
         } else if (registerData.object() instanceof AutoRegisterSoundEvent) {
             AutoRegistrationManager.SOUND_EVENTS.add(registerData);
         } else if (registerData.object() instanceof AutoRegisterCommand) {

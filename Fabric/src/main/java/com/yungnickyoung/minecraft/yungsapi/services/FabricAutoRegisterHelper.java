@@ -94,7 +94,9 @@ public class FabricAutoRegisterHelper implements IAutoRegisterHelper {
         BlockEntityTypeModuleFabric.processEntries();
         StructureProcessorTypeModuleFabric.processEntries();
         StructurePlacementTypeModuleFabric.processEntries();
+        ParticleTypeModuleFabric.processEntries();
         EntityTypeModuleFabric.processEntries();
+        EntityDataSerializerModuleFabric.processEntries();
         MobEffectModuleFabric.processEntries();
         PotionModuleFabric.processEntries();
         CommandModuleFabric.processEntries();

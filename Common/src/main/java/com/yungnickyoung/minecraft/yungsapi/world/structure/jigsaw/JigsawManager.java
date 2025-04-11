@@ -202,6 +202,7 @@ public class JigsawManager {
                             .orElse("<unregistered>"));
                     return Optional.empty();
                 }
+
                 anchorPos = optional.get();
             } else {
                 anchorPos = locatePos;
@@ -264,8 +265,7 @@ public class JigsawManager {
         try {
             List<StructureTemplate.JigsawBlockInfo> shuffledJigsawBlocks = structurePoolElement.getShuffledJigsawBlocks(structureTemplateManager, startPos, rotation, rand);
             for (StructureTemplate.JigsawBlockInfo jigsawBlockInfo : shuffledJigsawBlocks) {
-                ResourceLocation jigsawBlockName = jigsawBlockInfo.name();
-                if (name.equals(jigsawBlockName)) {
+                if (name.equals(jigsawBlockInfo.name())) {
                     return Optional.of(jigsawBlockInfo.info().pos());
                 }
             }

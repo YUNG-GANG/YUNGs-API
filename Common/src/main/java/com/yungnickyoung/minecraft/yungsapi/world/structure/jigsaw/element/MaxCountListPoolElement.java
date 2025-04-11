@@ -15,8 +15,9 @@ import java.util.stream.Collectors;
 
 /**
  * Equivalent of vanilla {@link ListPoolElement} with additional support for max_count setting.
- * Prefer using {@link YungJigsawSinglePoolElement} if possible instead.
+ * Deprecated. Prefer using {@link YungJigsawSinglePoolElement} if possible instead.
  */
+@Deprecated
 public class MaxCountListPoolElement extends ListPoolElement implements IMaxCountJigsawPoolElement {
     public static final MapCodec<MaxCountListPoolElement> CODEC = RecordCodecBuilder.mapCodec((builder) -> builder
         .group(
