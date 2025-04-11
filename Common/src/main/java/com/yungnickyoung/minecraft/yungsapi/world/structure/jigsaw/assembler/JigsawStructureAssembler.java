@@ -155,10 +155,10 @@ public class JigsawStructureAssembler {
 
         for (StructureTemplate.JigsawBlockInfo jigsawBlockInfo : pieceJigsawBlocks) {
             // Get ResourceKey for the jigsaw block's target pool
-            ResourceKey<StructureTemplatePool> poolKey = readPoolKey(jigsawBlockInfo);
+            ResourceKey<StructureTemplatePool> poolKey = readPoolName(jigsawBlockInfo.info());
 
             // Fetch the target pool, ensuring it's not empty
-            Optional<? extends Holder<StructureTemplatePool>> optionalPoolHolder = this.settings.poolRegistry.get(poolKey);
+            Optional<? extends Holder<StructureTemplatePool>> optionalPoolHolder = this.settings.poolRegistry.get( poolKey);
             if (optionalPoolHolder.isEmpty()) {
                 YungsApiCommon.LOGGER.warn("Empty or nonexistent pool: {}", poolKey.location());
                 continue;
@@ -181,7 +181,7 @@ public class JigsawStructureAssembler {
             }
 
             // Construct piece context
-            PieceContext pieceContext = createPieceContextForJigsawBlock(jigsawBlockInfo, pieceEntry, parentOctree);
+            PieceContext pieceContext = createPieceContextForJigsawBlock(jigsawBlockInfo.info(), pieceEntry, parentOctree);
             Optional<StructurePoolElement> newlyGeneratedPiece = Optional.empty();
 
             // Attempt to place a piece from the target pool
@@ -247,7 +247,7 @@ public class JigsawStructureAssembler {
     }
 
     private PieceContext createPieceContextForJigsawBlock(
-            StructureTemplate.JigsawBlockInfo jigsawBlockInfo,
+            StructureTemplate.StructureBlockInfo jigsawBlockInfo,
             PieceEntry pieceEntry,
             MutableObject<BoxOctree> parentOctree
     ) {
@@ -255,8 +255,8 @@ public class JigsawStructureAssembler {
         MutableObject<BoxOctree> pieceOctree = pieceEntry.getBoxOctree();
 
         // Gather jigsaw block information
-        Direction direction = JigsawBlock.getFrontFacing(jigsawBlockInfo.info().state());
-        BlockPos jigsawBlockTargetPos = jigsawBlockInfo.info().pos().relative(direction);
+        Direction direction = JigsawBlock.getFrontFacing(jigsawBlockInfo.state());
+        BlockPos jigsawBlockTargetPos = jigsawBlockInfo.pos().relative(direction);
 
         // Adjustments for if the target block position is inside the current piece
         boolean isTargetInsideCurrentPiece = pieceBoundingBox.isInside(jigsawBlockTargetPos);
@@ -272,7 +272,7 @@ public class JigsawStructureAssembler {
                 jigsawBlockInfo,
                 jigsawBlockTargetPos,
                 pieceBoundingBox.minY(),
-                jigsawBlockInfo.info().pos(),
+                jigsawBlockInfo.pos(),
                 pieceOctree,
                 pieceEntry,
                 pieceEntry.getDepth());
@@ -300,7 +300,7 @@ public class JigsawStructureAssembler {
         // When choosing a piece, we will remove its weight from this sum.
         int totalWeightSum = candidatePoolElements.stream().mapToInt(Pair::getSecond).reduce(0, Integer::sum);
 
-        while (!candidatePoolElements.isEmpty() && totalWeightSum > 0) {
+        while (candidatePoolElements.size() > 0 && totalWeightSum > 0) {
             Pair<StructurePoolElement, Integer> chosenPoolElementPair = null;
 
             // First, check for any priority pieces
@@ -413,7 +413,7 @@ public class JigsawStructureAssembler {
                             return 0;
                         }
 
-                        ResourceKey<StructureTemplatePool> candidateTargetPoolKey = readPoolKey(pieceCandidateJigsawBlock);
+                        ResourceKey<StructureTemplatePool> candidateTargetPoolKey = readPoolName(pieceCandidateJigsawBlock.info());
                         Optional<? extends Holder<StructureTemplatePool>> candidateTargetPool = this.settings.poolRegistry.get(candidateTargetPoolKey);
                         Optional<Holder<StructureTemplatePool>> candidateFallbackPool = candidateTargetPool.map(poolHolder -> poolHolder.value().getFallback());
                         int candidateMaxSize = candidateTargetPool.map(poolHolder -> poolHolder.value().getMaxSize(this.settings.structureTemplateManager)).orElse(0);
@@ -424,7 +424,7 @@ public class JigsawStructureAssembler {
 
                 // Check each of the candidate's jigsaw blocks for a match
                 for (StructureTemplate.JigsawBlockInfo candidateJigsawBlock : candidateJigsawBlocks) {
-                    if (!JigsawBlock.canAttach(context.jigsawBlock, candidateJigsawBlock)) continue;
+                    if (!JigsawBlock.canAttach(StructureTemplate.JigsawBlockInfo.of(context.jigsawBlock), candidateJigsawBlock)) continue;
 
                     BlockPos candidateJigsawBlockPos = candidateJigsawBlock.info().pos();
                     BlockPos candidateJigsawBlockRelativePos = context.jigsawBlockTargetPos.subtract(candidateJigsawBlockPos);
@@ -439,7 +439,7 @@ public class JigsawStructureAssembler {
                     // Determine how much the candidate jigsaw block is off in the y direction.
                     // This will be needed to offset the candidate piece so that the jigsaw blocks line up properly.
                     int candidateJigsawBlockRelativeY = candidateJigsawBlockPos.getY();
-                    int candidateJigsawYOffsetNeeded = jigsawBlockRelativeY - candidateJigsawBlockRelativeY + JigsawBlock.getFrontFacing(context.jigsawBlock.info().state()).getStepY();
+                    int candidateJigsawYOffsetNeeded = jigsawBlockRelativeY - candidateJigsawBlockRelativeY + JigsawBlock.getFrontFacing(context.jigsawBlock.state()).getStepY();
 
                     // Determine how much we need to offset the candidate piece itself in order to have the jigsaw blocks aligned.
                     // Depends on if the placement of both pieces is rigid or not
@@ -642,8 +642,8 @@ public class JigsawStructureAssembler {
         this.pieces.addAll(delayedEntries);
     }
 
-    private static ResourceKey<StructureTemplatePool> readPoolKey(StructureTemplate.JigsawBlockInfo jigsawBlockInfo) {
-        return ResourceKey.create(Registries.TEMPLATE_POOL, jigsawBlockInfo.pool());
+    private static ResourceKey<StructureTemplatePool> readPoolName(StructureTemplate.StructureBlockInfo jigsawBlockInfo) {
+        return ResourceKey.create(Registries.TEMPLATE_POOL, ResourceLocation.parse(String.valueOf(jigsawBlockInfo.nbt().getString("pool").get())));
     }
 
     public static class Settings {

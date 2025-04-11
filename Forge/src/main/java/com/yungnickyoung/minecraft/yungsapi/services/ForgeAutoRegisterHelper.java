@@ -9,8 +9,8 @@ import com.yungnickyoung.minecraft.yungsapi.module.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.Potion;
-import net.neoforged.fml.ModList;
-import net.neoforged.neoforgespi.language.ModFileScanData;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.forgespi.language.ModFileScanData;
 import org.objectweb.asm.Type;
 
 import java.lang.annotation.ElementType;
@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Supplier;
 
-public class NeoForgeAutoRegisterHelper implements IAutoRegisterHelper {
+public class ForgeAutoRegisterHelper implements IAutoRegisterHelper {
     @Override
     public void collectAllAutoRegisterFieldsInPackage(String packageName) {
         Map<Type, String> classToNamespaceMap = new HashMap<>();
@@ -121,41 +121,41 @@ public class NeoForgeAutoRegisterHelper implements IAutoRegisterHelper {
                     methods.add(m);
                 });
 
-        PostLoadModuleNeoForge.METHODS.addAll(methods);
-        PostLoadModuleNeoForge.init();
+        PostLoadModuleForge.METHODS.addAll(methods);
+        PostLoadModuleForge.init();
     }
 
     @Override
     public void processQueuedAutoRegEntries() {
-        SoundEventModuleNeoForge.processEntries();
-        StructurePieceTypeModuleNeoForge.processEntries();
-        StructurePoolElementTypeModuleNeoForge.processEntries();
-        CriteriaModuleNeoForge.processEntries();
-        StructureTypeModuleNeoForge.processEntries();
-        FeatureModuleNeoForge.processEntries();
-        PlacementModifierTypeModuleNeoForge.processEntries();
-        CreativeModeTabModuleNeoForge.processEntries();
-        ItemModuleNeoForge.processEntries();
-        BlockModuleNeoForge.processEntries();
-        BlockEntityTypeModuleNeoForge.processEntries();
-        StructureProcessorTypeModuleNeoForge.processEntries();
-        StructurePlacementTypeModuleNeoForge.processEntries();
-        ParticleTypeModuleNeoForge.processEntries();
-        EntityTypeModuleNeoForge.processEntries();
-        EntityDataSerializerModuleNeoForge.processEntries();
-        MobEffectModuleNeoForge.processEntries();
-        PotionModuleNeoForge.processEntries();
-        CommandModuleNeoForge.processEntries();
+        SoundEventModuleForge.processEntries();
+        StructurePieceTypeModuleForge.processEntries();
+        StructurePoolElementTypeModuleForge.processEntries();
+        CriteriaModuleForge.processEntries();
+        StructureTypeModuleForge.processEntries();
+        FeatureModuleForge.processEntries();
+        PlacementModifierTypeModuleForge.processEntries();
+        CreativeModeTabModuleForge.processEntries();
+        ItemModuleForge.processEntries();
+        BlockModuleForge.processEntries();
+        BlockEntityTypeModuleForge.processEntries();
+        StructureProcessorTypeModuleForge.processEntries();
+        StructurePlacementTypeModuleForge.processEntries();
+        ParticleTypeModuleForge.processEntries();
+        EntityTypeModuleForge.processEntries();
+        EntityDataSerializerModuleForge.processEntries();
+        MobEffectModuleForge.processEntries();
+        PotionModuleForge.processEntries();
+        CommandModuleForge.processEntries();
     }
 
     @Override
     public void registerBrewingRecipe(Supplier<Potion> inputPotion, Supplier<Item> ingredient, Supplier<Potion> outputPotion) {
-        PotionModuleNeoForge.BrewingRecipe recipe = new PotionModuleNeoForge.BrewingRecipe(inputPotion, ingredient, outputPotion);
-        PotionModuleNeoForge.BREWING_RECIPES.add(recipe);
+        PotionModuleForge.BrewingRecipe recipe = new PotionModuleForge.BrewingRecipe(inputPotion, ingredient, outputPotion);
+        PotionModuleForge.BREWING_RECIPES.add(recipe);
     }
 
     @Override
     public void addCompostableItem(Supplier<Item> ingredient, float compostChance) {
-        CompostModuleNeoForge.COMPOSTABLES.put(ingredient.get(), compostChance);
+        CompostModuleForge.COMPOSTABLES.put(ingredient.get(), compostChance);
     }
 }

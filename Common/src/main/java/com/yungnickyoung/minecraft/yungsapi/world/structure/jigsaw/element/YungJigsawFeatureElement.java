@@ -1,5 +1,6 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element;
 
+import com.google.common.collect.Lists;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.module.StructurePoolElementTypeModule;
@@ -87,11 +88,9 @@ public class YungJigsawFeatureElement extends YungJigsawPoolElement {
             Rotation rotation,
             RandomSource randomSource
     ) {
-        return List.of(StructureTemplate.JigsawBlockInfo.of(
-                new StructureTemplate.StructureBlockInfo(
-                        blockPos,
-                        Blocks.JIGSAW.defaultBlockState().setValue(JigsawBlock.ORIENTATION, FrontAndTop.fromFrontAndTop(Direction.DOWN, Direction.SOUTH)),
-                        this.defaultJigsawNBT)));
+        List<StructureTemplate.JigsawBlockInfo> jigsawBlocks = Lists.newArrayList();
+        jigsawBlocks.add(StructureTemplate.JigsawBlockInfo.of(new StructureTemplate.StructureBlockInfo(blockPos, Blocks.JIGSAW.defaultBlockState().setValue(JigsawBlock.ORIENTATION, FrontAndTop.fromFrontAndTop(Direction.DOWN, Direction.SOUTH)), this.defaultJigsawNBT)));
+        return jigsawBlocks;
     }
 
     @Override

@@ -3,7 +3,8 @@ package com.yungnickyoung.minecraft.yungsapi.world.spawner;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.util.random.SimpleWeightedRandomList;
+import net.minecraft.util.random.Weighted;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.SpawnData;
 
@@ -13,7 +14,7 @@ import net.minecraft.world.level.SpawnData;
  */
 public class MobSpawnerData {
     public final int spawnDelay;
-    public final SimpleWeightedRandomList<SpawnData> spawnPotentials;
+    public final WeightedList<SpawnData> spawnPotentials;
     public final SpawnData nextSpawnData;
     public final int minSpawnDelay;
     public final int maxSpawnDelay;
@@ -57,7 +58,7 @@ public class MobSpawnerData {
 
     public static class Builder {
         private int spawnDelay = 20;
-        private SimpleWeightedRandomList<SpawnData> spawnPotentials = SimpleWeightedRandomList.empty();
+        private WeightedList<SpawnData> spawnPotentials = WeightedList.of();
         private SpawnData nextSpawnData = new SpawnData();
         private int minSpawnDelay = 200;
         private int maxSpawnDelay = 800;
@@ -75,7 +76,7 @@ public class MobSpawnerData {
             return this;
         }
 
-        public Builder spawnPotentials(SimpleWeightedRandomList<SpawnData> spawnPotentials) {
+        public Builder spawnPotentials(WeightedList<SpawnData> spawnPotentials) {
             this.spawnPotentials = spawnPotentials;
             return this;
         }

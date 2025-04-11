@@ -11,7 +11,7 @@ import org.apache.commons.lang3.mutable.MutableObject;
 
 public class PieceContext {
     public ObjectArrayList<Pair<StructurePoolElement, Integer>> candidatePoolElements;
-    public StructureTemplate.JigsawBlockInfo jigsawBlock;
+    public StructureTemplate.StructureBlockInfo jigsawBlock;
     public BlockPos jigsawBlockTargetPos;
     public int pieceMinY;
     public BlockPos jigsawBlockPos;
@@ -20,7 +20,7 @@ public class PieceContext {
     public int depth;
 
     public PieceContext(ObjectArrayList<Pair<StructurePoolElement, Integer>> candidatePoolElements,
-                        StructureTemplate.JigsawBlockInfo jigsawBlock,
+                        StructureTemplate.StructureBlockInfo jigsawBlock,
                         BlockPos jigsawBlockTargetPos,
                         int pieceMinY,
                         BlockPos jigsawBlockPos,

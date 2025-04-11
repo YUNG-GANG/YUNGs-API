@@ -157,7 +157,7 @@ public class JigsawManager {
         // When choosing a piece, we will remove its weight from this sum.
         int totalWeightSum = candidatePoolElements.stream().mapToInt(Pair::getSecond).reduce(0, Integer::sum);
 
-        while (candidatePoolElements.size() > 0 && totalWeightSum > 0) {
+        while (!candidatePoolElements.isEmpty() && totalWeightSum > 0) {
             Pair<StructurePoolElement, Integer> chosenPoolElementPair = null;
 
             // First, check for any priority pieces

@@ -6,6 +6,7 @@ import net.minecraft.Util;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.DependantName;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
@@ -150,12 +151,24 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
             return this;
         }
 
-        public EntityType<T> build(ResourceKey<EntityType<?>> resourceKey) {
-            return new EntityType<>(this.factory, this.category, this.serialize, this.summon, this.fireImmune,
-                    this.canSpawnFarFromPlayer, this.immuneTo, this.dimensions, this.spawnDimensionsScale,
-                    this.clientTrackingRange, this.updateInterval,
-                    this.descriptionId.get(resourceKey), this.lootTable.get(resourceKey),
-                    this.requiredFeatures);
+        public EntityType<T> build(ResourceKey<EntityType<?>> $$0) {
+            if (this.serialize) {
+                Util.fetchChoiceType(References.ENTITY_TREE, $$0.location().toString());
+            }
+
+            return EntityType.Builder
+                    .of(this.factory, this.category)
+                    .sized(this.dimensions.width(), this.dimensions.height())
+                    .noSummon()
+                    .noSave()
+                    .fireImmune()
+                    .immuneTo(this.immuneTo.toArray(new Block[0]))
+                    .canSpawnFarFromPlayer()
+                    .clientTrackingRange(this.clientTrackingRange)
+                    .updateInterval(this.updateInterval)
+                    .spawnDimensionsScale(this.spawnDimensionsScale)
+                    .requiredFeatures()
+                    .build($$0);
         }
     }
 }
