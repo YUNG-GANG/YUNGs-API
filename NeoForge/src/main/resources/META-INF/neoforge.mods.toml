@@ -11,7 +11,7 @@ issueTrackerURL="https://github.com/yungnickyoung/YUNGs-Api/issues"
     authors="YUNGNICKYOUNG"
     description="${mod_description}"
     logoFile="logo.png"
-    displayURL="https://www.curseforge.com/minecraft/mc-mods/yungs-api-neoforge"
+    displayURL="https://www.curseforge.com/minecraft/mc-mods/yungs-api"
 
 [modproperties.${mod_id}]
     catalogueImageIcon="catalogue_icon.png"
