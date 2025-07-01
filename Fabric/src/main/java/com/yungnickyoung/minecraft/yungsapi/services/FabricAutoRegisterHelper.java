@@ -103,8 +103,8 @@ public class FabricAutoRegisterHelper implements IAutoRegisterHelper {
     }
 
     @Override
-    public void registerBrewingRecipe(Supplier<Potion> inputPotion, Supplier<Item> ingredient, Supplier<Potion> outputPotion) {
-        FabricBrewingRecipeRegistryBuilder.BUILD.register(builder -> builder.addMix(Holder.direct(inputPotion.get()), ingredient.get(), Holder.direct(outputPotion.get())));
+    public void registerBrewingRecipe(Holder<Potion> inputPotion, Supplier<Item> ingredient, Holder<Potion> outputPotion) {
+        FabricBrewingRecipeRegistryBuilder.BUILD.register(builder -> builder.addMix(inputPotion, ingredient.get(), outputPotion));
     }
 
     @Override

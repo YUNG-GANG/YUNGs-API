@@ -26,6 +26,7 @@ import com.yungnickyoung.minecraft.yungsapi.module.StructurePlacementTypeModuleF
 import com.yungnickyoung.minecraft.yungsapi.module.StructurePoolElementTypeModuleForge;
 import com.yungnickyoung.minecraft.yungsapi.module.StructureProcessorTypeModuleForge;
 import com.yungnickyoung.minecraft.yungsapi.module.StructureTypeModuleForge;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.Potion;
@@ -173,7 +174,7 @@ public class ForgeAutoRegisterHelper implements IAutoRegisterHelper {
     }
 
     @Override
-    public void registerBrewingRecipe(Supplier<Potion> inputPotion, Supplier<Item> ingredient, Supplier<Potion> outputPotion) {
+    public void registerBrewingRecipe(Holder<Potion> inputPotion, Supplier<Item> ingredient, Holder<Potion> outputPotion) {
         PotionModuleForge.BrewingRecipe recipe = new PotionModuleForge.BrewingRecipe(inputPotion, ingredient, outputPotion);
         PotionModuleForge.BREWING_RECIPES.add(recipe);
     }

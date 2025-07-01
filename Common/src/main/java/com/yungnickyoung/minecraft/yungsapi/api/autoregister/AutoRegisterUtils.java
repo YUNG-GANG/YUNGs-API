@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.api.autoregister;
 
 import com.yungnickyoung.minecraft.yungsapi.services.Services;
+import net.minecraft.core.Holder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.Potion;
 
@@ -12,7 +13,7 @@ public class AutoRegisterUtils {
      * This function is best used from within a static method with no parameters that is annotated with @AutoRegister.
      * For more information, see the {@link AutoRegister} documentation.
      */
-    public static void registerBrewingRecipe(Supplier<Potion> inputPotion, Supplier<Item> ingredient, Supplier<Potion> outputPotion) {
+    public static void registerBrewingRecipe(Holder<Potion> inputPotion, Supplier<Item> ingredient, Holder<Potion> outputPotion) {
         Services.AUTO_REGISTER.registerBrewingRecipe(inputPotion, ingredient, outputPotion);
     }
 

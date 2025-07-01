@@ -3,6 +3,7 @@ package com.yungnickyoung.minecraft.yungsapi.module;
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterMobEffect;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.effect.MobEffect;
@@ -22,7 +23,9 @@ public class MobEffectModuleFabric {
         MobEffect mobEffect = autoRegisterMobEffect.get();
 
         // Register mob effect
-        Registry.register(BuiltInRegistries.MOB_EFFECT, data.name(), mobEffect);
+        Holder<MobEffect> holder = Registry.registerForHolder(BuiltInRegistries.MOB_EFFECT, data.name(), mobEffect);
+        autoRegisterMobEffect.setHolder(holder);
+
         data.markProcessed();
     }
 }

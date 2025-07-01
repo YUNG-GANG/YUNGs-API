@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceKey;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.registries.RegisterEvent;
+import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -36,10 +37,20 @@ public class YungsApiNeoForge {
             final List<AutoRegisterField> registerables,
             final Function<AutoRegisterField, T> unwrapper
     ) {
+        return buildAutoRegistrar(registryKey, registerables, unwrapper, (data, value, helper) -> helper.register(data.name(), value));
+    }
+
+    @NotNull
+    public static <T> Consumer<RegisterEvent> buildAutoRegistrar(
+            final ResourceKey<Registry<T>> registryKey,
+            final List<AutoRegisterField> registerables,
+            final Function<AutoRegisterField, T> unwrapper,
+            final TriConsumer<AutoRegisterField, T, RegisterEvent.RegisterHelper<T>> registrationHandler
+    ) {
         return event -> event.register(registryKey, helper -> registerables.stream()
                 .filter(data -> !data.processed())
                 .forEach(data -> {
-                    helper.register(data.name(), unwrapper.apply(data));
+                    registrationHandler.accept(data, unwrapper.apply(data), helper);
                     data.markProcessed();
                 }));
     }
