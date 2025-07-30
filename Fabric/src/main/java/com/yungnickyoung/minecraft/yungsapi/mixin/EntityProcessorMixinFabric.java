@@ -6,7 +6,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
@@ -102,7 +104,9 @@ public class EntityProcessorMixinFabric {
                 tryCreateEntity(serverLevelAccessor, entityNbt).ifPresent((entity) -> {
                     float f = entity.mirror(ctx.structurePlaceSettings().getMirror());
                     f += entity.getYRot() - entity.rotate(ctx.structurePlaceSettings().getRotation());
-                    entity.moveTo(entityPos.x, entityPos.y, entityPos.z, f, entity.getXRot());
+                    entity.setPos(entityPos.x, entityPos.y, entityPos.z);
+                    entity.setYRot(f);
+                    entity.setXRot(entity.getXRot());
                     if (ctx.structurePlaceSettings().shouldFinalizeEntities() && entity instanceof Mob) {
                         ((Mob) entity).finalizeSpawn(serverLevelAccessor, serverLevelAccessor.getCurrentDifficultyAt(BlockPos.containing(entityPos)), EntitySpawnReason.STRUCTURE, null);
                     }
@@ -173,7 +177,7 @@ public class EntityProcessorMixinFabric {
     @Unique
     private static Optional<Entity> tryCreateEntity(ServerLevelAccessor serverLevelAccessor, CompoundTag compoundTag) {
         try {
-            return EntityType.create(compoundTag, serverLevelAccessor.getLevel(), EntitySpawnReason.STRUCTURE);
+            return EntityType.create(TagValueInput.create(ProblemReporter.DISCARDING, serverLevelAccessor.registryAccess(), compoundTag), serverLevelAccessor.getLevel(), EntitySpawnReason.STRUCTURE);
         } catch (Exception exception) {
             return Optional.empty();
         }
