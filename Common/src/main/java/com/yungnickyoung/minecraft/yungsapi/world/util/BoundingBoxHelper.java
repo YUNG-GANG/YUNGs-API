@@ -13,10 +13,6 @@ public class BoundingBoxHelper {
     public static BoundingBox boxFromCoordsWithRotation(int x, int y, int z, int secondaryAxisLen, int yLen, int mainAxisLen, Direction mainAxis) {
         BoundingBox boundingBox = new BoundingBox(x, y, z, x, y + yLen - 1, z);
         switch (mainAxis) {
-            default -> {
-                ((BoundingBoxAccessor) boundingBox).setMaxX(x + (secondaryAxisLen - 1));
-                ((BoundingBoxAccessor) boundingBox).setMinZ(z - (mainAxisLen - 1));
-            }
             case SOUTH -> {
                 ((BoundingBoxAccessor) boundingBox).setMinX(x - (secondaryAxisLen - 1));
                 ((BoundingBoxAccessor) boundingBox).setMaxZ(z + (mainAxisLen - 1));
@@ -28,6 +24,10 @@ public class BoundingBoxHelper {
             case EAST -> {
                 ((BoundingBoxAccessor) boundingBox).setMaxX(x + (mainAxisLen - 1));
                 ((BoundingBoxAccessor) boundingBox).setMaxZ(z + (secondaryAxisLen - 1));
+            }
+            default -> {
+                ((BoundingBoxAccessor) boundingBox).setMaxX(x + (secondaryAxisLen - 1));
+                ((BoundingBoxAccessor) boundingBox).setMinZ(z - (mainAxisLen - 1));
             }
         }
         return boundingBox;

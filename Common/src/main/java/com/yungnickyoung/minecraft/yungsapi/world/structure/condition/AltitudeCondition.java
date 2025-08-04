@@ -21,13 +21,13 @@ public class AltitudeCondition extends StructureCondition {
      * The minimum allowed y-value.
      * If any part of the piece would be below this value, then the condition fails.
      */
-    private Optional<Double> bottomCutoffY;
+    private final Optional<Double> bottomCutoffY;
 
     /**
      * The maximum allowed y-value.
      * If any part of the piece would be above this value, then the condition fails.
      */
-    private Optional<Double> topCutoffY;
+    private final Optional<Double> topCutoffY;
 
     public AltitudeCondition(Optional<Double> bottomCutoffY, Optional<Double> topCutoffY) {
         this.bottomCutoffY = bottomCutoffY;
