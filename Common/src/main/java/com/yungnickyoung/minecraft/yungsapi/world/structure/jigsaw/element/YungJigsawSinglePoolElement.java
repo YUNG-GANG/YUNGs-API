@@ -232,7 +232,7 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
         List<StructureTemplate.StructureBlockInfo> dataBlocks = Lists.newArrayList();
 
         for (StructureTemplate.StructureBlockInfo block : structureBlocks) {
-            StructureMode structureMode = StructureMode.valueOf(block.nbt().getStringOr("mode", ""));
+            StructureMode structureMode = StructureMode.valueOf(block.nbt().getStringOr("mode", "DATA"));
             if (structureMode == StructureMode.DATA) {
                 dataBlocks.add(block);
             }

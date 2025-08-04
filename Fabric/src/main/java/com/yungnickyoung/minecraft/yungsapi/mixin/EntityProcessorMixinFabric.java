@@ -179,7 +179,7 @@ public class EntityProcessorMixinFabric {
     @Unique
     private static Optional<Entity> tryCreateEntity(ServerLevelAccessor serverLevelAccessor, CompoundTag compoundTag, ProblemReporter reporter) {
         try {
-            return EntityType.create(TagValueInput.create(reporter, HolderLookup.Provider.create(Stream.of()), compoundTag), serverLevelAccessor.getLevel(), EntitySpawnReason.STRUCTURE);
+            return EntityType.create(TagValueInput.create(reporter, serverLevelAccessor.registryAccess(),compoundTag), serverLevelAccessor.getLevel(), EntitySpawnReason.STRUCTURE);
         } catch (Exception exception) {
             return Optional.empty();
         }

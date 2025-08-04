@@ -76,7 +76,7 @@ public class BlockStateRandomizer {
         entriesTag.forEach(entryTag -> {
             CompoundTag entryCompoundTag = ((CompoundTag) entryTag);
             BlockState blockState = Block.BLOCK_STATE_REGISTRY.byId(entryCompoundTag.getIntOr("entryBlockStateId", 0));
-            float chance = entryCompoundTag.getFloatOr("entryChance", 1);
+            float chance = entryCompoundTag.getFloatOr("entryChance", 0f);
             this.addBlock(blockState, chance);
         });
     }

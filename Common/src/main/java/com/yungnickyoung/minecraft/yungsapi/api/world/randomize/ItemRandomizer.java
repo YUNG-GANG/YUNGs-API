@@ -77,7 +77,7 @@ public class ItemRandomizer {
         entriesTag.forEach(entryTag -> {
             CompoundTag entryCompoundTag = ((CompoundTag) entryTag);
             Item item = BuiltInRegistries.ITEM.byId(entryCompoundTag.getIntOr("entryItemId", 0));
-            float chance = entryCompoundTag.getFloatOr("entryChance", 1);
+            float chance = entryCompoundTag.getFloatOr("entryChance", 0f);
             this.addItem(item, chance);
         });
     }
