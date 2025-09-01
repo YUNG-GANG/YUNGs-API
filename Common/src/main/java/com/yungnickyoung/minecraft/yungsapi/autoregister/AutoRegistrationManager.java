@@ -29,7 +29,7 @@ public class AutoRegistrationManager {
 
     /**
      * Scans all {@link AutoRegister} annotated fields and prepares them for registration, independent of mod loader.
-     * Subsequently scans all {@link AutoRegister} annotated methods and invokes them.
+     * Subsequently, scans all {@link AutoRegister} annotated methods and invokes them.
      *
      * @param packageName Name of a package containing {@link AutoRegister} annotated fields and/or methods.
      *                    When specifying a package, try to be as precise as possible,

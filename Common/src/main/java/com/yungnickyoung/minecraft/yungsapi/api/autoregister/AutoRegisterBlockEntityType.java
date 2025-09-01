@@ -1,6 +1,5 @@
 package com.yungnickyoung.minecraft.yungsapi.api.autoregister;
 
-import com.mojang.datafixers.types.Type;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterEntry;
 import com.yungnickyoung.minecraft.yungsapi.services.Services;
 import net.minecraft.core.BlockPos;

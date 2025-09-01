@@ -70,14 +70,14 @@ public class ItemRandomizer {
      * @param compoundTag The CompoundTag
      */
     public ItemRandomizer(CompoundTag compoundTag) {
-        this.defaultItem = BuiltInRegistries.ITEM.byId(compoundTag.getInt("defaultItemId"));
+        this.defaultItem = BuiltInRegistries.ITEM.byId(compoundTag.getIntOr("defaultItemId", 0));
         this.entries = new ArrayList<>();
 
-        ListTag entriesTag = compoundTag.getList("entries", 10);
+        ListTag entriesTag = compoundTag.getListOrEmpty("entries");
         entriesTag.forEach(entryTag -> {
             CompoundTag entryCompoundTag = ((CompoundTag) entryTag);
-            Item item = BuiltInRegistries.ITEM.byId(entryCompoundTag.getInt("entryItemId"));
-            float chance = entryCompoundTag.getFloat("entryChance");
+            Item item = BuiltInRegistries.ITEM.byId(entryCompoundTag.getIntOr("entryItemId", 0));
+            float chance = entryCompoundTag.getFloatOr("entryChance", 0f);
             this.addItem(item, chance);
         });
     }
