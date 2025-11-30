@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -18,6 +19,8 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -48,7 +51,7 @@ public class EntityProcessorMixinFabric {
             method = "placeInWorld",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplate;placeEntities(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Mirror;Lnet/minecraft/world/level/block/Rotation;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/levelgen/structure/BoundingBox;Z)V"))
+                    target = "Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplate;placeEntities(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Mirror;Lnet/minecraft/world/level/block/Rotation;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/levelgen/structure/BoundingBox;ZLnet/minecraft/util/ProblemReporter;)V"))
     private void yungsapi_captureContext(ServerLevelAccessor serverLevelAccessor, BlockPos structurePiecePos, BlockPos structurePiecePivotPos,
                                          StructurePlaceSettings structurePlaceSettings, RandomSource randomSource, int i, CallbackInfoReturnable<Boolean> cir) {
         context.set(new StructureProcessingContext(
@@ -65,7 +68,7 @@ public class EntityProcessorMixinFabric {
             at = @At(
                     value = "INVOKE",
                     shift = At.Shift.AFTER,
-                    target = "Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplate;placeEntities(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Mirror;Lnet/minecraft/world/level/block/Rotation;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/levelgen/structure/BoundingBox;Z)V"))
+                    target = "Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplate;placeEntities(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Mirror;Lnet/minecraft/world/level/block/Rotation;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/levelgen/structure/BoundingBox;ZLnet/minecraft/util/ProblemReporter;)V"))
     private void yungsapi_clearContext(ServerLevelAccessor serverLevelAccessor, BlockPos structurePiecePos, BlockPos structurePiecePivotPos,
                                        StructurePlaceSettings structurePlaceSettings, RandomSource randomSource, int i, CallbackInfoReturnable<Boolean> cir) {
         context.remove();
@@ -76,7 +79,7 @@ public class EntityProcessorMixinFabric {
             method = "placeEntities",
             at = @At(value = "HEAD"),
             cancellable = true)
-    private void yungsapi_processAndPlaceEntities(ServerLevelAccessor serverLevelAccessor, BlockPos structurePiecePos, Mirror mirror, Rotation rotation, BlockPos pivot, BoundingBox boundingBox, boolean bl, CallbackInfo ci) {
+    private void yungsapi_processAndPlaceEntities(ServerLevelAccessor serverLevelAccessor, BlockPos structurePiecePos, Mirror mirror, Rotation rotation, BlockPos pivot, BoundingBox boundingBox, boolean bl, ProblemReporter problemReporter, CallbackInfo ci) {
         StructureProcessingContext ctx = context.get();
 
         // If structure is not using YUNG's API entity processors, we don't need to do anything
@@ -99,10 +102,11 @@ public class EntityProcessorMixinFabric {
                 listTag.add(DoubleTag.valueOf(entityPos.z));
                 entityNbt.put("Pos", listTag);
                 entityNbt.remove("UUID");
-                tryCreateEntity(serverLevelAccessor, entityNbt).ifPresent((entity) -> {
+                var input = TagValueInput.create(problemReporter, serverLevelAccessor.registryAccess(), entityNbt);
+                tryCreateEntity(serverLevelAccessor, input).ifPresent((entity) -> {
                     float f = entity.mirror(ctx.structurePlaceSettings().getMirror());
                     f += entity.getYRot() - entity.rotate(ctx.structurePlaceSettings().getRotation());
-                    entity.moveTo(entityPos.x, entityPos.y, entityPos.z, f, entity.getXRot());
+                    entity.snapTo(entityPos.x, entityPos.y, entityPos.z, f, entity.getXRot());
                     if (ctx.structurePlaceSettings().shouldFinalizeEntities() && entity instanceof Mob) {
                         ((Mob) entity).finalizeSpawn(serverLevelAccessor, serverLevelAccessor.getCurrentDifficultyAt(BlockPos.containing(entityPos)), EntitySpawnReason.STRUCTURE, null);
                     }
@@ -171,9 +175,9 @@ public class EntityProcessorMixinFabric {
      * If the entity cannot be created, returns an empty Optional.
      */
     @Unique
-    private static Optional<Entity> tryCreateEntity(ServerLevelAccessor serverLevelAccessor, CompoundTag compoundTag) {
+    private static Optional<Entity> tryCreateEntity(ServerLevelAccessor serverLevelAccessor, ValueInput input) {
         try {
-            return EntityType.create(compoundTag, serverLevelAccessor.getLevel(), EntitySpawnReason.STRUCTURE);
+            return EntityType.create(input, serverLevelAccessor.getLevel(), EntitySpawnReason.STRUCTURE);
         } catch (Exception exception) {
             return Optional.empty();
         }

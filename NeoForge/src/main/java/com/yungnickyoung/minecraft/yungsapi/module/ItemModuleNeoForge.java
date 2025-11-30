@@ -6,6 +6,7 @@ import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterItem;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.RegisterEvent;
@@ -37,13 +38,17 @@ public class ItemModuleNeoForge {
     private static void registerBlockItem(AutoRegisterField data, RegisterEvent.RegisterHelper<Item> helper) {
         AutoRegisterBlock autoRegisterBlock = (AutoRegisterBlock) data.object();
         if (autoRegisterBlock.hasItemProperties()) {
-            BlockItem blockItem = new BlockItem(autoRegisterBlock.get(), autoRegisterBlock.getItemProperties().get());
+            Item.Properties props = autoRegisterBlock.getItemProperties().get();
+            props.setId(ResourceKey.create(Registries.ITEM, data.name()));
+            BlockItem blockItem = new BlockItem(autoRegisterBlock.get(), props);
             helper.register(data.name(), blockItem);
         }
     }
 
     private static void registerExtraBlockItem(BlockModuleNeoForge.ExtraBlockData extraBlockData, RegisterEvent.RegisterHelper<Item> helper) {
-        BlockItem blockItem = new BlockItem(extraBlockData.block(), extraBlockData.itemProperties().get());
+        Item.Properties props = extraBlockData.itemProperties().get();
+        props.setId(ResourceKey.create(Registries.ITEM, extraBlockData.blockRegisteredName()));
+        BlockItem blockItem = new BlockItem(extraBlockData.block(), props);
         helper.register(extraBlockData.blockRegisteredName(), blockItem);
     }
 

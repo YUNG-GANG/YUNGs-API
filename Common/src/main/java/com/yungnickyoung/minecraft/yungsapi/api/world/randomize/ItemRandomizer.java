@@ -11,11 +11,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Describes a set of Items and the probability of each Item in the set being chosen.
@@ -70,16 +66,24 @@ public class ItemRandomizer {
      * @param compoundTag The CompoundTag
      */
     public ItemRandomizer(CompoundTag compoundTag) {
-        this.defaultItem = BuiltInRegistries.ITEM.byId(compoundTag.getInt("defaultItemId"));
+        int defaultId = compoundTag.getInt("defaultItemId")
+                .orElseThrow(() -> new IllegalStateException("Missing defaultItemId"));
+        this.defaultItem = BuiltInRegistries.ITEM.byId(defaultId);
         this.entries = new ArrayList<>();
 
-        ListTag entriesTag = compoundTag.getList("entries", 10);
-        entriesTag.forEach(entryTag -> {
-            CompoundTag entryCompoundTag = ((CompoundTag) entryTag);
-            Item item = BuiltInRegistries.ITEM.byId(entryCompoundTag.getInt("entryItemId"));
-            float chance = entryCompoundTag.getFloat("entryChance");
-            this.addItem(item, chance);
-        });
+        Optional<ListTag> entriesTagOpt = compoundTag.getList("entries");
+        entriesTagOpt.ifPresent(entriesTag -> {
+            entriesTag.forEach(entryTag -> {
+                CompoundTag entryCompoundTag = ((CompoundTag) entryTag);
+                int entryId = entryCompoundTag.getInt("entryItemId")
+                        .orElseThrow(() -> new IllegalStateException("Missing entryItemId"));
+                Item item = BuiltInRegistries.ITEM.byId(entryId);
+                float chance = entryCompoundTag.getFloat("entryChance")
+                        .orElseThrow(() -> new IllegalStateException("Missing entryChance"));
+                this.addItem(item, chance);
+            });
+        }
+        );
     }
 
     /**

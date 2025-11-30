@@ -119,7 +119,7 @@ public class EnhancedBeardifierHelper {
             }
         }
 
-        Beardifier newBeardifier = new Beardifier(((BeardifierAccessor) original).getPieceIterator(), ((BeardifierAccessor) original).getJunctionIterator());
+        Beardifier newBeardifier = new Beardifier(((BeardifierAccessor) original).getPieces(), ((BeardifierAccessor) original).getJunctions(), ((BeardifierAccessor) original).getAffectedBox());
         EnhancedBeardifierData enhancedBeardifier = (EnhancedBeardifierData) newBeardifier;
         enhancedBeardifier.setEnhancedPieceIterator(enhancedBeardifierRigidList.iterator());
         enhancedBeardifier.setEnhancedJunctionIterator(enhancedJunctionList.iterator());

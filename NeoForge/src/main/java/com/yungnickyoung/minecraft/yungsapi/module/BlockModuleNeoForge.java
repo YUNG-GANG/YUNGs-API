@@ -5,14 +5,10 @@ import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterBlock;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.FenceBlock;
-import net.minecraft.world.level.block.FenceGateBlock;
-import net.minecraft.world.level.block.SlabBlock;
-import net.minecraft.world.level.block.StairBlock;
-import net.minecraft.world.level.block.WallBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
@@ -46,8 +42,10 @@ public class BlockModuleNeoForge {
 
         // Register associated Blocks and their BlockItems, if applicable
         if (autoRegisterBlock.hasStairs()) {
-            Block stairBlock = new StairBlock(block.defaultBlockState(), BlockBehaviour.Properties.ofLegacyCopy(block));
             ResourceLocation name = ResourceLocation.fromNamespaceAndPath(namespace, path + "_stairs");
+            BlockBehaviour.Properties props = BlockBehaviour.Properties.ofLegacyCopy(block);
+            props.setId(ResourceKey.create(Registries.BLOCK, name));
+            Block stairBlock = new StairBlock(block.defaultBlockState(), props);
             helper.register(name, stairBlock);
             autoRegisterBlock.setStairs(stairBlock);
             if (autoRegisterBlock.hasItemProperties()) {
@@ -55,8 +53,10 @@ public class BlockModuleNeoForge {
             }
         }
         if (autoRegisterBlock.hasSlab()) {
-            Block slabBlock = new SlabBlock(BlockBehaviour.Properties.ofLegacyCopy(block));
             ResourceLocation name = ResourceLocation.fromNamespaceAndPath(namespace, path + "_slab");
+            BlockBehaviour.Properties props = BlockBehaviour.Properties.ofLegacyCopy(block);
+            props.setId(ResourceKey.create(Registries.BLOCK, name));
+            Block slabBlock = new SlabBlock(props);
             helper.register(name, slabBlock);
             autoRegisterBlock.setSlab(slabBlock);
             if (autoRegisterBlock.hasItemProperties()) {
@@ -64,8 +64,10 @@ public class BlockModuleNeoForge {
             }
         }
         if (autoRegisterBlock.hasFence()) {
-            Block fenceBlock = new FenceBlock(BlockBehaviour.Properties.ofLegacyCopy(block));
             ResourceLocation name = ResourceLocation.fromNamespaceAndPath(namespace, path + "_fence");
+            BlockBehaviour.Properties props = BlockBehaviour.Properties.ofLegacyCopy(block);
+            props.setId(ResourceKey.create(Registries.BLOCK, name));
+            Block fenceBlock = new FenceBlock(props);
             helper.register(name, fenceBlock);
             autoRegisterBlock.setFence(fenceBlock);
             if (autoRegisterBlock.hasItemProperties()) {
@@ -73,8 +75,10 @@ public class BlockModuleNeoForge {
             }
         }
         if (autoRegisterBlock.hasFenceGate()) {
-            Block fenceGateBlock = new FenceGateBlock(autoRegisterBlock.getFenceGateWoodType(), BlockBehaviour.Properties.ofLegacyCopy(block));
             ResourceLocation name = ResourceLocation.fromNamespaceAndPath(namespace, path + "_fence_gate");
+            BlockBehaviour.Properties props = BlockBehaviour.Properties.ofLegacyCopy(block);
+            props.setId(ResourceKey.create(Registries.BLOCK, name));
+            Block fenceGateBlock = new FenceGateBlock(autoRegisterBlock.getFenceGateWoodType(), props);
             helper.register(name, fenceGateBlock);
             autoRegisterBlock.setFenceGate(fenceGateBlock);
             if (autoRegisterBlock.hasItemProperties()) {
@@ -82,8 +86,10 @@ public class BlockModuleNeoForge {
             }
         }
         if (autoRegisterBlock.hasWall()) {
-            Block wallBlock = new WallBlock(BlockBehaviour.Properties.ofLegacyCopy(block));
             ResourceLocation name = ResourceLocation.fromNamespaceAndPath(namespace, path + "_wall");
+            BlockBehaviour.Properties props = BlockBehaviour.Properties.ofLegacyCopy(block);
+            props.setId(ResourceKey.create(Registries.BLOCK, name));
+            Block wallBlock = new WallBlock(props);
             helper.register(name, wallBlock);
             autoRegisterBlock.setWall(wallBlock);
             if (autoRegisterBlock.hasItemProperties()) {

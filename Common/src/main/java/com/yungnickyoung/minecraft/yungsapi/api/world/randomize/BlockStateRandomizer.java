@@ -3,9 +3,9 @@ package com.yungnickyoung.minecraft.yungsapi.api.world.randomize;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.condition.StructureCondition;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.condition.StructureConditionType;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -69,17 +69,28 @@ public class BlockStateRandomizer {
      * @param compoundTag The CompoundTag
      */
     public BlockStateRandomizer(CompoundTag compoundTag) {
-        this.defaultBlockState = Block.BLOCK_STATE_REGISTRY.byId(compoundTag.getInt("defaultBlockStateId"));
+        int defaultId = compoundTag.getInt("defaultBlockStateId")
+                .orElseThrow(() -> new IllegalStateException("Missing defaultBlockStateId"));
+        this.defaultBlockState = Block.BLOCK_STATE_REGISTRY.byId(defaultId);
+
         this.entries = new ArrayList<>();
 
-        ListTag entriesTag = compoundTag.getList("entries", 10);
-        entriesTag.forEach(entryTag -> {
-            CompoundTag entryCompoundTag = ((CompoundTag) entryTag);
-            BlockState blockState = Block.BLOCK_STATE_REGISTRY.byId(entryCompoundTag.getInt("entryBlockStateId"));
-            float chance = entryCompoundTag.getFloat("entryChance");
-            this.addBlock(blockState, chance);
+        Optional<ListTag> entriesTagOpt = compoundTag.getList("entries");
+        entriesTagOpt.ifPresent(entriesTag -> {
+            entriesTag.forEach(entryTag -> {
+                CompoundTag entryCompoundTag = (CompoundTag) entryTag;
+                int entryId = entryCompoundTag.getInt("entryBlockStateId")
+                        .orElseThrow(() -> new IllegalStateException("Missing entryBlockStateId"));
+                BlockState blockState = Block.BLOCK_STATE_REGISTRY.byId(entryId);
+
+                float chance = entryCompoundTag.getFloat("entryChance")
+                        .orElseThrow(() -> new IllegalStateException("Missing entryChance"));
+                this.addBlock(blockState, chance);
+            });
         });
+
     }
+
 
     /**
      * Constructs a new BlockStateRandomizer from a Map of BlockStates to their corresponding probabilities.
