@@ -6,7 +6,6 @@ import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.CreativeModeTab;
-import net.neoforged.neoforge.registries.RegisterEvent;
 
 /**
  * Initialization of creative mode tabs.

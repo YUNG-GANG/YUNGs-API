@@ -6,7 +6,10 @@ import net.minecraft.Util;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.DependantName;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityAttachment;
+import net.minecraft.world.entity.EntityAttachments;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -16,6 +19,7 @@ import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -75,8 +79,9 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
         private boolean canSpawnFarFromPlayer;
         private int clientTrackingRange = 5;
         private int updateInterval = 3;
-        private float spawnDimensionsScale = 1.0F;
         private EntityDimensions dimensions = EntityDimensions.scalable(0.6F, 1.8F);
+        private float spawnDimensionsScale = 1.0F;
+        private EntityAttachments.Builder attachments = EntityAttachments.builder();
         private FeatureFlagSet requiredFeatures = FeatureFlags.VANILLA_SET;
         private DependantName<EntityType<?>, String> descriptionId;
         private DependantName<EntityType<?>, Optional<ResourceKey<LootTable>>> lootTable;
@@ -102,6 +107,54 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
             return this;
         }
 
+        public Builder<T> spawnDimensionsScale(float scale) {
+            this.spawnDimensionsScale = scale;
+            return this;
+        }
+
+        public Builder<T> eyeHeight(float eyeHeight) {
+            this.dimensions = this.dimensions.withEyeHeight(eyeHeight);
+            return this;
+        }
+
+        public Builder<T> passengerAttachments(float... attachments) {
+            for (float attachment : attachments) {
+                this.attachments = this.attachments.attach(EntityAttachment.PASSENGER, 0.0F, attachment, 0.0F);
+            }
+
+            return this;
+        }
+
+        public Builder<T> passengerAttachments(Vec3... attachments) {
+            for (Vec3 attachment : attachments) {
+                this.attachments = this.attachments.attach(EntityAttachment.PASSENGER, attachment);
+            }
+
+            return this;
+        }
+
+        public Builder<T> vehicleAttachment(Vec3 attachment) {
+            return this.attach(EntityAttachment.VEHICLE, attachment);
+        }
+
+        public Builder<T> ridingOffset(float offset) {
+            return this.attach(EntityAttachment.VEHICLE, 0.0F, -offset, 0.0F);
+        }
+
+        public Builder<T> nameTagOffset(float offset) {
+            return this.attach(EntityAttachment.NAME_TAG, 0.0F, offset, 0.0F);
+        }
+
+        public Builder<T> attach(EntityAttachment attachment, float x, float y, float z) {
+            this.attachments = this.attachments.attach(attachment, x, y, z);
+            return this;
+        }
+
+        public Builder<T> attach(EntityAttachment attachment, Vec3 attachPos) {
+            this.attachments = this.attachments.attach(attachment, attachPos);
+            return this;
+        }
+
         public Builder<T> noSummon() {
             this.summon = false;
             return this;
@@ -124,11 +177,6 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
 
         public Builder<T> canSpawnFarFromPlayer() {
             this.canSpawnFarFromPlayer = true;
-            return this;
-        }
-
-        public Builder<T> spawnDimensionsScale(float scale) {
-            this.spawnDimensionsScale = scale;
             return this;
         }
 
@@ -158,11 +206,23 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
         }
 
         public EntityType<T> build(ResourceKey<EntityType<?>> resourceKey) {
-            return new EntityType<>(this.factory, this.category, this.serialize, this.summon, this.fireImmune,
-                    this.canSpawnFarFromPlayer, this.immuneTo, this.dimensions, this.spawnDimensionsScale,
-                    this.clientTrackingRange, this.updateInterval,
-                    this.descriptionId.get(resourceKey), this.lootTable.get(resourceKey),
-                    this.requiredFeatures, this.allowedInPeaceful);
+            return new EntityType<>(
+                    this.factory,
+                    this.category,
+                    this.serialize,
+                    this.summon,
+                    this.fireImmune,
+                    this.canSpawnFarFromPlayer,
+                    this.immuneTo,
+                    this.dimensions.withAttachments(this.attachments),
+                    this.spawnDimensionsScale,
+                    this.clientTrackingRange,
+                    this.updateInterval,
+                    this.descriptionId.get(resourceKey),
+                    this.lootTable.get(resourceKey),
+                    this.requiredFeatures,
+                    this.allowedInPeaceful
+            );
         }
     }
 }

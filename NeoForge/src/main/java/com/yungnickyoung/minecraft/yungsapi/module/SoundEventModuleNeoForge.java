@@ -6,7 +6,6 @@ import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvent;
-import net.neoforged.neoforge.registries.RegisterEvent;
 
 /**
  * Registration of Sound Events.

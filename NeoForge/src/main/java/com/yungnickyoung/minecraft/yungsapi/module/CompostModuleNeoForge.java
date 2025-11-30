@@ -4,14 +4,8 @@ import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegister;
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterUtils;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.ComposterBlock;
-import net.minecraft.world.level.levelgen.feature.Feature;
-import net.neoforged.neoforge.registries.RegisterEvent;
-import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
-
-import java.util.Map;
 
 /**
  * Handles items to be added as compostable.
