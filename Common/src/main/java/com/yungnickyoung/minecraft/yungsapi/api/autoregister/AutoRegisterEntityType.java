@@ -80,6 +80,7 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
         private FeatureFlagSet requiredFeatures = FeatureFlags.VANILLA_SET;
         private DependantName<EntityType<?>, String> descriptionId;
         private DependantName<EntityType<?>, Optional<ResourceKey<LootTable>>> lootTable;
+        private boolean allowedInPeaceful;
 
         private Builder(EntityType.EntityFactory<T> entityFactory, MobCategory mobCategory) {
             this.factory = entityFactory;
@@ -89,6 +90,7 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
                     Registries.LOOT_TABLE,
                     resourceKey.location().withPrefix("entities/")));
             this.descriptionId = resourceKey -> Util.makeDescriptionId("entity", resourceKey.location());
+            this.allowedInPeaceful = true;
         }
 
         public static <T extends Entity> Builder<T> of(EntityType.EntityFactory<T> entityFactory, MobCategory mobCategory) {
@@ -150,12 +152,17 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
             return this;
         }
 
+        public Builder<T> notInPeaceful() {
+            this.allowedInPeaceful = false;
+            return this;
+        }
+
         public EntityType<T> build(ResourceKey<EntityType<?>> resourceKey) {
             return new EntityType<>(this.factory, this.category, this.serialize, this.summon, this.fireImmune,
                     this.canSpawnFarFromPlayer, this.immuneTo, this.dimensions, this.spawnDimensionsScale,
                     this.clientTrackingRange, this.updateInterval,
                     this.descriptionId.get(resourceKey), this.lootTable.get(resourceKey),
-                    this.requiredFeatures);
+                    this.requiredFeatures, this.allowedInPeaceful);
         }
     }
 }

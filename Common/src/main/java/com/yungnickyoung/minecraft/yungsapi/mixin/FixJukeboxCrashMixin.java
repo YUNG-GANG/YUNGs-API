@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /**
  * Fixes a crash that occurs when a jukebox is overwritten during worldgen.
  */
+@SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
 @Mixin(JukeboxBlockEntity.class)
 public abstract class FixJukeboxCrashMixin extends BlockEntity {
     public FixJukeboxCrashMixin(BlockEntityType<?> $$0, BlockPos $$1, BlockState $$2) {
@@ -23,8 +24,21 @@ public abstract class FixJukeboxCrashMixin extends BlockEntity {
     @Inject(method = "setTheItem",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/level/Level;registryAccess()Lnet/minecraft/core/RegistryAccess;"),
-            cancellable = true)
+            cancellable = true,
+            require = 0)
     public void yungsapi_checkIfLevelNull(ItemStack itemStack, CallbackInfo ci) {
+        if (this.level == null) {
+            ci.cancel();
+        }
+    }
+
+    // NeoForge has split the setTheItem method into itemChanged and setTheItem. In NeoForge, we need to inject into itemChanged.
+    @Inject(method = "itemChanged",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/Level;registryAccess()Lnet/minecraft/core/RegistryAccess;"),
+            cancellable = true,
+            require = 0)
+    public void yungsapi_checkIfLevelNullForNeo(CallbackInfo ci) {
         if (this.level == null) {
             ci.cancel();
         }

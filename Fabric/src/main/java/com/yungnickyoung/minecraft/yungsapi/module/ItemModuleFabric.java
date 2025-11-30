@@ -5,6 +5,8 @@ import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -32,6 +34,7 @@ public class ItemModuleFabric {
     }
 
     public static void registerBlockItem(ResourceLocation resourceLocation, Block block, Item.Properties itemProperties) {
+        itemProperties.setId(ResourceKey.create(Registries.ITEM, resourceLocation));
         Registry.register(BuiltInRegistries.ITEM, resourceLocation, new BlockItem(block, itemProperties));
     }
 }

@@ -3,9 +3,9 @@ package com.yungnickyoung.minecraft.yungsapi.api.world.randomize;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.condition.StructureCondition;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.condition.StructureConditionType;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -69,17 +69,18 @@ public class BlockStateRandomizer {
      * @param compoundTag The CompoundTag
      */
     public BlockStateRandomizer(CompoundTag compoundTag) {
-        this.defaultBlockState = Block.BLOCK_STATE_REGISTRY.byId(compoundTag.getInt("defaultBlockStateId"));
+        this.defaultBlockState = Block.BLOCK_STATE_REGISTRY.byId(compoundTag.getIntOr("defaultBlockStateId", 0));
         this.entries = new ArrayList<>();
 
-        ListTag entriesTag = compoundTag.getList("entries", 10);
+        ListTag entriesTag = compoundTag.getListOrEmpty("entries");
         entriesTag.forEach(entryTag -> {
             CompoundTag entryCompoundTag = ((CompoundTag) entryTag);
-            BlockState blockState = Block.BLOCK_STATE_REGISTRY.byId(entryCompoundTag.getInt("entryBlockStateId"));
-            float chance = entryCompoundTag.getFloat("entryChance");
+            BlockState blockState = Block.BLOCK_STATE_REGISTRY.byId(entryCompoundTag.getIntOr("entryBlockStateId", 0));
+            float chance = entryCompoundTag.getFloatOr("entryChance", 0f);
             this.addBlock(blockState, chance);
         });
     }
+
 
     /**
      * Constructs a new BlockStateRandomizer from a Map of BlockStates to their corresponding probabilities.
