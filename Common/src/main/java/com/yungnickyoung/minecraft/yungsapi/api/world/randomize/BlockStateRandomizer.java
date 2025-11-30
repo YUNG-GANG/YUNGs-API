@@ -69,26 +69,16 @@ public class BlockStateRandomizer {
      * @param compoundTag The CompoundTag
      */
     public BlockStateRandomizer(CompoundTag compoundTag) {
-        int defaultId = compoundTag.getInt("defaultBlockStateId")
-                .orElseThrow(() -> new IllegalStateException("Missing defaultBlockStateId"));
-        this.defaultBlockState = Block.BLOCK_STATE_REGISTRY.byId(defaultId);
-
+        this.defaultBlockState = Block.BLOCK_STATE_REGISTRY.byId(compoundTag.getIntOr("defaultBlockStateId", 0));
         this.entries = new ArrayList<>();
 
-        Optional<ListTag> entriesTagOpt = compoundTag.getList("entries");
-        entriesTagOpt.ifPresent(entriesTag -> {
-            entriesTag.forEach(entryTag -> {
-                CompoundTag entryCompoundTag = (CompoundTag) entryTag;
-                int entryId = entryCompoundTag.getInt("entryBlockStateId")
-                        .orElseThrow(() -> new IllegalStateException("Missing entryBlockStateId"));
-                BlockState blockState = Block.BLOCK_STATE_REGISTRY.byId(entryId);
-
-                float chance = entryCompoundTag.getFloat("entryChance")
-                        .orElseThrow(() -> new IllegalStateException("Missing entryChance"));
-                this.addBlock(blockState, chance);
-            });
+        ListTag entriesTag = compoundTag.getListOrEmpty("entries");
+        entriesTag.forEach(entryTag -> {
+            CompoundTag entryCompoundTag = ((CompoundTag) entryTag);
+            BlockState blockState = Block.BLOCK_STATE_REGISTRY.byId(entryCompoundTag.getIntOr("entryBlockStateId", 0));
+            float chance = entryCompoundTag.getFloatOr("entryChance", 0f);
+            this.addBlock(blockState, chance);
         });
-
     }
 
 

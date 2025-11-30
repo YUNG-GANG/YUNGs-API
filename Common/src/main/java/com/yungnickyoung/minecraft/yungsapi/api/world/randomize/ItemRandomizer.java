@@ -66,24 +66,16 @@ public class ItemRandomizer {
      * @param compoundTag The CompoundTag
      */
     public ItemRandomizer(CompoundTag compoundTag) {
-        int defaultId = compoundTag.getInt("defaultItemId")
-                .orElseThrow(() -> new IllegalStateException("Missing defaultItemId"));
-        this.defaultItem = BuiltInRegistries.ITEM.byId(defaultId);
+        this.defaultItem = BuiltInRegistries.ITEM.byId(compoundTag.getIntOr("defaultItemId", 0));
         this.entries = new ArrayList<>();
 
-        Optional<ListTag> entriesTagOpt = compoundTag.getList("entries");
-        entriesTagOpt.ifPresent(entriesTag -> {
-            entriesTag.forEach(entryTag -> {
-                CompoundTag entryCompoundTag = ((CompoundTag) entryTag);
-                int entryId = entryCompoundTag.getInt("entryItemId")
-                        .orElseThrow(() -> new IllegalStateException("Missing entryItemId"));
-                Item item = BuiltInRegistries.ITEM.byId(entryId);
-                float chance = entryCompoundTag.getFloat("entryChance")
-                        .orElseThrow(() -> new IllegalStateException("Missing entryChance"));
-                this.addItem(item, chance);
-            });
-        }
-        );
+        ListTag entriesTag = compoundTag.getListOrEmpty("entries");
+        entriesTag.forEach(entryTag -> {
+            CompoundTag entryCompoundTag = ((CompoundTag) entryTag);
+            Item item = BuiltInRegistries.ITEM.byId(entryCompoundTag.getIntOr("entryItemId", 0));
+            float chance = entryCompoundTag.getFloatOr("entryChance", 0f);
+            this.addItem(item, chance);
+        });
     }
 
     /**
