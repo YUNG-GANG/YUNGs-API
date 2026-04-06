@@ -71,7 +71,8 @@ public class MixinUtils {
         StructureManager structureManager = worldGenRegion.getLevel().structureManager();
 
         for (long reference : references) {
-            SectionPos structureStartSectionPos = SectionPos.of(new ChunkPos(reference), worldGenRegion.getMinSectionY());
+            ChunkPos chunkPos = ChunkPos.unpack(reference);
+            SectionPos structureStartSectionPos = SectionPos.of(chunkPos, worldGenRegion.getMinSectionY());
             if (!worldGenRegion.hasChunk(structureStartSectionPos.x(), structureStartSectionPos.z())) {
                 continue;
             }

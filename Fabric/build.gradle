@@ -1,18 +1,14 @@
 plugins {
     id 'multiloader-loader'
-    id 'fabric-loom'
+    id 'net.fabricmc.fabric-loom'
     id 'net.darkhax.curseforgegradle'
     id 'com.modrinth.minotaur'
 }
 
 dependencies {
     minecraft "com.mojang:minecraft:${mc_version}"
-    mappings loom.layered {
-        officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-${parchment_minecraft}:${parchment_version}@zip")
-    }
-    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}+${mc_version}"
+    implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}+${mc_version}"
     implementation("org.reflections:reflections:0.10.2")
     include("org.reflections:reflections:0.10.2")
     implementation("org.javassist:javassist:3.29.2-GA")
@@ -47,12 +43,12 @@ loom {
 
 String[] compatibleVersions = project.compatible_versions.split(',')
 task publishCurseForgeFabric(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
-    dependsOn(tasks.remapJar)
+    dependsOn(tasks.jar)
     apiToken = curseforgeApiKey
 
     debugMode = debug_publish.toBoolean()
 
-    def mainFile = upload(curseforge_project_id_fabric, tasks.remapJar.archiveFile)
+    def mainFile = upload(curseforge_project_id_fabric, tasks.jar.archiveFile)
     mainFile.changelogType = 'markdown'
     mainFile.changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "No changelog provided"
     mainFile.releaseType = 'release'
@@ -70,7 +66,7 @@ modrinth {
     versionNumber = version
     versionName = "[${mc_version}] v${rawVersion} (Fabric)"
     versionType = "release"
-    uploadFile = remapJar
+    uploadFile = jar
     gameVersions = compatibleVersionsList
     debugMode = debug_publish.toBoolean()
     changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "No changelog provided"
@@ -81,4 +77,4 @@ modrinth {
         required.project "fabric-api"
     }
 }
-tasks.modrinth.dependsOn(tasks.remapJar)
+tasks.modrinth.dependsOn(tasks.jar)

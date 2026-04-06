@@ -39,8 +39,8 @@ public interface ISafeWorldModifier {
      * Safe method for grabbing a FluidState.
      */
     default FluidState getFluidStateSafe(LevelReader world, BlockPos pos) {
-        ChunkPos chunkPos = new ChunkPos(pos);
-        ChunkAccess chunk = world.getChunk(chunkPos.x, chunkPos.z);
+        ChunkPos chunkPos = ChunkPos.containing(pos);
+        ChunkAccess chunk = world.getChunk(chunkPos.x(), chunkPos.z());
         int sectionYIndex = world.getSectionIndex(pos.getY());
         LevelChunkSection chunkSection = chunk.getSection(sectionYIndex);
         return getFluidStateSafe(chunkSection, pos);
@@ -67,8 +67,8 @@ public interface ISafeWorldModifier {
      * seemed to be safe.
      */
     default Optional<BlockState> getBlockStateSafe(LevelReader world, BlockPos pos) {
-        ChunkPos chunkPos = new ChunkPos(pos);
-        ChunkAccess chunk = world.getChunk(chunkPos.x, chunkPos.z);
+        ChunkPos chunkPos = ChunkPos.containing(pos);
+        ChunkAccess chunk = world.getChunk(chunkPos.x(), chunkPos.z());
         int sectionYIndex = world.getSectionIndex(pos.getY());
         LevelChunkSection chunkSection = chunk.getSection(sectionYIndex);
         return getBlockStateSafe(chunkSection, pos);
@@ -113,8 +113,8 @@ public interface ISafeWorldModifier {
      * seemed to be safe.
      */
     default Optional<BlockState> setBlockStateSafe(LevelReader world, BlockPos pos, BlockState state) {
-        ChunkPos chunkPos = new ChunkPos(pos);
-        ChunkAccess chunk = world.getChunk(chunkPos.x, chunkPos.z);
+        ChunkPos chunkPos = ChunkPos.containing(pos);
+        ChunkAccess chunk = world.getChunk(chunkPos.x(), chunkPos.z());
         int sectionYIndex = chunk.getSectionIndex(pos.getY());
         LevelChunkSection chunkSection = chunk.getSection(sectionYIndex);
         return setBlockStateSafe(chunkSection, pos, state);

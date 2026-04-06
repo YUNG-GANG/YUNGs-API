@@ -11,13 +11,12 @@ import com.yungnickyoung.minecraft.yungsapi.module.StructurePoolElementTypeModul
 import com.yungnickyoung.minecraft.yungsapi.world.structure.condition.StructureCondition;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.modifier.StructureModifier;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.adaptations.EnhancedTerrainAdaptation;
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.Util;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
@@ -29,6 +28,7 @@ import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.*;
+import org.jspecify.annotations.NullMarked;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -41,10 +41,10 @@ import java.util.function.Function;
  * Custom {@link SinglePoolElement} with support for many additional settings.
  */
 @ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
+@NullMarked
 public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
-    private static final Codec<Either<ResourceLocation, StructureTemplate>> TEMPLATE_CODEC = Codec.of(
-            YungJigsawSinglePoolElement::encodeTemplate, ResourceLocation.CODEC.map(Either::left));
+    private static final Codec<Either<Identifier, StructureTemplate>> TEMPLATE_CODEC = Codec.of(
+            YungJigsawSinglePoolElement::encodeTemplate, Identifier.CODEC.map(Either::left));
 
     public static final MapCodec<YungJigsawSinglePoolElement> CODEC = RecordCodecBuilder.mapCodec((builder) -> builder
             .group(
@@ -60,7 +60,7 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
                     ignoreBoundsCodec(),
                     conditionCodec(),
                     enhancedTerrainAdaptationCodec(),
-                    ResourceLocation.CODEC.optionalFieldOf("deadend_pool").forGetter(element -> element.deadendPool),
+                    Identifier.CODEC.optionalFieldOf("deadend_pool").forGetter(element -> element.deadendPool),
                     StructureModifier.CODEC.listOf().optionalFieldOf("modifiers", new ArrayList<>()).forGetter(element -> element.modifiers)
             ).apply(builder, YungJigsawSinglePoolElement::new));
 
@@ -68,7 +68,7 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
             Comparator.comparingInt(StructureTemplate.JigsawBlockInfo::selectionPriority).reversed();
 
 
-    public final Either<ResourceLocation, StructureTemplate> template;
+    public final Either<Identifier, StructureTemplate> template;
     public final Holder<StructureProcessorList> processors;
     public final Optional<LiquidSettings> overrideLiquidSettings;
 
@@ -89,7 +89,7 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
      * jigsaw block, your structure's generation may get stuck in an infinite loop!
      * </p>
      */
-    public final Optional<ResourceLocation> deadendPool;
+    public final Optional<Identifier> deadendPool;
 
     /**
      * Post-placement modifiers.
@@ -99,7 +99,7 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
     public final List<StructureModifier> modifiers;
 
     public YungJigsawSinglePoolElement(
-            Either<ResourceLocation, StructureTemplate> template,
+            Either<Identifier, StructureTemplate> template,
             Holder<StructureProcessorList> processors,
             StructureTemplatePool.Projection projection,
             Optional<LiquidSettings> overrideLiquidSettings,
@@ -111,7 +111,7 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
             boolean ignoreBounds,
             StructureCondition condition,
             Optional<EnhancedTerrainAdaptation> enhancedTerrainAdaptation,
-            Optional<ResourceLocation> deadendPool,
+            Optional<Identifier> deadendPool,
             List<StructureModifier> modifiers
     ) {
         super(projection, name, maxCount, minRequiredDepth, maxPossibleDepth, isPriority, ignoreBounds, condition, enhancedTerrainAdaptation);
@@ -177,7 +177,7 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
         }
     }
 
-    public Optional<ResourceLocation> getDeadendPool() {
+    public Optional<Identifier> getDeadendPool() {
         return this.deadendPool;
     }
 
@@ -238,7 +238,7 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
         return StructureProcessorType.LIST_CODEC.fieldOf("processors").forGetter(element -> element.processors);
     }
 
-    public static <E extends YungJigsawSinglePoolElement> RecordCodecBuilder<E, Either<ResourceLocation, StructureTemplate>> templateCodec() {
+    public static <E extends YungJigsawSinglePoolElement> RecordCodecBuilder<E, Either<Identifier, StructureTemplate>> templateCodec() {
         return TEMPLATE_CODEC.fieldOf("location").forGetter(element -> element.template);
     }
 
@@ -246,8 +246,8 @@ public class YungJigsawSinglePoolElement extends YungJigsawPoolElement {
         return LiquidSettings.CODEC.optionalFieldOf("override_liquid_settings").forGetter(element -> element.overrideLiquidSettings);
     }
 
-    private static <T> DataResult<T> encodeTemplate(Either<ResourceLocation, StructureTemplate> either, DynamicOps<T> ops, T template) {
-        Optional<ResourceLocation> optional = either.left();
-        return !optional.isPresent() ? DataResult.error(() -> "Can not serialize a runtime pool element") : ResourceLocation.CODEC.encode(optional.get(), ops, template);
+    private static <T> DataResult<T> encodeTemplate(Either<Identifier, StructureTemplate> either, DynamicOps<T> ops, T template) {
+        Optional<Identifier> optional = either.left();
+        return !optional.isPresent() ? DataResult.error(() -> "Can not serialize a runtime pool element") : Identifier.CODEC.encode(optional.get(), ops, template);
     }
 }

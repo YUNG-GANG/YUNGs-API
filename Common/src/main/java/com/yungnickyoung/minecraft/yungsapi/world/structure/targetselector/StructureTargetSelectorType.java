@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,15 +16,15 @@ import java.util.Optional;
  */
 public interface StructureTargetSelectorType<C extends StructureTargetSelector> {
     /* Utility maps for codecs. Simulates the approach vanilla registries use. */
-    Map<ResourceLocation, StructureTargetSelectorType<?>> TARGET_SELECTOR_TYPES_BY_NAME = new HashMap<>();
-    Map<StructureTargetSelectorType<?>, ResourceLocation> NAME_BY_TARGET_SELECTOR_TYPES = new HashMap<>();
+    Map<Identifier, StructureTargetSelectorType<?>> TARGET_SELECTOR_TYPES_BY_NAME = new HashMap<>();
+    Map<StructureTargetSelectorType<?>, Identifier> NAME_BY_TARGET_SELECTOR_TYPES = new HashMap<>();
 
     /* Codecs */
-    Codec<StructureTargetSelectorType<?>> TARGET_SELECTOR_TYPE_CODEC = ResourceLocation.CODEC
+    Codec<StructureTargetSelectorType<?>> TARGET_SELECTOR_TYPE_CODEC = Identifier.CODEC
             .flatXmap(
-                    resourceLocation -> Optional.ofNullable(TARGET_SELECTOR_TYPES_BY_NAME.get(resourceLocation))
+                    identifier -> Optional.ofNullable(TARGET_SELECTOR_TYPES_BY_NAME.get(identifier))
                             .map(DataResult::success)
-                            .orElseGet(() -> DataResult.error(() -> "Unknown target selector type: " + resourceLocation)),
+                            .orElseGet(() -> DataResult.error(() -> "Unknown target selector type: " + identifier)),
                     targetSelectorType -> Optional.of(NAME_BY_TARGET_SELECTOR_TYPES.get(targetSelectorType))
                             .map(DataResult::success)
                             .orElseGet(() -> DataResult.error(() -> "No ID found for target selector type " + targetSelectorType + ". Is it registered?")));
@@ -38,10 +38,10 @@ public interface StructureTargetSelectorType<C extends StructureTargetSelector> 
     /**
      * Utility method for registering TargetSelectorTypes.
      */
-    static <C extends StructureTargetSelector> StructureTargetSelectorType<C> register(ResourceLocation resourceLocation, MapCodec<C> codec) {
+    static <C extends StructureTargetSelector> StructureTargetSelectorType<C> register(Identifier identifier, MapCodec<C> codec) {
         StructureTargetSelectorType<C> targetSelectorType = () -> codec;
-        TARGET_SELECTOR_TYPES_BY_NAME.put(resourceLocation, targetSelectorType);
-        NAME_BY_TARGET_SELECTOR_TYPES.put(targetSelectorType, resourceLocation);
+        TARGET_SELECTOR_TYPES_BY_NAME.put(identifier, targetSelectorType);
+        NAME_BY_TARGET_SELECTOR_TYPES.put(targetSelectorType, identifier);
         return targetSelectorType;
     }
 
@@ -49,7 +49,7 @@ public interface StructureTargetSelectorType<C extends StructureTargetSelector> 
      * Private utility method for registering TargetSelectorTypes native to YUNG's API.
      */
     private static <C extends StructureTargetSelector> StructureTargetSelectorType<C> register(String id, MapCodec<C> codec) {
-        return register(ResourceLocation.fromNamespaceAndPath(YungsApiCommon.MOD_ID, id), codec);
+        return register(Identifier.fromNamespaceAndPath(YungsApiCommon.MOD_ID, id), codec);
     }
 
     /**

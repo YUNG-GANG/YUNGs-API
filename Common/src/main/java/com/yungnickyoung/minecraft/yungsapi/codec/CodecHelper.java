@@ -3,7 +3,7 @@ package com.yungnickyoung.minecraft.yungsapi.codec;
 import com.mojang.serialization.Codec;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -53,7 +53,7 @@ public class CodecHelper {
         }
 
         try {
-            blockState = BuiltInRegistries.BLOCK.get(ResourceLocation.parse(blockString)).get().value().defaultBlockState();
+            blockState = BuiltInRegistries.BLOCK.get(Identifier.parse(blockString)).get().value().defaultBlockState();
         } catch (Exception e) {
             YungsApiCommon.LOGGER.error("JSON: Unable to read block '{}': {}", blockString, e.toString());
             YungsApiCommon.LOGGER.error("Using air instead...");

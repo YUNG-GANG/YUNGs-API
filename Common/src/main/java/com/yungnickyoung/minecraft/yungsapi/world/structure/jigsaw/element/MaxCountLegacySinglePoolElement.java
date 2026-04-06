@@ -6,7 +6,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.yungnickyoung.minecraft.yungsapi.module.StructurePoolElementTypeModule;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.levelgen.structure.pools.LegacySinglePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
@@ -35,12 +35,12 @@ public class MaxCountLegacySinglePoolElement extends LegacySinglePoolElement imp
     protected final int maxCount;
     protected final String name;
 
-    public MaxCountLegacySinglePoolElement(Either<ResourceLocation, StructureTemplate> resourceLocation,
+    public MaxCountLegacySinglePoolElement(Either<Identifier, StructureTemplate> identifier,
                                            Holder<StructureProcessorList> processors,
                                            StructureTemplatePool.Projection projection,
                                            Optional<LiquidSettings> liquidSettings,
                                            String name, int maxCount) {
-        super(resourceLocation, processors, projection, liquidSettings);
+        super(identifier, processors, projection, liquidSettings);
         this.maxCount = maxCount;
         this.name = name;
     }

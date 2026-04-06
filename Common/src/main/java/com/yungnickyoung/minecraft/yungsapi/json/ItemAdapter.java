@@ -6,7 +6,7 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
@@ -38,7 +38,7 @@ public class ItemAdapter extends TypeAdapter<Item> {
     public static Item resolveItem(String itemString) {
         Item item;
         try {
-            item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemString)).get().value();
+            item = BuiltInRegistries.ITEM.get(Identifier.parse(itemString)).get().value();
         } catch (Exception e) {
             YungsApiCommon.LOGGER.error("JSON: Unable to read item '{}': {}", itemString, e.toString());
             YungsApiCommon.LOGGER.error("Using air instead...");

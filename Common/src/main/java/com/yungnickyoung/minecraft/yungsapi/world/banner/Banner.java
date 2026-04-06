@@ -126,7 +126,7 @@ public class Banner {
             // Construct list of patterns from args
             patterns.forEach(pattern -> {
                 CompoundTag patternNBT = new CompoundTag();
-                patternNBT.putString("pattern", pattern.getPattern().location().toString());
+                patternNBT.putString("pattern", pattern.getPattern().identifier().toString());
                 patternNBT.putString("color", pattern.getColor().getName());
                 patternList.add(patternNBT);
             });

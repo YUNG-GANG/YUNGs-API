@@ -2,7 +2,7 @@ package com.yungnickyoung.minecraft.yungsapi.api.autoregister;
 
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterEntry;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 
@@ -31,7 +31,7 @@ public class AutoRegisterCreativeTab extends AutoRegisterEntry<CreativeModeTab> 
     private final boolean showTitle;
     private final boolean alignedRight;
     private final CreativeModeTab.Type type;
-    private final ResourceLocation backgroundTexture;
+    private final Identifier backgroundTexture;
 
     /**
      * Private constructor. Use {@link AutoRegisterCreativeTab.Builder} to create instances.
@@ -85,7 +85,7 @@ public class AutoRegisterCreativeTab extends AutoRegisterEntry<CreativeModeTab> 
         return type;
     }
 
-    public ResourceLocation getBackgroundTexture() {
+    public Identifier getBackgroundTexture() {
         return backgroundTexture;
     }
 
@@ -100,7 +100,7 @@ public class AutoRegisterCreativeTab extends AutoRegisterEntry<CreativeModeTab> 
         private boolean showTitle = true;
         private boolean alignedRight = false;
         private final CreativeModeTab.Type type = CreativeModeTab.Type.CATEGORY;
-        private ResourceLocation backgroundTexture = CreativeModeTab.createTextureLocation("items");
+        private Identifier backgroundTexture = CreativeModeTab.createTextureLocation("items");
 
         private Builder() {
         }
@@ -135,7 +135,7 @@ public class AutoRegisterCreativeTab extends AutoRegisterEntry<CreativeModeTab> 
             return this;
         }
 
-        public Builder backgroundTexture(ResourceLocation backgroundTexture) {
+        public Builder backgroundTexture(Identifier backgroundTexture) {
             this.backgroundTexture = backgroundTexture;
             return this;
         }

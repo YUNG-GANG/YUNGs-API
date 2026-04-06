@@ -234,8 +234,12 @@ public class EnhancedBeardifierHelper {
         NoiseChunkAccessor noiseChunkAccessor = (NoiseChunkAccessor) noiseChunk;
         AquiferOverrideMaskSupplier aquiferOverrideMaskSupplier = (AquiferOverrideMaskSupplier) noiseChunk;
 
-        int chunkHeight = noiseChunkAccessor.getNoiseSettings().height();
-        int minY = noiseChunkAccessor.getNoiseSettings().minY();
+        int cellHeight = noiseChunkAccessor.getCellHeight();
+        int cellCountY = noiseChunkAccessor.getCellCountY();
+        int cellNoiseMinY = noiseChunkAccessor.getCellNoiseMinY();
+
+        int chunkHeight = cellCountY * cellHeight;
+        int minY = cellNoiseMinY * cellHeight;
 
         AquiferOverrideMask aquiferOverrideMask = aquiferOverrideMaskSupplier.getOrCreateAquiferOverrideMask(() -> new AquiferOverrideMask(chunkHeight, minY));
         aquiferOverrideMask.set(x, y, z);

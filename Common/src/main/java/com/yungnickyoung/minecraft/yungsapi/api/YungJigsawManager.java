@@ -4,7 +4,7 @@ import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.JigsawManager
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawPoolElement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.pools.DimensionPadding;
@@ -62,7 +62,7 @@ public class YungJigsawManager {
     public static Optional<Structure.GenerationStub> assembleJigsawStructure(
             Structure.GenerationContext generationContext,
             Holder<StructureTemplatePool> startPool,
-            Optional<ResourceLocation> startJigsawNameOptional,
+            Optional<Identifier> startJigsawNameOptional,
             int maxDepth,
             BlockPos startPos,
             boolean useExpansionHack,

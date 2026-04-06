@@ -6,7 +6,7 @@ import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -42,7 +42,7 @@ public class BlockModuleNeoForge {
 
         // Register associated Blocks and their BlockItems, if applicable
         if (autoRegisterBlock.hasStairs()) {
-            ResourceLocation name = ResourceLocation.fromNamespaceAndPath(namespace, path + "_stairs");
+            Identifier name = Identifier.fromNamespaceAndPath(namespace, path + "_stairs");
             BlockBehaviour.Properties props = BlockBehaviour.Properties.ofLegacyCopy(block);
             props.setId(ResourceKey.create(Registries.BLOCK, name));
             Block stairBlock = new StairBlock(block.defaultBlockState(), props);
@@ -53,7 +53,7 @@ public class BlockModuleNeoForge {
             }
         }
         if (autoRegisterBlock.hasSlab()) {
-            ResourceLocation name = ResourceLocation.fromNamespaceAndPath(namespace, path + "_slab");
+            Identifier name = Identifier.fromNamespaceAndPath(namespace, path + "_slab");
             BlockBehaviour.Properties props = BlockBehaviour.Properties.ofLegacyCopy(block);
             props.setId(ResourceKey.create(Registries.BLOCK, name));
             Block slabBlock = new SlabBlock(props);
@@ -64,7 +64,7 @@ public class BlockModuleNeoForge {
             }
         }
         if (autoRegisterBlock.hasFence()) {
-            ResourceLocation name = ResourceLocation.fromNamespaceAndPath(namespace, path + "_fence");
+            Identifier name = Identifier.fromNamespaceAndPath(namespace, path + "_fence");
             BlockBehaviour.Properties props = BlockBehaviour.Properties.ofLegacyCopy(block);
             props.setId(ResourceKey.create(Registries.BLOCK, name));
             Block fenceBlock = new FenceBlock(props);
@@ -75,7 +75,7 @@ public class BlockModuleNeoForge {
             }
         }
         if (autoRegisterBlock.hasFenceGate()) {
-            ResourceLocation name = ResourceLocation.fromNamespaceAndPath(namespace, path + "_fence_gate");
+            Identifier name = Identifier.fromNamespaceAndPath(namespace, path + "_fence_gate");
             BlockBehaviour.Properties props = BlockBehaviour.Properties.ofLegacyCopy(block);
             props.setId(ResourceKey.create(Registries.BLOCK, name));
             Block fenceGateBlock = new FenceGateBlock(autoRegisterBlock.getFenceGateWoodType(), props);
@@ -86,7 +86,7 @@ public class BlockModuleNeoForge {
             }
         }
         if (autoRegisterBlock.hasWall()) {
-            ResourceLocation name = ResourceLocation.fromNamespaceAndPath(namespace, path + "_wall");
+            Identifier name = Identifier.fromNamespaceAndPath(namespace, path + "_wall");
             BlockBehaviour.Properties props = BlockBehaviour.Properties.ofLegacyCopy(block);
             props.setId(ResourceKey.create(Registries.BLOCK, name));
             Block wallBlock = new WallBlock(props);
@@ -100,6 +100,6 @@ public class BlockModuleNeoForge {
         data.markProcessed();
     }
 
-    public record ExtraBlockData(Block block, Supplier<Item.Properties> itemProperties, ResourceLocation blockRegisteredName) {
+    public record ExtraBlockData(Block block, Supplier<Item.Properties> itemProperties, Identifier blockRegisteredName) {
     }
 }

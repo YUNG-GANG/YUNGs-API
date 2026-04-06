@@ -7,7 +7,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -33,8 +33,8 @@ public class ItemModuleFabric {
         data.markProcessed();
     }
 
-    public static void registerBlockItem(ResourceLocation resourceLocation, Block block, Item.Properties itemProperties) {
-        itemProperties.setId(ResourceKey.create(Registries.ITEM, resourceLocation));
-        Registry.register(BuiltInRegistries.ITEM, resourceLocation, new BlockItem(block, itemProperties));
+    public static void registerBlockItem(Identifier identifier, Block block, Item.Properties itemProperties) {
+        itemProperties.setId(ResourceKey.create(Registries.ITEM, identifier));
+        Registry.register(BuiltInRegistries.ITEM, identifier, new BlockItem(block, itemProperties));
     }
 }

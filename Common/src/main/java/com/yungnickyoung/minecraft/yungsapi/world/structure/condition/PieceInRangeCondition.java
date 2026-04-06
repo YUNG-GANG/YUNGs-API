@@ -8,7 +8,7 @@ import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.SinglePoolElementAcce
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.PieceEntry;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawSinglePoolElement;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
@@ -24,23 +24,23 @@ import java.util.List;
  * Note that "yungsapi:all" is an acceptable entry for matching any piece.
  */
 public class PieceInRangeCondition extends StructureCondition {
-    private static final ResourceLocation ALL = ResourceLocation.fromNamespaceAndPath(YungsApiCommon.MOD_ID, "all");
+    private static final Identifier ALL = Identifier.fromNamespaceAndPath(YungsApiCommon.MOD_ID, "all");
 
     public static final MapCodec<PieceInRangeCondition> CODEC = RecordCodecBuilder.mapCodec((builder) -> builder
             .group(
-                    ResourceLocation.CODEC.listOf().optionalFieldOf("pieces", new ArrayList<>()).forGetter(conditon -> conditon.matchPieces),
+                    Identifier.CODEC.listOf().optionalFieldOf("pieces", new ArrayList<>()).forGetter(conditon -> conditon.matchPieces),
                     Codec.INT.optionalFieldOf("above_range", 0).forGetter(conditon -> conditon.aboveRange),
                     Codec.INT.optionalFieldOf("horizontal_range", 0).forGetter(conditon -> conditon.horizontalRange),
                     Codec.INT.optionalFieldOf("below_range", 0).forGetter(conditon -> conditon.belowRange))
             .apply(builder, PieceInRangeCondition::new));
 
-    private final List<ResourceLocation> matchPieces;
+    private final List<Identifier> matchPieces;
 
     private final Integer aboveRange;
     private final Integer horizontalRange;
     private final Integer belowRange;
 
-    public PieceInRangeCondition(List<ResourceLocation> pieces, int aboveRange, int horizontalRange, int belowRange) {
+    public PieceInRangeCondition(List<Identifier> pieces, int aboveRange, int horizontalRange, int belowRange) {
         this.matchPieces = pieces;
         this.aboveRange = aboveRange;
         this.horizontalRange = horizontalRange;
@@ -92,7 +92,7 @@ public class PieceInRangeCondition extends StructureCondition {
                         : ((YungJigsawSinglePoolElement) otherPiece.getElement()).getTemplate(templateManager);
 
                 // Iterate our target pieces and check for a match with otherPiece
-                for (ResourceLocation matchPieceId : matchPieces) {
+                for (Identifier matchPieceId : matchPieces) {
                     StructureTemplate structureTemplate = templateManager.getOrCreate(matchPieceId);
                     if (otherStructureTemplate == structureTemplate || matchPieceId.equals(ALL)) {
                         // This is one of the pieces we're searching for, so we test its bounding box.

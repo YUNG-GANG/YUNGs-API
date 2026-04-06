@@ -13,15 +13,14 @@ import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.IMaxC
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawPoolElement;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawSinglePoolElement;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.Pools;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.BiomeSource;
@@ -150,13 +149,13 @@ public class JigsawStructureAssembler {
             // Fetch the target pool, ensuring it's not empty
             Optional<? extends Holder<StructureTemplatePool>> optionalPoolHolder = this.settings.poolRegistry.get(poolKey);
             if (optionalPoolHolder.isEmpty()) {
-                YungsApiCommon.LOGGER.warn("Empty or nonexistent pool: {}", poolKey.location());
+                YungsApiCommon.LOGGER.warn("Empty or nonexistent pool: {}", poolKey.identifier());
                 continue;
             }
             Holder<StructureTemplatePool> targetPoolHolder = optionalPoolHolder.get();
             StructureTemplatePool targetPool = targetPoolHolder.value();
             if (targetPool.size() == 0 && !targetPoolHolder.is(Pools.EMPTY)) {
-                YungsApiCommon.LOGGER.warn("Empty or nonexistent pool: {}", poolKey.location());
+                YungsApiCommon.LOGGER.warn("Empty or nonexistent pool: {}", poolKey.identifier());
                 continue;
             }
 
@@ -165,7 +164,7 @@ public class JigsawStructureAssembler {
             StructureTemplatePool fallbackPool = fallbackPoolHolder.value();
             if (fallbackPool.size() == 0 && !fallbackPoolHolder.is(Pools.EMPTY)) {
                 YungsApiCommon.LOGGER.warn("Empty or nonexistent fallback pool: {}", fallbackPoolHolder.unwrapKey()
-                        .map(key -> key.location().toString())
+                        .map(key -> key.identifier().toString())
                         .orElse("<unregistered>"));
                 continue;
             }
@@ -198,7 +197,7 @@ public class JigsawStructureAssembler {
          */
         if (pieceEntry.getDeadendPool().isPresent() && !generatedAtLeastOneChildPiece && pieceJigsawBlocks.size() > 1) {
             // Get deadend pool from id
-            ResourceLocation deadendPoolId = pieceEntry.getDeadendPool().get();
+            Identifier deadendPoolId = pieceEntry.getDeadendPool().get();
             Optional<StructureTemplatePool> deadendPool = this.settings.poolRegistry.getOptional(deadendPoolId);
             if (deadendPool.isEmpty()) {
                 YungsApiCommon.LOGGER.error("Unable to find deadend pool {} for element {}", deadendPoolId, piece.getElement());

@@ -2,11 +2,10 @@ package com.yungnickyoung.minecraft.yungsapi.api.autoregister;
 
 import com.google.common.collect.ImmutableSet;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterEntry;
-import net.minecraft.Util;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.DependantName;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.util.datafix.fixes.References;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityAttachment;
 import net.minecraft.world.entity.EntityAttachments;
@@ -93,8 +92,8 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
             this.canSpawnFarFromPlayer = mobCategory == MobCategory.CREATURE || mobCategory == MobCategory.MISC;
             this.lootTable = resourceKey -> Optional.of(ResourceKey.create(
                     Registries.LOOT_TABLE,
-                    resourceKey.location().withPrefix("entities/")));
-            this.descriptionId = resourceKey -> Util.makeDescriptionId("entity", resourceKey.location());
+                    resourceKey.identifier().withPrefix("entities/")));
+            this.descriptionId = resourceKey -> Util.makeDescriptionId("entity", resourceKey.identifier());
             this.allowedInPeaceful = true;
         }
 
