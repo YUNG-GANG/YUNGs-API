@@ -1,6 +1,8 @@
 package com.yungnickyoung.minecraft.yungsapi.api.autoregister;
 
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterEntry;
+import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.CreativeModeTabAccessor;
+import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.CreativeModeTabBuilderAccessor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTab;
@@ -95,12 +97,12 @@ public class AutoRegisterCreativeTab extends AutoRegisterEntry<CreativeModeTab> 
     public static class Builder {
         private Component displayName = Component.empty();
         private Supplier<ItemStack> iconGenerator = () -> ItemStack.EMPTY;
-        private CreativeModeTab.DisplayItemsGenerator displayItemsGenerator = (itemDisplayParameters, output) -> {};
+        private CreativeModeTab.DisplayItemsGenerator displayItemsGenerator = CreativeModeTabBuilderAccessor.getEmptyGenerator();
         private boolean canScroll = true;
         private boolean showTitle = true;
         private boolean alignedRight = false;
         private final CreativeModeTab.Type type = CreativeModeTab.Type.CATEGORY;
-        private Identifier backgroundTexture = CreativeModeTab.createTextureLocation("items");
+        private Identifier backgroundTexture = CreativeModeTabAccessor.getDefaultBackground();
 
         private Builder() {
         }
