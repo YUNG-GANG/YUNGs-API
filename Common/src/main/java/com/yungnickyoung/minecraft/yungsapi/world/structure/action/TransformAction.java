@@ -11,7 +11,7 @@ import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureCon
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.PieceEntry;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawSinglePoolElement;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -32,8 +32,8 @@ public class TransformAction extends StructureAction {
     /**
      * Helper codec for a single template. Taken from {@link SinglePoolElement}.
      */
-    private static final Codec<Either<ResourceLocation, StructureTemplate>> TEMPLATE_CODEC =
-            Codec.of(TransformAction::encodeTemplate, ResourceLocation.CODEC.map(Either::left));
+    private static final Codec<Either<Identifier, StructureTemplate>> TEMPLATE_CODEC =
+            Codec.of(TransformAction::encodeTemplate, Identifier.CODEC.map(Either::left));
 
     public static final MapCodec<TransformAction> CODEC = RecordCodecBuilder.mapCodec((builder) -> builder
             .group(
@@ -47,13 +47,13 @@ public class TransformAction extends StructureAction {
      * Method for encoding a single template, taken from {@link SinglePoolElement}.
      * Shouldn't actually be necessary since we are only ever decoding.
      */
-    private static <T> DataResult<T> encodeTemplate(Either<ResourceLocation, StructureTemplate> either, DynamicOps<T> ops, T data) {
+    private static <T> DataResult<T> encodeTemplate(Either<Identifier, StructureTemplate> either, DynamicOps<T> ops, T data) {
         return either.left().isEmpty()
                 ? DataResult.error(() -> "yungsapi - Cannot serialize a runtime pool element")
-                : ResourceLocation.CODEC.encode(either.left().get(), ops, data);
+                : Identifier.CODEC.encode(either.left().get(), ops, data);
     }
 
-    private final List<Either<ResourceLocation, StructureTemplate>> output;
+    private final List<Either<Identifier, StructureTemplate>> output;
 
     private final int xOffset;
 
@@ -61,7 +61,7 @@ public class TransformAction extends StructureAction {
 
     private final int zOffset;
 
-    public TransformAction(List<Either<ResourceLocation, StructureTemplate>> output,
+    public TransformAction(List<Either<Identifier, StructureTemplate>> output,
                            int xOffset,
                            int yOffset,
                            int zOffset) {
@@ -95,7 +95,7 @@ public class TransformAction extends StructureAction {
                 targetPieceEntry.getPiece().getPosition().getX());
 
         // Randomly choose output piece
-        Either<ResourceLocation, StructureTemplate> newTemplate = this.output.get(rand.nextInt(this.output.size()));
+        Either<Identifier, StructureTemplate> newTemplate = this.output.get(rand.nextInt(this.output.size()));
         StructurePoolElement newElement = new YungJigsawSinglePoolElement(newTemplate, old.processors,
                 old.getProjection(), old.overrideLiquidSettings, old.name, old.maxCount, old.minRequiredDepth, old.maxPossibleDepth,
                 old.isPriority, old.ignoreBounds, old.condition, old.enhancedTerrainAdaptation,

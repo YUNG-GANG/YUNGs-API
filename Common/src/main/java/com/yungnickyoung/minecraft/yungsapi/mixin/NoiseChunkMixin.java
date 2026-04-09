@@ -41,7 +41,15 @@ public abstract class NoiseChunkMixin implements AquiferOverrideMaskSupplier {
 
     @Shadow
     @Final
-    private NoiseSettings noiseSettings;
+    private int cellCountY;
+
+    @Shadow
+    @Final
+    private int cellNoiseMinY;
+
+    @Shadow
+    @Final
+    private int cellHeight;
 
     @Unique
     private ThreadLocal<AquiferOverrideMask> aquiferOverrideMask = new ThreadLocal<>();
@@ -50,11 +58,11 @@ public abstract class NoiseChunkMixin implements AquiferOverrideMaskSupplier {
     private BlockState defaultBlockState;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void yungsapi_attachNoiseChunkToBeardifier(int $$0, RandomState $$1, int $$2, int $$3, NoiseSettings $$4, DensityFunctions.BeardifierOrMarker $$5, NoiseGeneratorSettings $$6, Aquifer.FluidPicker $$7, Blender $$8, CallbackInfo ci) {
-        if (this.beardifier instanceof EnhancedBeardifierData enhancedBeardifierData && enhancedBeardifierData.getNoiseChunk() == null) {
+    private void yungsapi_attachNoiseChunkToBeardifier(int cellCountXZ, RandomState randomState, int chunkMinBlockX, int chunkMinBlockZ, NoiseSettings noiseSettings, DensityFunctions.BeardifierOrMarker beardifier, NoiseGeneratorSettings settings, Aquifer.FluidPicker globalFluidPicker, Blender blender, CallbackInfo ci) {
+        if (this.beardifier instanceof EnhancedBeardifierData enhancedBeardifierData) {
             enhancedBeardifierData.setNoiseChunk((NoiseChunk) (Object) this);
         }
-        this.defaultBlockState = $$6.defaultBlock();
+        this.defaultBlockState = settings.defaultBlock();
     }
 
     /**
@@ -65,7 +73,11 @@ public abstract class NoiseChunkMixin implements AquiferOverrideMaskSupplier {
     private void yungsapi_dontFillMarkedPositions(CallbackInfoReturnable<BlockState> cir) {
         BlockState retVal = cir.getReturnValue();
         if (retVal != null && (retVal.is(Blocks.WATER) || retVal.is(Blocks.LAVA))) {
-            AquiferOverrideMask mask = this.getOrCreateAquiferOverrideMask(() -> new AquiferOverrideMask(this.noiseSettings.height(), this.noiseSettings.minY()));
+
+            int height = this.cellCountY * this.cellHeight;
+            int minY = this.cellNoiseMinY * this.cellHeight;
+
+            AquiferOverrideMask mask = this.getOrCreateAquiferOverrideMask(() -> new AquiferOverrideMask(height, minY));
 
             // Special handling for SolidifyAquiferOverride
             if (mask.getAquiferOverride() instanceof SolidifyAquiferOverride solidifyAquiferOverride) {

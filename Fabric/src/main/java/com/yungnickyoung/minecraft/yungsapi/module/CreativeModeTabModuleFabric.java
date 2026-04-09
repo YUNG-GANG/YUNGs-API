@@ -3,7 +3,7 @@ package com.yungnickyoung.minecraft.yungsapi.module;
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegisterCreativeTab;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.CreativeModeTab;
@@ -23,7 +23,7 @@ public class CreativeModeTabModuleFabric {
         AutoRegisterCreativeTab autoRegisterCreativeTab = (AutoRegisterCreativeTab) data.object();
 
         // Create tab
-        CreativeModeTab.Builder creativeModeTabBuilder = FabricItemGroup.builder()
+        CreativeModeTab.Builder creativeModeTabBuilder = FabricCreativeModeTab.builder()
                 .title(autoRegisterCreativeTab.getDisplayName())
                 .icon(autoRegisterCreativeTab.getIconItemStackSupplier())
                 .displayItems(autoRegisterCreativeTab.getDisplayItemsGenerator())

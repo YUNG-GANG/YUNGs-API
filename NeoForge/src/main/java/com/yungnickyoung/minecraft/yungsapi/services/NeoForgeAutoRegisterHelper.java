@@ -7,7 +7,7 @@ import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterFieldRouter
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import com.yungnickyoung.minecraft.yungsapi.module.*;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.Potion;
 import net.neoforged.fml.ModList;
@@ -80,7 +80,7 @@ public class NeoForgeAutoRegisterHelper implements IAutoRegisterHelper {
 
                     // Queue for registration
                     String name = (String) data.annotationData().get("value");
-                    AutoRegisterField autoRegisterField = new AutoRegisterField(o, ResourceLocation.fromNamespaceAndPath(modId, name));
+                    AutoRegisterField autoRegisterField = new AutoRegisterField(o, Identifier.fromNamespaceAndPath(modId, name));
                     AutoRegisterFieldRouter.queueField(autoRegisterField);
                 });
     }

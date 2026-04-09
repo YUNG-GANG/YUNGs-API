@@ -8,7 +8,7 @@ import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.SinglePoolElementAcce
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.PieceEntry;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawSinglePoolElement;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
@@ -30,16 +30,16 @@ import java.util.List;
  * If you instead need to search for pieces within any horizontal or vertical distance, use {@link PieceInRangeCondition} instead.
  */
 public class PieceInHorizontalDirectionCondition extends StructureCondition {
-    private static final ResourceLocation ALL = ResourceLocation.fromNamespaceAndPath(YungsApiCommon.MOD_ID, "all");
+    private static final Identifier ALL = Identifier.fromNamespaceAndPath(YungsApiCommon.MOD_ID, "all");
 
     public static final MapCodec<PieceInHorizontalDirectionCondition> CODEC = RecordCodecBuilder.mapCodec((builder) -> builder
             .group(
-                    ResourceLocation.CODEC.listOf().optionalFieldOf("pieces", new ArrayList<>()).forGetter(conditon -> conditon.matchPieces),
+                    Identifier.CODEC.listOf().optionalFieldOf("pieces", new ArrayList<>()).forGetter(conditon -> conditon.matchPieces),
                     Codec.INT.fieldOf("range").forGetter(conditon -> conditon.range),
                     Rotation.CODEC.fieldOf("rotation").forGetter(conditon -> conditon.rotation))
             .apply(builder, PieceInHorizontalDirectionCondition::new));
 
-    private final List<ResourceLocation> matchPieces;
+    private final List<Identifier> matchPieces;
 
     private final Integer range;
 
@@ -55,7 +55,7 @@ public class PieceInHorizontalDirectionCondition extends StructureCondition {
      */
     private final Rotation rotation;
 
-    public PieceInHorizontalDirectionCondition(List<ResourceLocation> pieces, int range, Rotation rotation) {
+    public PieceInHorizontalDirectionCondition(List<Identifier> pieces, int range, Rotation rotation) {
         this.matchPieces = pieces;
         this.range = range;
         this.rotation = rotation;
@@ -117,7 +117,7 @@ public class PieceInHorizontalDirectionCondition extends StructureCondition {
                         : ((YungJigsawSinglePoolElement) otherPiece.getElement()).getTemplate(templateManager);
 
                 // Iterate our target pieces and check for a match with otherPiece
-                for (ResourceLocation matchPieceId : matchPieces) {
+                for (Identifier matchPieceId : matchPieces) {
                     StructureTemplate structureTemplate = templateManager.getOrCreate(matchPieceId);
                     if (otherStructureTemplate == structureTemplate || matchPieceId.equals(ALL)) {
                         // This is one of the pieces we're searching for, so we test its bounding box

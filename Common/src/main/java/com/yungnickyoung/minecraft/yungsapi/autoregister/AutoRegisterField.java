@@ -1,7 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.autoregister;
 
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegister;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -11,10 +11,10 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 public class AutoRegisterField {
     public Object object;
-    public ResourceLocation name;
+    public Identifier name;
     public boolean processed;
 
-    public AutoRegisterField(Object object, ResourceLocation name) {
+    public AutoRegisterField(Object object, Identifier name) {
         this.object = object;
         this.name = name;
         this.processed = false;
@@ -24,7 +24,7 @@ public class AutoRegisterField {
         return this.object;
     }
 
-    public ResourceLocation name() {
+    public Identifier name() {
         return this.name;
     }
 

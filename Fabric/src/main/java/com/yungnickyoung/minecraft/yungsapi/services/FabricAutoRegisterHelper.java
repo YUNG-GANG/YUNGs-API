@@ -5,10 +5,10 @@ import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegister;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterFieldRouter;
 import com.yungnickyoung.minecraft.yungsapi.module.*;
-import net.fabricmc.fabric.api.registry.CompostingChanceRegistry;
-import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder;
+import net.fabricmc.fabric.api.registry.CompostableRegistry;
+import net.fabricmc.fabric.api.registry.FabricPotionBrewingBuilder;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.Potion;
 import org.reflections.Reflections;
@@ -48,8 +48,8 @@ public class FabricAutoRegisterHelper implements IAutoRegisterHelper {
                             // Impossible?
                             throw new RuntimeException(e);
                         }
-                        ResourceLocation resourceLocation = ResourceLocation.fromNamespaceAndPath(modId, name);
-                        AutoRegisterField autoRegisterField = new AutoRegisterField(o, resourceLocation);
+                        Identifier identifier = Identifier.fromNamespaceAndPath(modId, name);
+                        AutoRegisterField autoRegisterField = new AutoRegisterField(o, identifier);
                         AutoRegisterFieldRouter.queueField(autoRegisterField);
                     });
         });
@@ -104,11 +104,11 @@ public class FabricAutoRegisterHelper implements IAutoRegisterHelper {
 
     @Override
     public void registerBrewingRecipe(Holder<Potion> inputPotion, Supplier<Item> ingredient, Holder<Potion> outputPotion) {
-        FabricBrewingRecipeRegistryBuilder.BUILD.register(builder -> builder.addMix(inputPotion, ingredient.get(), outputPotion));
+        FabricPotionBrewingBuilder.BUILD.register(builder -> builder.addMix(inputPotion, ingredient.get(), outputPotion));
     }
 
     @Override
     public void addCompostableItem(Supplier<Item> ingredient, float compostChance) {
-        CompostingChanceRegistry.INSTANCE.add(ingredient.get(), compostChance);
+        CompostableRegistry.INSTANCE.add(ingredient.get(), compostChance);
     }
 }

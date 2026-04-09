@@ -8,15 +8,15 @@ import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureCon
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.assembler.JigsawStructureAssembler;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawPoolElement;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.Util;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -42,7 +42,7 @@ public class JigsawManager {
     public static Optional<Structure.GenerationStub> assembleJigsawStructure(
             Structure.GenerationContext generationContext,
             Holder<StructureTemplatePool> startPool,
-            Optional<ResourceLocation> startJigsawNameOptional,
+            Optional<Identifier> startJigsawNameOptional,
             int maxDepth,
             BlockPos locatePos, // The original starting position of the structure, also where /locate points to
             boolean useExpansionHack, // Used to be doBoundaryAdjustments
@@ -136,7 +136,7 @@ public class JigsawManager {
      */
     private static Optional<PoolElementStructurePiece> getStartPiece(
             Holder<StructureTemplatePool> startPoolHolder,
-            Optional<ResourceLocation> startJigsawNameOptional,
+            Optional<Identifier> startJigsawNameOptional,
             BlockPos locatePos,
             LiquidSettings liquidSettings,
             Structure.GenerationContext generationContext
@@ -194,11 +194,11 @@ public class JigsawManager {
 
             BlockPos anchorPos;
             if (startJigsawNameOptional.isPresent()) {
-                ResourceLocation name = startJigsawNameOptional.get();
+                Identifier name = startJigsawNameOptional.get();
                 Optional<BlockPos> optional = getPosOfJigsawBlockWithName(chosenPoolElement, name, locatePos, rotation, structureTemplateManager, rand);
                 if (optional.isEmpty()) {
                     YungsApiCommon.LOGGER.error("No starting jigsaw with Name {} found in start pool {}", name, startPoolHolder.unwrapKey()
-                            .map(pool -> pool.location().toString())
+                            .map(pool -> pool.identifier().toString())
                             .orElse("<unregistered>"));
                     return Optional.empty();
                 }
@@ -254,7 +254,7 @@ public class JigsawManager {
      */
     private static Optional<BlockPos> getPosOfJigsawBlockWithName(
             StructurePoolElement structurePoolElement,
-            ResourceLocation name,
+            Identifier name,
             BlockPos startPos,
             Rotation rotation,
             StructureTemplateManager structureTemplateManager,

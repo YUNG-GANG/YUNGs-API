@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,15 +16,15 @@ import java.util.Optional;
  */
 public interface StructureActionType<C extends StructureAction> {
     /* Utility maps for codecs. Simulates the approach vanilla registries use. */
-    Map<ResourceLocation, StructureActionType<?>> ACTION_TYPES_BY_NAME = new HashMap<>();
-    Map<StructureActionType<?>, ResourceLocation> NAME_BY_ACTION_TYPES = new HashMap<>();
+    Map<Identifier, StructureActionType<?>> ACTION_TYPES_BY_NAME = new HashMap<>();
+    Map<StructureActionType<?>, Identifier> NAME_BY_ACTION_TYPES = new HashMap<>();
 
     /* Codecs */
-    Codec<StructureActionType<?>> ACTION_TYPE_CODEC = ResourceLocation.CODEC
+    Codec<StructureActionType<?>> ACTION_TYPE_CODEC = Identifier.CODEC
             .flatXmap(
-                    resourceLocation -> Optional.ofNullable(ACTION_TYPES_BY_NAME.get(resourceLocation))
+                    Identifier -> Optional.ofNullable(ACTION_TYPES_BY_NAME.get(Identifier))
                             .map(DataResult::success)
-                            .orElseGet(() -> DataResult.error(() -> "Unknown structure action type: " + resourceLocation)),
+                            .orElseGet(() -> DataResult.error(() -> "Unknown structure action type: " + Identifier)),
                     actionType -> Optional.of(NAME_BY_ACTION_TYPES.get(actionType))
                             .map(DataResult::success)
                             .orElseGet(() -> DataResult.error(() -> "No ID found for structure action type " + actionType + ". Is it registered?")));
@@ -39,10 +39,10 @@ public interface StructureActionType<C extends StructureAction> {
     /**
      * Utility method for registering StructureActionTypes.
      */
-    static <C extends StructureAction> StructureActionType<C> register(ResourceLocation resourceLocation, MapCodec<C> codec) {
+    static <C extends StructureAction> StructureActionType<C> register(Identifier Identifier, MapCodec<C> codec) {
         StructureActionType<C> actionType = () -> codec;
-        ACTION_TYPES_BY_NAME.put(resourceLocation, actionType);
-        NAME_BY_ACTION_TYPES.put(actionType, resourceLocation);
+        ACTION_TYPES_BY_NAME.put(Identifier, actionType);
+        NAME_BY_ACTION_TYPES.put(actionType, Identifier);
         return actionType;
     }
 
@@ -50,7 +50,7 @@ public interface StructureActionType<C extends StructureAction> {
      * Private utility method for registering StructureActionTypes native to YUNG's API.
      */
     private static <C extends StructureAction> StructureActionType<C> register(String id, MapCodec<C> codec) {
-        return register(ResourceLocation.fromNamespaceAndPath(YungsApiCommon.MOD_ID, id), codec);
+        return register(Identifier.fromNamespaceAndPath(YungsApiCommon.MOD_ID, id), codec);
     }
 
     /**

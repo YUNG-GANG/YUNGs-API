@@ -3,7 +3,7 @@ package com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw;
 import com.yungnickyoung.minecraft.yungsapi.util.BoxOctree;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.assembler.PieceContext;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawSinglePoolElement;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawJunction;
 import net.minecraft.world.phys.AABB;
@@ -76,7 +76,7 @@ public class PieceEntry {
         return parentJunction;
     }
 
-    public Optional<ResourceLocation> getDeadendPool() {
+    public Optional<Identifier> getDeadendPool() {
         if (this.piece.getElement() instanceof YungJigsawSinglePoolElement yungSingleElement) {
             return yungSingleElement.getDeadendPool();
         }

@@ -10,10 +10,10 @@ import com.yungnickyoung.minecraft.yungsapi.world.structure.condition.StructureC
 import com.yungnickyoung.minecraft.yungsapi.world.structure.context.StructureContext;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.adaptations.EnhancedTerrainAdaptation;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.adaptations.EnhancedTerrainAdaptationType;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
+import org.jspecify.annotations.NullMarked;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Optional;
@@ -22,7 +22,7 @@ import java.util.Optional;
  * Custom {@link net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement} with support for many additional settings.
  */
 @ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
+@NullMarked
 public abstract class YungJigsawPoolElement extends StructurePoolElement {
     /**
      * The name of this piece.
