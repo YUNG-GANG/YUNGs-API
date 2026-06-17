@@ -1,13 +1,23 @@
 package com.yungnickyoung.minecraft.yungsapi.world.banner;
 
+import it.unimi.dsi.fastutil.objects.ReferenceSortedSets;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.Unit;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WallBannerBlock;
 import net.minecraft.world.level.block.entity.BannerPattern;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,9 +88,12 @@ public class Banner {
      */
     public static class Builder {
         private final List<ColoredBannerPattern> patterns = new ArrayList<>();
-        private String customNameTranslate;
-        private String customColor;
-        private BlockState state = Blocks.BLACK_WALL_BANNER.defaultBlockState();
+        private String     customNameTranslate;
+        private String     customNameFallback;
+        private TextColor  customColor;
+        private @Nullable Boolean    showPatternsInTooltip = null;
+        private @Nullable Rarity     rarity = null;
+        private           BlockState state  = Blocks.BLACK_WALL_BANNER.defaultBlockState();
 
         public Builder() {
         }
@@ -101,12 +114,38 @@ public class Banner {
         }
 
         public Builder customName(String translatableNamePath) {
+            return this.customName(translatableNamePath, null);
+        }
+
+        public Builder customName(String translatableNamePath, String fallback) {
             this.customNameTranslate = translatableNamePath;
+            this.customNameFallback = fallback;
+            if (this.showPatternsInTooltip == null) {
+                this.showPatternsInTooltip = false;
+            }
+            if (this.rarity == null) {
+                this.rarity = Rarity.UNCOMMON;
+            }
+            return this;
+        }
+
+        public Builder showPatternsInTooltip() {
+            this.showPatternsInTooltip = true;
             return this;
         }
 
         public Builder customColor(String colorString) {
-            this.customColor = colorString;
+            this.customColor = TextColor.parseColor(colorString).getOrThrow();
+            return this;
+        }
+
+        public Builder customColor(TextColor textColor) {
+            this.customColor = textColor;
+            return this;
+        }
+
+        public Builder rarity(Rarity rarity) {
+            this.rarity = rarity;
             return this;
         }
 
@@ -131,15 +170,23 @@ public class Banner {
                 patternList.add(patternNBT);
             });
 
+            var components = DataComponentMap.builder();
             // Custom name and color
-            if (this.customColor != null || this.customNameTranslate != null) {
-                String color = this.customColor == null ? "" : String.format("\"color\":\"%s\"", this.customColor);
-                String name = this.customNameTranslate == null ? "" : String.format("\"translate\":\"%s\"", this.customNameTranslate);
-                if (this.customColor != null && this.customNameTranslate != null) name = "," + name;
-                String customNameString = "{" + color + name + "}";
-
-                nbt.putString("CustomName", customNameString);
+            if (this.customNameTranslate != null) {
+                components.set(DataComponents.ITEM_NAME,
+                               Component.translatableWithFallback(this.customNameTranslate, this.customNameFallback)
+                                       .withStyle(s -> this.customColor == null ? s : s.withColor(this.customColor)));
             }
+            // Tooltip
+            if (this.showPatternsInTooltip != null && !this.showPatternsInTooltip) {
+                components.set(DataComponents.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
+            }
+            // Rarity
+            if (this.rarity != null) {
+                components.set(DataComponents.RARITY, this.rarity);
+            }
+
+            nbt.put("components", DataComponentMap.CODEC.encodeStart(NbtOps.INSTANCE, components.build()).result().orElseThrow());
 
             // Add tags to NBT
             nbt.put("patterns", patternList);

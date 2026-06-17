@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.beardifier;
 
 import com.yungnickyoung.minecraft.yungsapi.mixin.BeardifierMixin;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import net.minecraft.world.level.levelgen.NoiseChunk;
 
@@ -10,12 +11,12 @@ import javax.annotation.Nullable;
  * Utility interface for use with {@link BeardifierMixin}.
  */
 public interface EnhancedBeardifierData {
-    ObjectListIterator<EnhancedBeardifierRigid> getEnhancedPieceIterator();
-    void setEnhancedPieceIterator(ObjectListIterator<EnhancedBeardifierRigid> enhancedPieceIterator);
+    ObjectListIterator<EnhancedBeardifierRigid> yungsapi_getEnhancedPieceIterator();
+    void yungsapi_setEnhancedPieces(ObjectList<EnhancedBeardifierRigid> enhancedPieces);
 
-    ObjectListIterator<EnhancedJigsawJunction> getEnhancedJunctionIterator();
-    void setEnhancedJunctionIterator(ObjectListIterator<EnhancedJigsawJunction> enhancedJunctionIterator);
+    ObjectListIterator<EnhancedJigsawJunction> yungsapi_getEnhancedJunctionIterator();
+    void yungsapi_setEnhancedJunctions(ObjectList<EnhancedJigsawJunction> enhancedJunctions);
 
-    @Nullable NoiseChunk getNoiseChunk();
-    void setNoiseChunk(NoiseChunk noiseChunk);
+    @Nullable NoiseChunk yungsapi_getNoiseChunk();
+    void yungsapi_setNoiseChunk(NoiseChunk noiseChunk);
 }

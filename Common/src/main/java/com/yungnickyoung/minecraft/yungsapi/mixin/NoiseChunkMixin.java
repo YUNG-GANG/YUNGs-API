@@ -51,8 +51,8 @@ public abstract class NoiseChunkMixin implements AquiferOverrideMaskSupplier {
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void yungsapi_attachNoiseChunkToBeardifier(int $$0, RandomState $$1, int $$2, int $$3, NoiseSettings $$4, DensityFunctions.BeardifierOrMarker $$5, NoiseGeneratorSettings $$6, Aquifer.FluidPicker $$7, Blender $$8, CallbackInfo ci) {
-        if (this.beardifier instanceof EnhancedBeardifierData enhancedBeardifierData && enhancedBeardifierData.getNoiseChunk() == null) {
-            enhancedBeardifierData.setNoiseChunk((NoiseChunk) (Object) this);
+        if (this.beardifier instanceof EnhancedBeardifierData enhancedBeardifierData && enhancedBeardifierData.yungsapi_getNoiseChunk() == null) {
+            enhancedBeardifierData.yungsapi_setNoiseChunk((NoiseChunk) (Object) this);
         }
         this.defaultBlockState = $$6.defaultBlock();
     }
