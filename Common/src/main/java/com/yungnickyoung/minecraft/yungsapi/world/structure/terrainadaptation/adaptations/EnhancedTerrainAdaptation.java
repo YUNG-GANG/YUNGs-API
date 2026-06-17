@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
  * Uses a 3-D kernel matrix to smoothly generate noise values for use when generating terrain arround structures.
  */
 public abstract class EnhancedTerrainAdaptation {
-    public static final EnhancedTerrainAdaptation NONE = new NoneAdaptation();
+    public static final EnhancedTerrainAdaptation NONE = NoneAdaptation.INSTANCE;
 
     /**
      * The action to perform on the top of the structure piece.

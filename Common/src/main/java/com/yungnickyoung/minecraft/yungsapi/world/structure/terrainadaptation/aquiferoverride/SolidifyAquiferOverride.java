@@ -7,14 +7,13 @@ import net.minecraft.world.level.block.state.BlockState;
  * Replaces the aquifer liquid blocks with the dimension's default BlockState, as specified
  * in the dimension's NoiseGeneratorSettings.
  */
-public class SolidifyAquiferOverride extends AquiferOverride {
+public class SolidifyAquiferOverride implements AquiferOverride {
     private static final SolidifyAquiferOverride INSTANCE = new SolidifyAquiferOverride();
     public static final MapCodec<SolidifyAquiferOverride> CODEC = MapCodec.unit(() -> INSTANCE);
 
     private BlockState solidBlockState;
 
     public SolidifyAquiferOverride() {
-        super();
     }
 
     @Override
