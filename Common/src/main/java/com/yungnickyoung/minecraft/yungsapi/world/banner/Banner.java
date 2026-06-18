@@ -1,7 +1,11 @@
 package com.yungnickyoung.minecraft.yungsapi.world.banner;
 
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Blocks;
@@ -78,8 +82,8 @@ public class Banner {
      */
     public static class Builder {
         private final List<ColoredBannerPattern> patterns = new ArrayList<>();
-        private String customNameTranslate;
-        private String customColor;
+        private String     customNameTranslate;
+        private TextColor  customColor;
         private BlockState state = Blocks.BLACK_WALL_BANNER.defaultBlockState();
 
         public Builder() {
@@ -106,7 +110,12 @@ public class Banner {
         }
 
         public Builder customColor(String colorString) {
-            this.customColor = colorString;
+            this.customColor = TextColor.parseColor(colorString).getOrThrow();
+            return this;
+        }
+
+        public Builder customColor(TextColor textColor) {
+            this.customColor = textColor;
             return this;
         }
 
@@ -133,12 +142,10 @@ public class Banner {
 
             // Custom name and color
             if (this.customColor != null || this.customNameTranslate != null) {
-                String color = this.customColor == null ? "" : String.format("\"color\":\"%s\"", this.customColor);
-                String name = this.customNameTranslate == null ? "" : String.format("\"translate\":\"%s\"", this.customNameTranslate);
-                if (this.customColor != null && this.customNameTranslate != null) name = "," + name;
-                String customNameString = "{" + color + name + "}";
-
-                nbt.putString("CustomName", customNameString);
+                var components = DataComponentMap.builder()
+                        .set(DataComponents.CUSTOM_NAME, Component.translatable(this.customNameTranslate).withStyle(s -> this.customColor == null ? s : s.withColor(this.customColor)))
+                        .build();
+                nbt.store("components", DataComponentMap.CODEC, components);
             }
 
             // Add tags to NBT
