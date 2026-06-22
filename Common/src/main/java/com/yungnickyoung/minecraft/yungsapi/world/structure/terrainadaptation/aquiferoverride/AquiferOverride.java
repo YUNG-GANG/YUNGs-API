@@ -12,8 +12,6 @@ import org.jetbrains.annotations.ApiStatus;
  */
 @ApiStatus.Experimental
 public interface AquiferOverride {
-    public static final AquiferOverride NONE = NoneAquiferOverride.INSTANCE;
-
     abstract public AquiferOverrideType<?> type();
 
     abstract public BlockState getBlockState(BlockState defaultBlockState);
