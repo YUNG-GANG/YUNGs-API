@@ -10,6 +10,7 @@ import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.ad
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.aquiferoverride.AquiferOverride;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.aquiferoverride.AquiferOverrideMask;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.aquiferoverride.AquiferOverrideMaskSupplier;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.aquiferoverride.NoneAquiferOverride;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.core.Direction;
@@ -138,7 +139,7 @@ public class EnhancedBeardifierHelper {
         int x = ctx.blockX();
         int y = ctx.blockY();
         int z = ctx.blockZ();
-        AquiferOverride aquiferOverride = AquiferOverride.NONE;
+        AquiferOverride aquiferOverride = NoneAquiferOverride.INSTANCE;
 
         while (data.getEnhancedPieceIterator() != null && data.getEnhancedPieceIterator().hasNext()) {
             EnhancedBeardifierRigid rigid = data.getEnhancedPieceIterator().next();
@@ -189,7 +190,7 @@ public class EnhancedBeardifierHelper {
             }
 
             density += densityFactor;
-            if (densityFactor != 0 && pieceTerrainAdaptation.getAquiferOverride() != AquiferOverride.NONE) {
+            if (densityFactor != 0 && pieceTerrainAdaptation.getAquiferOverride() != NoneAquiferOverride.INSTANCE) {
                 aquiferOverride = pieceTerrainAdaptation.getAquiferOverride();
             }
         }
@@ -215,7 +216,7 @@ public class EnhancedBeardifierHelper {
             ) * 0.4D;
 
             density += densityFactor;
-            if (densityFactor != 0 && pieceTerrainAdaptation.getAquiferOverride() != AquiferOverride.NONE) {
+            if (densityFactor != 0 && pieceTerrainAdaptation.getAquiferOverride() != NoneAquiferOverride.INSTANCE) {
                 aquiferOverride = pieceTerrainAdaptation.getAquiferOverride();
             }
         }
@@ -223,7 +224,7 @@ public class EnhancedBeardifierHelper {
 
         // Set the aquifer override mask for this position if the density was modified and if
         // the relevant EnhancedTerrainAdaptation specifies that it should override aquifer liquids.
-        if (aquiferOverride != AquiferOverride.NONE) {
+        if (aquiferOverride != NoneAquiferOverride.INSTANCE) {
             updateAquiferOverrideMask(data, aquiferOverride, x, y, z);
         }
 
