@@ -6,6 +6,7 @@ import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.NoiseChunkAccessor;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.YungJigsawStructure;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawPoolElement;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.adaptations.EnhancedTerrainAdaptation;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.adaptations.NoneAdaptation;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.aquiferoverride.AquiferOverride;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.aquiferoverride.AquiferOverrideMask;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.aquiferoverride.AquiferOverrideMaskSupplier;
@@ -81,7 +82,7 @@ public class EnhancedBeardifierHelper {
                     }
 
                     // If no terrain adaptation for this piece, we can ignore it
-                    if (pieceTerrainAdaptation == EnhancedTerrainAdaptation.NONE) continue;
+                    if (pieceTerrainAdaptation == NoneAdaptation.INSTANCE) continue;
 
                     int pieceKernelRadius = pieceTerrainAdaptation.getKernelRadius();
 
@@ -109,7 +110,7 @@ public class EnhancedBeardifierHelper {
                             enhancedJunctionList.add(new EnhancedJigsawJunction(jigsawJunction, pieceTerrainAdaptation));
                         }
                     }
-                } else if (structureTerrainAdaptation != EnhancedTerrainAdaptation.NONE) {
+                } else if (structureTerrainAdaptation != NoneAdaptation.INSTANCE) {
                     enhancedBeardifierRigidList.add(new EnhancedBeardifierRigid(
                             nearbyPiece.getBoundingBox(),
                             structureTerrainAdaptation,
@@ -178,7 +179,7 @@ public class EnhancedBeardifierHelper {
 
             // Calculate density factor and add to density value
             double densityFactor = 0;
-            if (pieceTerrainAdaptation != EnhancedTerrainAdaptation.NONE) {
+            if (pieceTerrainAdaptation != NoneAdaptation.INSTANCE) {
                 densityFactor = pieceTerrainAdaptation.computeDensityFactor(
                         xDistanceToBoundingBox,
                         yDistanceToBoundingBox,
