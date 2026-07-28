@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
  * A {@link StructureProcessor} that processes entities.
  * May or may not also process blocks normally.
  */
-public abstract class StructureEntityProcessor extends StructureProcessor {
+public abstract class StructureEntityProcessor implements StructureProcessor {
 
     /**
      * Applies a processor to an entity in a structure component or Jigsaw piece.
