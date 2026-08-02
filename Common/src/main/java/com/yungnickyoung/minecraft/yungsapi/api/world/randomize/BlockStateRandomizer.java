@@ -146,7 +146,9 @@ public class BlockStateRandomizer {
         // Attempt to add BlockState to entries
         float currTotal = entries.stream().map(entry -> entry.probability).reduce(Float::sum).orElse(0f);
         float newTotal = currTotal + chance;
-        if (newTotal > 1.0F) { // Total probability cannot exceed 1
+        // JSON object iteration order can change the float accumulation order. Accept the tiny
+        // rounding error produced by otherwise valid probability sets that total exactly 1.0.
+        if (newTotal > 1.0F + 1.0E-5F) { // Total probability cannot materially exceed 1
             YungsApiCommon.LOGGER.warn("WARNING: block {} added to BlockStateRandomizer exceeds max probabiltiy of 1!", blockState.toString());
             return this;
         }

@@ -1,7 +1,8 @@
 package com.yungnickyoung.minecraft.yungsapi.autoregister;
 
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.*;
-import net.minecraft.advancements.CriterionTrigger;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.advancements.triggers.CriterionTrigger;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
@@ -9,7 +10,6 @@ import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 
 public class AutoRegisterFieldRouter {
     public static void queueField(AutoRegisterField registerData) {
@@ -31,7 +31,7 @@ public class AutoRegisterFieldRouter {
             AutoRegistrationManager.BLOCKS.add(registerData);
         } else if (registerData.object() instanceof AutoRegisterItem) {
             AutoRegistrationManager.ITEMS.add(registerData);
-        } else if (registerData.object() instanceof StructureProcessorType<?>) {
+        } else if (registerData.object() instanceof MapCodec<?>) {
             AutoRegistrationManager.STRUCTURE_PROCESSOR_TYPES.add(registerData);
         } else if (registerData.object() instanceof AutoRegisterBlockEntityType) {
             AutoRegistrationManager.BLOCK_ENTITY_TYPES.add(registerData);
