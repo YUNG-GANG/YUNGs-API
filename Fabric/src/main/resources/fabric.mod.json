@@ -37,6 +37,9 @@
       },
       "banner": "logo.png",
       "background": "catalogue_background.png"
+    },
+    "modmenu": {
+      "badges": ["library"]
     }
   }
 }
