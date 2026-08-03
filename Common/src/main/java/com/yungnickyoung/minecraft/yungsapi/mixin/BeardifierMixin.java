@@ -1,5 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.YungJigsawStructure;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.adaptations.EnhancedTerrainAdaptation;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.beardifier.EnhancedBeardifierData;
@@ -34,15 +36,15 @@ public abstract class BeardifierMixin implements EnhancedBeardifierData, Density
     @Unique
     private NoiseChunk noiseChunk;
 
-    @Inject(method = "forStructuresInChunk", at = @At("RETURN"), cancellable = true)
-    private static void yungsapi_supportCustomTerrainAdaptations(StructureManager structureManager, ChunkPos chunkPos, CallbackInfoReturnable<Beardifier> cir) {
-        Beardifier enhancedBeardifier = EnhancedBeardifierHelper.forStructuresInChunk(structureManager, chunkPos, cir.getReturnValue());
-        cir.setReturnValue(enhancedBeardifier);
+    @WrapMethod(method = "forStructuresInChunk")
+    private static Beardifier yungsapi_supportCustomTerrainAdaptations(final StructureManager structureManager, final ChunkPos chunkPos, final Operation<Beardifier> original) {
+        return EnhancedBeardifierHelper.forStructuresInChunk(structureManager, chunkPos, original.call(structureManager, chunkPos));
     }
 
     @Inject(method = "fillArray", at = @At(value = "INVOKE", target = "Ljava/util/Arrays;fill([DD)V"), cancellable = true)
     private void yungsapi_fillArray(final double[] output, final DensityFunction.ContextProvider contextProvider, final CallbackInfo ci) {
-        if (this.enhancedPieceIterator.hasNext() || this.enhancedJunctionIterator.hasNext()) {
+        if (this.enhancedPieceIterator != null && this.enhancedJunctionIterator != null
+            && (this.enhancedPieceIterator.hasNext() || this.enhancedJunctionIterator.hasNext())) {
             DensityFunctions.BeardifierOrMarker.super.fillArray(output, contextProvider);
             ci.cancel();
         }
@@ -55,39 +57,33 @@ public abstract class BeardifierMixin implements EnhancedBeardifierData, Density
         cir.setReturnValue(newDensity);
     }
 
-    @Unique
     @Override
-    public ObjectListIterator<EnhancedBeardifierRigid> getEnhancedPieceIterator() {
+    public ObjectListIterator<EnhancedBeardifierRigid> yungsapi_getEnhancedPieceIterator() {
         return this.enhancedPieceIterator;
     }
 
-    @Unique
     @Override
-    public void setEnhancedPieceIterator(ObjectListIterator<EnhancedBeardifierRigid> enhancedPieceIterator) {
+    public void yungsapi_setEnhancedPieceIterator(ObjectListIterator<EnhancedBeardifierRigid> enhancedPieceIterator) {
         this.enhancedPieceIterator = enhancedPieceIterator;
     }
 
-    @Unique
     @Override
-    public ObjectListIterator<EnhancedJigsawJunction> getEnhancedJunctionIterator() {
+    public ObjectListIterator<EnhancedJigsawJunction> yungsapi_getEnhancedJunctionIterator() {
         return enhancedJunctionIterator;
     }
 
-    @Unique
     @Override
-    public void setEnhancedJunctionIterator(ObjectListIterator<EnhancedJigsawJunction> enhancedJunctionIterator) {
+    public void yungsapi_setEnhancedJunctionIterator(ObjectListIterator<EnhancedJigsawJunction> enhancedJunctionIterator) {
         this.enhancedJunctionIterator = enhancedJunctionIterator;
     }
 
-    @Unique
     @Override
-    public NoiseChunk getNoiseChunk() {
+    public NoiseChunk yungsapi_getNoiseChunk() {
         return this.noiseChunk;
     }
 
-    @Unique
     @Override
-    public void setNoiseChunk(NoiseChunk noiseChunk) {
+    public void yungsapi_setNoiseChunk(NoiseChunk noiseChunk) {
         this.noiseChunk = noiseChunk;
     }
 }

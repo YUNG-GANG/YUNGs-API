@@ -121,11 +121,10 @@ public class EnhancedBeardifierHelper {
             }
         }
 
-        Beardifier newBeardifier = new Beardifier(((BeardifierAccessor) original).getPieces(), ((BeardifierAccessor) original).getJunctions(), ((BeardifierAccessor) original).getAffectedBox());
-        EnhancedBeardifierData enhancedBeardifier = (EnhancedBeardifierData) newBeardifier;
-        enhancedBeardifier.setEnhancedPieceIterator(enhancedBeardifierRigidList.iterator());
-        enhancedBeardifier.setEnhancedJunctionIterator(enhancedJunctionList.iterator());
-        return newBeardifier;
+        EnhancedBeardifierData enhancedBeardifier = (EnhancedBeardifierData) original;
+        enhancedBeardifier.yungsapi_setEnhancedPieceIterator(enhancedBeardifierRigidList.iterator());
+        enhancedBeardifier.yungsapi_setEnhancedJunctionIterator(enhancedJunctionList.iterator());
+        return original;
     }
 
     /**
@@ -141,8 +140,8 @@ public class EnhancedBeardifierHelper {
         int z = ctx.blockZ();
         AquiferOverride aquiferOverride = NoneAquiferOverride.INSTANCE;
 
-        while (data.getEnhancedPieceIterator() != null && data.getEnhancedPieceIterator().hasNext()) {
-            EnhancedBeardifierRigid rigid = data.getEnhancedPieceIterator().next();
+        while (data.yungsapi_getEnhancedPieceIterator() != null && data.yungsapi_getEnhancedPieceIterator().hasNext()) {
+            EnhancedBeardifierRigid rigid = data.yungsapi_getEnhancedPieceIterator().next();
             BoundingBox pieceBoundingBox = rigid.pieceBoundingBox();
             EnhancedTerrainAdaptation pieceTerrainAdaptation = rigid.pieceTerrainAdaptation();
             Rotation pieceRotation = rigid.rotation();
@@ -194,11 +193,11 @@ public class EnhancedBeardifierHelper {
                 aquiferOverride = pieceTerrainAdaptation.getAquiferOverride();
             }
         }
-        data.getEnhancedPieceIterator().back(Integer.MAX_VALUE);
+        data.yungsapi_getEnhancedPieceIterator().back(Integer.MAX_VALUE);
 
         // Vanilla logic
-        while (data.getEnhancedJunctionIterator() != null && data.getEnhancedJunctionIterator().hasNext()) {
-            EnhancedJigsawJunction enhancedJigsawJunction = data.getEnhancedJunctionIterator().next();
+        while (data.yungsapi_getEnhancedJunctionIterator() != null && data.yungsapi_getEnhancedJunctionIterator().hasNext()) {
+            EnhancedJigsawJunction enhancedJigsawJunction = data.yungsapi_getEnhancedJunctionIterator().next();
             JigsawJunction jigsawJunction = enhancedJigsawJunction.jigsawJunction();
             EnhancedTerrainAdaptation pieceTerrainAdaptation = enhancedJigsawJunction.pieceTerrainAdaptation();
 
@@ -220,7 +219,7 @@ public class EnhancedBeardifierHelper {
                 aquiferOverride = pieceTerrainAdaptation.getAquiferOverride();
             }
         }
-        data.getEnhancedJunctionIterator().back(Integer.MAX_VALUE);
+        data.yungsapi_getEnhancedJunctionIterator().back(Integer.MAX_VALUE);
 
         // Set the aquifer override mask for this position if the density was modified and if
         // the relevant EnhancedTerrainAdaptation specifies that it should override aquifer liquids.
@@ -232,7 +231,7 @@ public class EnhancedBeardifierHelper {
     }
 
     private static void updateAquiferOverrideMask(EnhancedBeardifierData data, AquiferOverride aquiferOverride, int x, int y, int z) {
-        NoiseChunk noiseChunk = data.getNoiseChunk();
+        NoiseChunk noiseChunk = data.yungsapi_getNoiseChunk();
         NoiseChunkAccessor noiseChunkAccessor = (NoiseChunkAccessor) noiseChunk;
         AquiferOverrideMaskSupplier aquiferOverrideMaskSupplier = (AquiferOverrideMaskSupplier) noiseChunk;
 

@@ -10,12 +10,12 @@ import javax.annotation.Nullable;
  * Utility interface for use with {@link BeardifierMixin}.
  */
 public interface EnhancedBeardifierData {
-    ObjectListIterator<EnhancedBeardifierRigid> getEnhancedPieceIterator();
-    void setEnhancedPieceIterator(ObjectListIterator<EnhancedBeardifierRigid> enhancedPieceIterator);
+    ObjectListIterator<EnhancedBeardifierRigid> yungsapi_getEnhancedPieceIterator();
+    void yungsapi_setEnhancedPieceIterator(ObjectListIterator<EnhancedBeardifierRigid> enhancedPieceIterator);
 
-    ObjectListIterator<EnhancedJigsawJunction> getEnhancedJunctionIterator();
-    void setEnhancedJunctionIterator(ObjectListIterator<EnhancedJigsawJunction> enhancedJunctionIterator);
+    ObjectListIterator<EnhancedJigsawJunction> yungsapi_getEnhancedJunctionIterator();
+    void yungsapi_setEnhancedJunctionIterator(ObjectListIterator<EnhancedJigsawJunction> enhancedJunctionIterator);
 
-    @Nullable NoiseChunk getNoiseChunk();
-    void setNoiseChunk(NoiseChunk noiseChunk);
+    @Nullable NoiseChunk yungsapi_getNoiseChunk();
+    void yungsapi_setNoiseChunk(NoiseChunk noiseChunk);
 }
