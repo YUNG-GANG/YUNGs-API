@@ -8,6 +8,7 @@ import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.be
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.beardifier.EnhancedBeardifierHelper;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.beardifier.EnhancedBeardifierRigid;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.beardifier.EnhancedJigsawJunction;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureManager;
@@ -28,10 +29,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Beardifier.class)
 public abstract class BeardifierMixin implements EnhancedBeardifierData, DensityFunctions.BeardifierOrMarker {
     @Unique
-    private ObjectListIterator<EnhancedJigsawJunction> enhancedJunctionIterator;
+    private ObjectList<EnhancedJigsawJunction> enhancedJunctions;
 
     @Unique
-    private ObjectListIterator<EnhancedBeardifierRigid> enhancedPieceIterator;
+    private ObjectList<EnhancedBeardifierRigid> enhancedPieces;
 
     @Unique
     private NoiseChunk noiseChunk;
@@ -43,8 +44,8 @@ public abstract class BeardifierMixin implements EnhancedBeardifierData, Density
 
     @Inject(method = "fillArray", at = @At(value = "INVOKE", target = "Ljava/util/Arrays;fill([DD)V"), cancellable = true)
     private void yungsapi_fillArray(final double[] output, final DensityFunction.ContextProvider contextProvider, final CallbackInfo ci) {
-        if (this.enhancedPieceIterator != null && this.enhancedJunctionIterator != null
-            && (this.enhancedPieceIterator.hasNext() || this.enhancedJunctionIterator.hasNext())) {
+        if (this.enhancedPieces != null && this.enhancedJunctions != null
+            && (!this.enhancedPieces.isEmpty() || !this.enhancedJunctions.isEmpty())) {
             DensityFunctions.BeardifierOrMarker.super.fillArray(output, contextProvider);
             ci.cancel();
         }
@@ -59,22 +60,22 @@ public abstract class BeardifierMixin implements EnhancedBeardifierData, Density
 
     @Override
     public ObjectListIterator<EnhancedBeardifierRigid> yungsapi_getEnhancedPieceIterator() {
-        return this.enhancedPieceIterator;
+        return this.enhancedPieces.iterator();
     }
 
     @Override
-    public void yungsapi_setEnhancedPieceIterator(ObjectListIterator<EnhancedBeardifierRigid> enhancedPieceIterator) {
-        this.enhancedPieceIterator = enhancedPieceIterator;
+    public void yungsapi_setEnhancedPieces(ObjectList<EnhancedBeardifierRigid> enhancedPieces) {
+        this.enhancedPieces = enhancedPieces;
     }
 
     @Override
     public ObjectListIterator<EnhancedJigsawJunction> yungsapi_getEnhancedJunctionIterator() {
-        return enhancedJunctionIterator;
+        return enhancedJunctions.iterator();
     }
 
     @Override
-    public void yungsapi_setEnhancedJunctionIterator(ObjectListIterator<EnhancedJigsawJunction> enhancedJunctionIterator) {
-        this.enhancedJunctionIterator = enhancedJunctionIterator;
+    public void yungsapi_setEnhancedJunctions(ObjectList<EnhancedJigsawJunction> enhancedJunctions) {
+        this.enhancedJunctions = enhancedJunctions;
     }
 
     @Override
