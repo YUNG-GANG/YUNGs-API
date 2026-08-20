@@ -6,11 +6,9 @@ import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.NoiseChunkAccessor;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.YungJigsawStructure;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawPoolElement;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.adaptations.EnhancedTerrainAdaptation;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.adaptations.NoneAdaptation;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.aquiferoverride.AquiferOverride;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.aquiferoverride.AquiferOverrideMask;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.aquiferoverride.AquiferOverrideMaskSupplier;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.aquiferoverride.NoneAquiferOverride;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.core.Direction;
@@ -83,7 +81,7 @@ public class EnhancedBeardifierHelper {
                     }
 
                     // If no terrain adaptation for this piece, we can ignore it
-                    if (pieceTerrainAdaptation == NoneAdaptation.INSTANCE) continue;
+                    if (pieceTerrainAdaptation == EnhancedTerrainAdaptation.NONE) continue;
 
                     int pieceKernelRadius = pieceTerrainAdaptation.getKernelRadius();
 
@@ -111,7 +109,7 @@ public class EnhancedBeardifierHelper {
                             enhancedJunctionList.add(new EnhancedJigsawJunction(jigsawJunction, pieceTerrainAdaptation));
                         }
                     }
-                } else if (structureTerrainAdaptation != NoneAdaptation.INSTANCE) {
+                } else if (structureTerrainAdaptation != EnhancedTerrainAdaptation.NONE) {
                     enhancedBeardifierRigidList.add(new EnhancedBeardifierRigid(
                             nearbyPiece.getBoundingBox(),
                             structureTerrainAdaptation,
@@ -138,7 +136,7 @@ public class EnhancedBeardifierHelper {
         int x = ctx.blockX();
         int y = ctx.blockY();
         int z = ctx.blockZ();
-        AquiferOverride aquiferOverride = NoneAquiferOverride.INSTANCE;
+        AquiferOverride aquiferOverride = AquiferOverride.NONE;
 
         var pieceIterator = data.yungsapi_getEnhancedPieceIterator();
         while (pieceIterator != null && pieceIterator.hasNext()) {
@@ -180,7 +178,7 @@ public class EnhancedBeardifierHelper {
 
             // Calculate density factor and add to density value
             double densityFactor = 0;
-            if (pieceTerrainAdaptation != NoneAdaptation.INSTANCE) {
+            if (pieceTerrainAdaptation != EnhancedTerrainAdaptation.NONE) {
                 densityFactor = pieceTerrainAdaptation.computeDensityFactor(
                         xDistanceToBoundingBox,
                         yDistanceToBoundingBox,
@@ -190,7 +188,7 @@ public class EnhancedBeardifierHelper {
             }
 
             density += densityFactor;
-            if (densityFactor != 0 && pieceTerrainAdaptation.getAquiferOverride() != NoneAquiferOverride.INSTANCE) {
+            if (densityFactor != 0 && pieceTerrainAdaptation.getAquiferOverride() != AquiferOverride.NONE) {
                 aquiferOverride = pieceTerrainAdaptation.getAquiferOverride();
             }
         }
@@ -216,14 +214,14 @@ public class EnhancedBeardifierHelper {
             ) * 0.4D;
 
             density += densityFactor;
-            if (densityFactor != 0 && pieceTerrainAdaptation.getAquiferOverride() != NoneAquiferOverride.INSTANCE) {
+            if (densityFactor != 0 && pieceTerrainAdaptation.getAquiferOverride() != AquiferOverride.NONE) {
                 aquiferOverride = pieceTerrainAdaptation.getAquiferOverride();
             }
         }
 
         // Set the aquifer override mask for this position if the density was modified and if
         // the relevant EnhancedTerrainAdaptation specifies that it should override aquifer liquids.
-        if (aquiferOverride != NoneAquiferOverride.INSTANCE) {
+        if (aquiferOverride != AquiferOverride.NONE) {
             updateAquiferOverrideMask(data, aquiferOverride, x, y, z);
         }
 

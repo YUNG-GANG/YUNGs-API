@@ -2,14 +2,13 @@ package com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.a
 
 import com.mojang.serialization.MapCodec;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.aquiferoverride.AquiferOverride;
-import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.aquiferoverride.NoneAquiferOverride;
 
 public class NoneAdaptation extends EnhancedTerrainAdaptation {
-    public static final NoneAdaptation INSTANCE = new NoneAdaptation();
+    private static final NoneAdaptation INSTANCE = new NoneAdaptation();
     public static final MapCodec<NoneAdaptation> CODEC = MapCodec.unit(() -> INSTANCE);
 
-    private NoneAdaptation() {
-        super(0, 0, TerrainAction.NONE, TerrainAction.NONE, 0, Padding.ZERO, NoneAquiferOverride.INSTANCE);
+    public NoneAdaptation() {
+        super(0, 0, TerrainAction.NONE, TerrainAction.NONE, 0, Padding.ZERO, AquiferOverride.NONE);
     }
 
     @Override

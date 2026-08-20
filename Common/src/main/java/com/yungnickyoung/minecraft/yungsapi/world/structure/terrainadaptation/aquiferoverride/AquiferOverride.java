@@ -11,8 +11,13 @@ import org.jetbrains.annotations.ApiStatus;
  * WARNING -- THIS IS AN EXPERIMENTAL FEATURE. BEHAVIOR MAY BE INCONSISTENT, ESPECIALLY IF MIXING DIFFERENT AQUIFER OVERRIDES WITHIN THE SAME STRUCTURE.
  */
 @ApiStatus.Experimental
-public interface AquiferOverride {
+public abstract class AquiferOverride {
+    public static final AquiferOverride NONE = new NoneAquiferOverride();
+
     abstract public AquiferOverrideType<?> type();
 
     abstract public BlockState getBlockState(BlockState defaultBlockState);
+
+    AquiferOverride() {
+    }
 }

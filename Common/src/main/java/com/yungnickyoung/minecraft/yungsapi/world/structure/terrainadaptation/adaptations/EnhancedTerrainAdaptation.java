@@ -15,6 +15,8 @@ import org.jetbrains.annotations.NotNull;
  * Uses a 3-D kernel matrix to smoothly generate noise values for use when generating terrain arround structures.
  */
 public abstract class EnhancedTerrainAdaptation {
+    public static final EnhancedTerrainAdaptation NONE = new NoneAdaptation();
+
     /**
      * The action to perform on the top of the structure piece.
      * "Top" refers to any blocks above the piece's bounding box minimum y-value.
@@ -55,7 +57,7 @@ public abstract class EnhancedTerrainAdaptation {
 
     /**
      * Whether to keep liquid blocks placed by aquifers in block positions that are also carved by the enhanced terrain adaptation.
-     * If unset (or set to NoneAquiferOverride.INSTANCE), liquid blocks will be unmodified. This is vanilla behavior.
+     * If unset (or set to AquiferOverride.NONE), liquid blocks will be unmodified. This is vanilla behavior.
      * This field can be useful for underground structures that use a carving TerrainAction without a wall/ceiling.
      */
     private final AquiferOverride aquiferOverride;

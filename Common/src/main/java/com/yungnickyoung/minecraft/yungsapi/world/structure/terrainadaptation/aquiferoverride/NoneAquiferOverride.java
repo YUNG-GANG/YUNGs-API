@@ -3,10 +3,13 @@ package com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.a
 import com.mojang.serialization.MapCodec;
 import net.minecraft.world.level.block.state.BlockState;
 
-public enum NoneAquiferOverride implements AquiferOverride {
-    INSTANCE,
-    ;
+public class NoneAquiferOverride extends AquiferOverride {
+    private static final NoneAquiferOverride INSTANCE = new NoneAquiferOverride();
     public static final MapCodec<NoneAquiferOverride> CODEC = MapCodec.unit(() -> INSTANCE);
+
+    public NoneAquiferOverride() {
+        super();
+    }
 
     @Override
     public AquiferOverrideType<?> type() {

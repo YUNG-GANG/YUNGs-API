@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.state.BlockState;
 /**
  * Replaces the aquifer liquid blocks with a specified block state.
  */
-public class ReplaceAquiferOverride implements AquiferOverride {
+public class ReplaceAquiferOverride extends AquiferOverride {
     public static final MapCodec<ReplaceAquiferOverride> CODEC = RecordCodecBuilder.mapCodec((builder) -> builder
             .group(
                     BlockState.CODEC.fieldOf("block_state").forGetter(aquiferOverride -> aquiferOverride.replaceBlockState))
@@ -16,6 +16,7 @@ public class ReplaceAquiferOverride implements AquiferOverride {
     private final BlockState replaceBlockState;
 
     public ReplaceAquiferOverride(BlockState replaceBlockState) {
+        super();
         this.replaceBlockState = replaceBlockState;
     }
 
