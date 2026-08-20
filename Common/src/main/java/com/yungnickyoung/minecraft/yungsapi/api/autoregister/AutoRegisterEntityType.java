@@ -1,9 +1,10 @@
 package com.yungnickyoung.minecraft.yungsapi.api.autoregister;
 
-import com.google.common.collect.ImmutableSet;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterEntry;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.DependantName;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.Entity;
@@ -16,6 +17,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.flag.FeatureFlag;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.Vec3;
@@ -71,7 +73,7 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
     public static class Builder<T extends Entity> {
         private final EntityType.EntityFactory<T> factory;
         private final MobCategory category;
-        private ImmutableSet<Block> immuneTo = ImmutableSet.of();
+        private TagKey<Block> immuneTo = TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("yungsapi", "none"));
         private boolean serialize = true;
         private boolean summon = true;
         private boolean fireImmune;
@@ -169,8 +171,8 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
             return this;
         }
 
-        public Builder<T> immuneTo(Block... blocks) {
-            this.immuneTo = ImmutableSet.copyOf(blocks);
+        public Builder<T> immuneTo(TagKey<Block> immuneTo) {
+            this.immuneTo = immuneTo;
             return this;
         }
 
