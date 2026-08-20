@@ -92,7 +92,7 @@ public class Banner {
         private TextColor  customColor;
         private @Nullable Boolean    showPatternsInTooltip = null;
         private @Nullable Rarity     rarity = null;
-        private           BlockState state  = Blocks.BLACK_WALL_BANNER.defaultBlockState();
+        private           BlockState state  = Blocks.WALL_BANNER.black().defaultBlockState();
 
         public Builder() {
         }
