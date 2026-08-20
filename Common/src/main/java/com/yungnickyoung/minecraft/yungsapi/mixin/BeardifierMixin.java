@@ -14,30 +14,34 @@ import net.minecraft.world.level.levelgen.Beardifier;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
 import net.minecraft.world.level.levelgen.NoiseChunk;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Injects behavior required for using {@link EnhancedTerrainAdaptation} with {@link YungJigsawStructure}.
+ * <p>
+ * Uses a higher priority so that it applies after <a href="https://github.com/FinnSetchell/MoogsStructureLib/blob/1.21.11/common/src/main/java/com/finndog/moogs_structures/mixins/terrainadaptation/BeardifierMixin.java#L32">
+ * moog's structure lib's similar mixin</a>. Since moog wraps the beardifier in a new one and we modify it in-place, applying our
+ * change after moog's allows both mod's changes to apply.
  */
-@Mixin(Beardifier.class)
+@Mixin(value = Beardifier.class, priority = 1100)
 public abstract class BeardifierMixin implements EnhancedBeardifierData, DensityFunctions.BeardifierOrMarker {
     @Unique
-    private ObjectList<EnhancedJigsawJunction> enhancedJunctions;
+    private @Nullable ObjectList<EnhancedJigsawJunction> enhancedJunctions;
 
     @Unique
-    private ObjectList<EnhancedBeardifierRigid> enhancedPieces;
+    private @Nullable ObjectList<EnhancedBeardifierRigid> enhancedPieces;
 
     @Unique
-    private NoiseChunk noiseChunk;
+    private @Nullable NoiseChunk noiseChunk;
 
-    @Inject(method = "forStructuresInChunk", at = @At("RETURN"))
-    private static Beardifier yungsapi_supportCustomTerrainAdaptations(final StructureManager structureManager, final ChunkPos chunkPos, final CallbackInfoReturnable<Beardifier> cir) {
-        return EnhancedBeardifierHelper.forStructuresInChunk(structureManager, chunkPos, cir.getReturnValue());
+    @Inject(method = "forStructuresInChunk", at = @At("RETURN"), cancellable = true)
+    private static void yungsapi_supportCustomTerrainAdaptations(final StructureManager structureManager, final ChunkPos chunkPos, final CallbackInfoReturnable<Beardifier> cir) {
+        cir.setReturnValue(EnhancedBeardifierHelper.forStructuresInChunk(structureManager, chunkPos, cir.getReturnValue()));
     }
 
     @Inject(method = "compute", at = @At("RETURN"), cancellable = true)
@@ -48,8 +52,8 @@ public abstract class BeardifierMixin implements EnhancedBeardifierData, Density
     }
 
     @Override
-    public ObjectListIterator<EnhancedBeardifierRigid> yungsapi_getEnhancedPieceIterator() {
-        return this.enhancedPieces.iterator();
+    public @Nullable ObjectListIterator<EnhancedBeardifierRigid> yungsapi_getEnhancedPieceIterator() {
+        return this.enhancedPieces == null ? null : this.enhancedPieces.iterator();
     }
 
     @Override
@@ -58,8 +62,8 @@ public abstract class BeardifierMixin implements EnhancedBeardifierData, Density
     }
 
     @Override
-    public ObjectListIterator<EnhancedJigsawJunction> yungsapi_getEnhancedJunctionIterator() {
-        return enhancedJunctions.iterator();
+    public @Nullable ObjectListIterator<EnhancedJigsawJunction> yungsapi_getEnhancedJunctionIterator() {
+        return this.enhancedJunctions == null ? null : this.enhancedJunctions.iterator();
     }
 
     @Override
@@ -68,7 +72,7 @@ public abstract class BeardifierMixin implements EnhancedBeardifierData, Density
     }
 
     @Override
-    public NoiseChunk yungsapi_getNoiseChunk() {
+    public @Nullable NoiseChunk yungsapi_getNoiseChunk() {
         return this.noiseChunk;
     }
 
