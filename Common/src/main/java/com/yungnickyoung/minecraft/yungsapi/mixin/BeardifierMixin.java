@@ -16,6 +16,8 @@ import net.minecraft.world.level.levelgen.Beardifier;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
 import net.minecraft.world.level.levelgen.NoiseChunk;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,15 +29,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * Injects behavior required for using {@link EnhancedTerrainAdaptation} with {@link YungJigsawStructure}.
  */
 @Mixin(Beardifier.class)
+@NullMarked
 public abstract class BeardifierMixin implements EnhancedBeardifierData, DensityFunctions.BeardifierOrMarker {
     @Unique
-    private ObjectList<EnhancedJigsawJunction> enhancedJunctions;
+    private @Nullable ObjectList<EnhancedJigsawJunction> enhancedJunctions;
 
     @Unique
-    private ObjectList<EnhancedBeardifierRigid> enhancedPieces;
+    private @Nullable ObjectList<EnhancedBeardifierRigid> enhancedPieces;
 
     @Unique
-    private NoiseChunk noiseChunk;
+    private @Nullable NoiseChunk noiseChunk;
 
     @WrapMethod(method = "forStructuresInChunk")
     private static Beardifier yungsapi_supportCustomTerrainAdaptations(final StructureManager structureManager, final ChunkPos chunkPos, final Operation<Beardifier> original) {
@@ -59,8 +62,8 @@ public abstract class BeardifierMixin implements EnhancedBeardifierData, Density
     }
 
     @Override
-    public ObjectListIterator<EnhancedBeardifierRigid> yungsapi_getEnhancedPieceIterator() {
-        return this.enhancedPieces.iterator();
+    public @Nullable ObjectListIterator<EnhancedBeardifierRigid> yungsapi_getEnhancedPieceIterator() {
+        return this.enhancedPieces == null ? null : this.enhancedPieces.iterator();
     }
 
     @Override
@@ -69,8 +72,8 @@ public abstract class BeardifierMixin implements EnhancedBeardifierData, Density
     }
 
     @Override
-    public ObjectListIterator<EnhancedJigsawJunction> yungsapi_getEnhancedJunctionIterator() {
-        return enhancedJunctions.iterator();
+    public @Nullable ObjectListIterator<EnhancedJigsawJunction> yungsapi_getEnhancedJunctionIterator() {
+        return this.enhancedJunctions == null ? null : this.enhancedJunctions.iterator();
     }
 
     @Override
@@ -79,7 +82,7 @@ public abstract class BeardifierMixin implements EnhancedBeardifierData, Density
     }
 
     @Override
-    public NoiseChunk yungsapi_getNoiseChunk() {
+    public @Nullable NoiseChunk yungsapi_getNoiseChunk() {
         return this.noiseChunk;
     }
 
