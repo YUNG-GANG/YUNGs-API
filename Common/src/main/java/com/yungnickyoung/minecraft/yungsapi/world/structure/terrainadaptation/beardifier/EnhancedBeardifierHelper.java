@@ -1,6 +1,5 @@
 package com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.beardifier;
 
-import com.yungnickyoung.minecraft.yungsapi.YungsApiCommon;
 import com.yungnickyoung.minecraft.yungsapi.mixin.BeardifierMixin;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.BeardifierAccessor;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.NoiseChunkAccessor;
