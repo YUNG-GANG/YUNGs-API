@@ -38,7 +38,7 @@ import java.util.stream.Stream;
  *     This is used somewhat like {@link com.mojang.serialization.codecs.RecordCodecBuilder}. You can create a StructureEntityProcessorBuilder
  *     which extracts some things from the entity NBT and does something with them like this:
  * </p>
- * <pre>{@code
+ * {@snippet :
  * processor(instance -> instance.group(
  *     extract(EntityEquipment.CODEC.fieldOf("equipment"))
  *            .map(eq -> eq.get(EquipmentSlot.HEAD).getItem())
@@ -48,7 +48,7 @@ import java.util.stream.Stream;
  *         return valueOutput -> valueOutput.putInt("my_value", random.nextInt(5));
  *     }
  * }));
- * }</pre>
+ * }
  * <p>
  *     Above, we can see how a processor can:
  * </p>
