@@ -22,7 +22,10 @@
     "accessor.NoiseChunkAccessor",
     "accessor.PotionAccessor",
     "accessor.SinglePoolElementAccessor",
-    "accessor.StructureTemplatePoolAccessor"
+    "accessor.StructureTemplatePoolAccessor",
+    "locate.ChunkGeneratorMixin",
+    "locate.LocateCommandMixin",
+    "locate.ServerLevelMixin"
   ],
   "injectors": {
     "defaultRequire": 1
