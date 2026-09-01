@@ -1,5 +1,9 @@
 package com.yungnickyoung.minecraft.yungsapi.math;
 
+/**
+ * @deprecated use {@link org.joml.Vector3f}
+ */
+@Deprecated
 public class Vector3f {
     public float x, y, z;
 

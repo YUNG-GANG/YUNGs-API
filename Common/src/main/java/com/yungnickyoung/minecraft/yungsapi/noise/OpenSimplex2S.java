@@ -175,7 +175,7 @@ public class OpenSimplex2S implements INoiseLibrary {
         return noise3_BCC(xr, yr, zr);
     }
 
-    public float GetNoise(float x, float y, float z) {
+    @Override public float GetNoise(float x, float y, float z) {
         x *= frequency;
         y *= frequency;
         z *= frequency;

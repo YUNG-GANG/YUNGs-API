@@ -28,9 +28,6 @@
 
 package com.yungnickyoung.minecraft.yungsapi.noise;
 
-import com.yungnickyoung.minecraft.yungsapi.math.Vector2f;
-import com.yungnickyoung.minecraft.yungsapi.math.Vector3f;
-
 public class FastNoise implements INoiseLibrary {
     public enum NoiseType {Value, ValueFractal, Perlin, PerlinFractal, Simplex, SimplexFractal, Cellular, WhiteNoise, Cubic, CubicFractal}
     public enum Interp {Linear, Hermite, Quintic}
@@ -428,6 +425,7 @@ public class FastNoise implements INoiseLibrary {
         return ((hash & 4) == 0 ? -a : a) + ((hash & 2) == 0 ? -b : b) + ((hash & 1) == 0 ? -c : c);
     }
 
+    @Override
     public float GetNoise(float x, float y, float z) {
         x *= m_frequency;
         y *= m_frequency;
@@ -2049,11 +2047,21 @@ public class FastNoise implements INoiseLibrary {
         }
     }
 
-    public void GradientPerturb(Vector3f v3) {
+    @Deprecated
+    public void GradientPerturb(com.yungnickyoung.minecraft.yungsapi.math.Vector3f v3) {
+        SingleGradientPerturb(m_seed, m_gradientPerturbAmp, m_frequency, new org.joml.Vector3f(v3.x, v3.y, v3.z));
+    }
+
+    public void GradientPerturb(org.joml.Vector3f v3) {
         SingleGradientPerturb(m_seed, m_gradientPerturbAmp, m_frequency, v3);
     }
 
-    public void GradientPerturbFractal(Vector3f v3) {
+    @Deprecated
+    public void GradientPerturbFractal(com.yungnickyoung.minecraft.yungsapi.math.Vector3f v3) {
+        GradientPerturbFractal(new org.joml.Vector3f(v3.x, v3.y, v3.z));
+    }
+
+    public void GradientPerturbFractal(org.joml.Vector3f v3) {
         int seed = m_seed;
         float amp = m_gradientPerturbAmp * m_fractalBounding;
         float freq = m_frequency;
@@ -2067,7 +2075,7 @@ public class FastNoise implements INoiseLibrary {
         }
     }
 
-    private void SingleGradientPerturb(int seed, float perturbAmp, float frequency, Vector3f v3) {
+    private void SingleGradientPerturb(int seed, float perturbAmp, float frequency, org.joml.Vector3f v3) {
         float xf = v3.x * frequency;
         float yf = v3.y * frequency;
         float zf = v3.z * frequency;
@@ -2136,11 +2144,21 @@ public class FastNoise implements INoiseLibrary {
         v3.z += Lerp(lz0y, Lerp(lz0x, lz1x, ys), zs) * perturbAmp;
     }
 
-    public void GradientPerturb(Vector2f v2) {
+    @Deprecated
+    public void GradientPerturb(com.yungnickyoung.minecraft.yungsapi.math.Vector2f v2) {
+        GradientPerturb(new org.joml.Vector2f(v2.x, v2.y));
+    }
+
+    public void GradientPerturb(org.joml.Vector2f v2) {
         SingleGradientPerturb(m_seed, m_gradientPerturbAmp, m_frequency, v2);
     }
 
-    public void GradientPerturbFractal(Vector2f v2) {
+    @Deprecated
+    public void GradientPerturbFractal(com.yungnickyoung.minecraft.yungsapi.math.Vector2f v2) {
+        GradientPerturbFractal(new org.joml.Vector2f(v2.x, v2.y));
+    }
+
+    public void GradientPerturbFractal(org.joml.Vector2f v2) {
         int seed = m_seed;
         float amp = m_gradientPerturbAmp * m_fractalBounding;
         float freq = m_frequency;
@@ -2154,7 +2172,7 @@ public class FastNoise implements INoiseLibrary {
         }
     }
 
-    private void SingleGradientPerturb(int seed, float perturbAmp, float frequency, Vector2f v2) {
+    private void SingleGradientPerturb(int seed, float perturbAmp, float frequency, org.joml.Vector2f v2) {
         float xf = v2.x * frequency;
         float yf = v2.y * frequency;
 

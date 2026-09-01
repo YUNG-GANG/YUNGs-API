@@ -7,7 +7,9 @@ import net.minecraft.world.level.block.Rotation;
 /**
  * Similar to the BlockPos class, but only provides two axes (x and z).
  * Designed to work well with BlockPos.
+ * @deprecated use {@link net.minecraft.server.level.ColumnPos}
  */
+@Deprecated
 public class ColPos {
     protected int x, z;
 
