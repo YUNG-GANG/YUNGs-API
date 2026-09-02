@@ -1,6 +1,6 @@
 package com.yungnickyoung.minecraft.yungsapi.services;
 
-import com.yungnickyoung.minecraft.yungsapi.api.world.processor.StructureEntityProcessorBuilder;
+import com.yungnickyoung.minecraft.yungsapi.api.world.structure.processor.StructureEntityProcessorBuilder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;

@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.yungsapi.api.world.structure;
+package com.yungnickyoung.minecraft.yungsapi.api.world.structure.locate;
 
 import com.mojang.datafixers.util.Either;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.locate.LocateReplacerImpl;

@@ -1,7 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.services;
 
 import com.mojang.serialization.MapCodec;
-import com.yungnickyoung.minecraft.yungsapi.api.world.processor.StructureEntityProcessorBuilder;
+import com.yungnickyoung.minecraft.yungsapi.api.world.structure.processor.StructureEntityProcessorBuilder;
 import com.yungnickyoung.minecraft.yungsapi.world.processor.StructureEntityProcessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.ProblemReporter;

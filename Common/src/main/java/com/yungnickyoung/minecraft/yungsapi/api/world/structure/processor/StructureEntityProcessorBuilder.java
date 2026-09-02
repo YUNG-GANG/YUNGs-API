@@ -1,4 +1,4 @@
-package com.yungnickyoung.minecraft.yungsapi.api.world.processor;
+package com.yungnickyoung.minecraft.yungsapi.api.world.structure.processor;
 
 import com.mojang.datafixers.kinds.App;
 import com.mojang.datafixers.kinds.Applicative;

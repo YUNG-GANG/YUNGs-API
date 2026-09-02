@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.datafixers.util.Either;
+import com.yungnickyoung.minecraft.yungsapi.api.world.structure.locate.LocateReplacer;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.locate.LocateReplacerImpl;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
@@ -22,7 +23,7 @@ import java.util.Optional;
 
 /**
  * Overrides behavior of findNearestMapStructure for replaced vanilla structures
- * @see com.yungnickyoung.minecraft.yungsapi.api.world.structure.LocateReplacer
+ * @see LocateReplacer
  */
 @Mixin(ServerLevel.class)
 public class ServerLevelMixin {

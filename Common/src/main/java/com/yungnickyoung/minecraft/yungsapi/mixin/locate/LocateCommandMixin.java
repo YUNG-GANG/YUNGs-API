@@ -1,6 +1,7 @@
 package com.yungnickyoung.minecraft.yungsapi.mixin.locate;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.yungnickyoung.minecraft.yungsapi.api.world.structure.locate.LocateReplacer;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.locate.LocateReplacerImpl;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.ResourceOrTagKeyArgument;
@@ -13,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Overrides behavior of /locate for replaced vanilla structures
- * @see com.yungnickyoung.minecraft.yungsapi.api.world.structure.LocateReplacer
+ * @see LocateReplacer
  */
 @Mixin(LocateCommand.class)
 public abstract class LocateCommandMixin {
