@@ -5,6 +5,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.datafixers.util.Either;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
@@ -18,7 +19,9 @@ import java.util.function.Supplier;
 public class LocateReplacerImpl {
     public static final LocateReplacerImpl INSTANCE = new LocateReplacerImpl();
     private static final DynamicCommandExceptionType REPLACED_COMMAND_EXCEPTION = new DynamicCommandExceptionType(o ->
-            Component.translatable("command.yungsapi.locate.replaced", o));
+            Component.translatable("command.yungsapi.locate.replaced",
+                    Component.literal("/locate structure "+o).withStyle(s -> s.withUnderlined(true)
+                            .withClickEvent(new ClickEvent.RunCommand("locate structure "+o)))));
     private final Map<ResourceKey<Structure>, Replacement> keyReplacements = new HashMap<>();
     private final Map<TagKey<Structure>, Replacement> tagReplacements = new HashMap<>();
 

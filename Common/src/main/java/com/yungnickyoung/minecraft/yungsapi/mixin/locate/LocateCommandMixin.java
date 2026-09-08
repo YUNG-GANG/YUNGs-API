@@ -19,9 +19,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(LocateCommand.class)
 public abstract class LocateCommandMixin {
     @Inject(method = "locateStructure", at = @At(value = "HEAD"))
-    private static void betterdeserttemples_overrideLocateVanillaPyramid(CommandSourceStack cmdSource,
-                                                     ResourceOrTagKeyArgument.Result<Structure> result,
-                                                     CallbackInfoReturnable<Integer> ci) throws CommandSyntaxException {
+    private static void yungsapi$overrideLocateVanillaStructure(CommandSourceStack cmdSource,
+                                                                ResourceOrTagKeyArgument.Result<Structure> result,
+                                                                CallbackInfoReturnable<Integer> ci) throws CommandSyntaxException {
         var replacement = LocateReplacerImpl.INSTANCE.getReplacement(result.unwrap());
         if (replacement.isPresent()) {
             throw LocateReplacerImpl.INSTANCE.makeCommandException(replacement.get());
