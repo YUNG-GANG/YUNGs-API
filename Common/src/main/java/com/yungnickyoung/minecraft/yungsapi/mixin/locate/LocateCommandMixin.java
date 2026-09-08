@@ -12,6 +12,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Optional;
+
 /**
  * Overrides behavior of /locate for replaced vanilla structures
  * @see LocateReplacer
@@ -22,9 +24,9 @@ public abstract class LocateCommandMixin {
     private static void yungsapi$overrideLocateVanillaStructure(CommandSourceStack cmdSource,
                                                                 ResourceOrTagKeyArgument.Result<Structure> result,
                                                                 CallbackInfoReturnable<Integer> ci) throws CommandSyntaxException {
-        var replacement = LocateReplacerImpl.INSTANCE.getReplacement(result.unwrap());
-        if (replacement.isPresent()) {
-            throw LocateReplacerImpl.INSTANCE.makeCommandException(replacement.get());
+        Optional<CommandSyntaxException> exception = LocateReplacerImpl.INSTANCE.getCommandException(result.unwrap());
+        if (exception.isPresent()) {
+            throw exception.get();
         }
     }
 }

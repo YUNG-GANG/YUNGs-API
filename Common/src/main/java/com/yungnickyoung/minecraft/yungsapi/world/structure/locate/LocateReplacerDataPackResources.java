@@ -46,7 +46,7 @@ public class LocateReplacerDataPackResources extends AbstractPackResources {
     }
 
     private TagFile makeTagFile() {
-        List<TagEntry> entries = LocateReplacerImpl.INSTANCE.getReplacedStructures()
+        List<TagEntry> entries = LocateReplacerImpl.INSTANCE.getReplacedOrRemovedStructures()
                 .map(rk -> TagEntry.optionalElement(rk.identifier()))
                 .toList();
         return new TagFile(entries, false);
