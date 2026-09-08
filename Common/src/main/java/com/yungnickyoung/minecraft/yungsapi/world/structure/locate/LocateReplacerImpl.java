@@ -11,10 +11,9 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.levelgen.structure.Structure;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public class LocateReplacerImpl {
     public static final LocateReplacerImpl INSTANCE = new LocateReplacerImpl();
@@ -61,6 +60,12 @@ public class LocateReplacerImpl {
 
     public CommandSyntaxException makeCommandException(final Either<ResourceKey<Structure>, TagKey<Structure>> replacement) {
         return REPLACED_COMMAND_EXCEPTION.create(replacement.map(rk -> rk.identifier().toString(), tk -> "#"+tk.location()));
+    }
+
+    public Stream<ResourceKey<Structure>> getReplacedStructures() {
+        return this.keyReplacements.entrySet().stream()
+                .filter(e -> e.getValue().isEnabled().get())
+                .map(Map.Entry::getKey);
     }
 
     private static HolderSet<Structure> toHolderSet(final HolderLookup.Provider registries, Either<ResourceKey<Structure>, TagKey<Structure>> key) {

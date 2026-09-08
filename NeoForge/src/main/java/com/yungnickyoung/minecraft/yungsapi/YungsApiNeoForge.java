@@ -1,10 +1,13 @@
 package com.yungnickyoung.minecraft.yungsapi;
 
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
+import com.yungnickyoung.minecraft.yungsapi.world.structure.locate.LocateReplacerDataPackResources;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.packs.PackType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +24,14 @@ public class YungsApiNeoForge {
         YungsApiNeoForge.loadingContextEventBus = eventBus;
 
         YungsApiCommon.init();
+
+        eventBus.addListener(YungsApiNeoForge::addPackSource);
+    }
+
+    private static void addPackSource(AddPackFindersEvent event) {
+        if (event.getPackType() == PackType.SERVER_DATA) {
+            event.addRepositorySource(new LocateReplacerDataPackResources.Source());
+        }
     }
 
     @SuppressWarnings("unchecked")
