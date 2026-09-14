@@ -1,0 +1,5 @@
+{
+  "command.yungsapi.locate.replaced": "Use %1$s instead!",
+  "dataPack.yungsapi.locate_replacer.name": "YUNG's API Replaced Vanilla Structures",
+  "dataPack.yungsapi.locate_replacer.description": "Hides replaced vanilla structures from structure locator mods."
+}
