@@ -135,7 +135,7 @@ modrinth {
     versionNumber = version
     versionName = "[${mc_version}] v${rawVersion} (Forge)"
     versionType = "release"
-    uploadFile = jarJar
+    uploadFile = tasks.jarJar.archiveFile
     gameVersions = compatibleVersionsList
     debugMode = debug_publish.toBoolean()
     changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "No changelog provided"
