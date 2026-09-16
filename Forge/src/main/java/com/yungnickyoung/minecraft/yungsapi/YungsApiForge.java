@@ -5,12 +5,13 @@ import net.minecraft.server.packs.PackType;
 import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(YungsApiCommon.MOD_ID)
 public class YungsApiForge {
-    public YungsApiForge(IEventBus eventBus) {
+    public YungsApiForge(FMLJavaModLoadingContext context) {
         YungsApiCommon.init();
-        eventBus.addListener(YungsApiForge::addPackSource);
+        context.getModEventBus().addListener(YungsApiForge::addPackSource);
     }
 
     private static void addPackSource(AddPackFindersEvent event) {

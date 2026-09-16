@@ -16,6 +16,8 @@ jar {
     }
 }
 
+jarJar.enable()
+
 minecraft {
     mappings channel: 'official', version: mc_version
 
@@ -72,6 +74,8 @@ minecraft {
     }
 }
 
+tasks.build.dependsOn(tasks.jarJar)
+
 sourceSets.main.resources.srcDir 'src/generated/resources'
 
 dependencies {
@@ -108,12 +112,12 @@ sourceSets.each {
 
 String[] compatibleVersions = project.compatible_versions.split(',')
 task publishCurseForgeForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
-    dependsOn(tasks.jar)
+    dependsOn(tasks.jarJar)
     apiToken = curseforgeApiKey
 
     debugMode = debug_publish.toBoolean()
 
-    def mainFile = upload(curseforge_project_id_forge, tasks.jar.archiveFile)
+    def mainFile = upload(curseforge_project_id_forge, tasks.jarJar.archiveFile)
     mainFile.changelogType = 'markdown'
     mainFile.changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "No changelog provided"
     mainFile.releaseType = 'release'
@@ -131,9 +135,9 @@ modrinth {
     versionNumber = version
     versionName = "[${mc_version}] v${rawVersion} (Forge)"
     versionType = "release"
-    uploadFile = jar
+    uploadFile = jarJar
     gameVersions = compatibleVersionsList
     debugMode = debug_publish.toBoolean()
     changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "No changelog provided"
 }
-tasks.modrinth.dependsOn(tasks.jar)
+tasks.modrinth.dependsOn(tasks.jarJar)
