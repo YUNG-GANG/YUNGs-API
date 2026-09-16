@@ -15,6 +15,7 @@ dependencies {
     compileOnly group: 'org.spongepowered', name: 'mixin', version: '0.8.5'
     compileOnly group: 'org.ow2.asm', name: 'asm-tree', version: '9.4'
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${mixinextras_version_forge}"))
 }
 
 configurations {
