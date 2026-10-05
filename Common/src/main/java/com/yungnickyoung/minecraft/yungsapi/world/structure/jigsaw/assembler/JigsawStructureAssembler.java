@@ -244,8 +244,8 @@ public class JigsawStructureAssembler {
         MutableObject<BoxOctree> pieceOctree = pieceEntry.getBoxOctree();
 
         // Gather jigsaw block information
-        Direction direction = JigsawBlock.getFrontFacing(jigsawBlockInfo.info().state());
-        BlockPos jigsawBlockTargetPos = jigsawBlockInfo.info().pos().relative(direction);
+        Direction direction = JigsawBlock.getFrontFacing(jigsawBlockInfo.state());
+        BlockPos jigsawBlockTargetPos = jigsawBlockInfo.pos().relative(direction);
 
         // Adjustments for if the target block position is inside the current piece
         boolean isTargetInsideCurrentPiece = pieceBoundingBox.isInside(jigsawBlockTargetPos);
@@ -261,7 +261,7 @@ public class JigsawStructureAssembler {
                 jigsawBlockInfo,
                 jigsawBlockTargetPos,
                 pieceBoundingBox.minY(),
-                jigsawBlockInfo.info().pos(),
+                jigsawBlockInfo.pos(),
                 pieceOctree,
                 pieceEntry,
                 pieceEntry.getDepth());
@@ -398,7 +398,7 @@ public class JigsawStructureAssembler {
                 int candidateHeightAdjustments = 0;
                 if (this.settings.useExpansionHack && tempCandidateBoundingBox.getYSpan() <= 16) {
                     candidateHeightAdjustments = candidateJigsawBlocks.stream().mapToInt((pieceCandidateJigsawBlock) -> {
-                        if (!tempCandidateBoundingBox.isInside(pieceCandidateJigsawBlock.info().pos().relative(JigsawBlock.getFrontFacing(pieceCandidateJigsawBlock.info().state())))) {
+                        if (!tempCandidateBoundingBox.isInside(pieceCandidateJigsawBlock.pos().relative(JigsawBlock.getFrontFacing(pieceCandidateJigsawBlock.state())))) {
                             return 0;
                         }
 
@@ -415,7 +415,7 @@ public class JigsawStructureAssembler {
                 for (StructureTemplate.JigsawBlockInfo candidateJigsawBlock : candidateJigsawBlocks) {
                     if (!JigsawBlock.canAttach(context.jigsawBlock, candidateJigsawBlock)) continue;
 
-                    BlockPos candidateJigsawBlockPos = candidateJigsawBlock.info().pos();
+                    BlockPos candidateJigsawBlockPos = candidateJigsawBlock.pos();
                     BlockPos candidateJigsawBlockRelativePos = context.jigsawBlockTargetPos.subtract(candidateJigsawBlockPos);
 
                     // Get the rotated bounding box for the piece, offset by the relative position difference
@@ -428,7 +428,7 @@ public class JigsawStructureAssembler {
                     // Determine how much the candidate jigsaw block is off in the y direction.
                     // This will be needed to offset the candidate piece so that the jigsaw blocks line up properly.
                     int candidateJigsawBlockRelativeY = candidateJigsawBlockPos.getY();
-                    int candidateJigsawYOffsetNeeded = jigsawBlockRelativeY - candidateJigsawBlockRelativeY + JigsawBlock.getFrontFacing(context.jigsawBlock.info().state()).getStepY();
+                    int candidateJigsawYOffsetNeeded = jigsawBlockRelativeY - candidateJigsawBlockRelativeY + JigsawBlock.getFrontFacing(context.jigsawBlock.state()).getStepY();
 
                     // Determine how much we need to offset the candidate piece itself in order to have the jigsaw blocks aligned.
                     // Depends on if the placement of both pieces is rigid or not

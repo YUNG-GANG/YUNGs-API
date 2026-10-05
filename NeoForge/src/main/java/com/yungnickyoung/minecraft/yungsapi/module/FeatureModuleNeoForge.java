@@ -9,6 +9,6 @@ import net.minecraft.core.registries.Registries;
  */
 public class FeatureModuleNeoForge {
     public static void processEntries() {
-        YungsApiNeoForge.loadingContextEventBus.addListener(YungsApiNeoForge.buildSimpleRegistrar(Registries.FEATURE, AutoRegistrationManager.FEATURES));
+        YungsApiNeoForge.loadingContextEventBus.addListener(YungsApiNeoForge.buildSimpleRegistrar(Registries.FEATURE_TYPE, AutoRegistrationManager.FEATURES));
     }
 }

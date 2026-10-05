@@ -87,7 +87,7 @@ public class YungJigsawFeatureElement extends YungJigsawPoolElement {
             Rotation rotation,
             RandomSource randomSource
     ) {
-        return List.of(StructureTemplate.JigsawBlockInfo.of(
+        return List.of(StructureTemplate.JigsawBlockInfo.parse(
                 new StructureTemplate.StructureBlockInfo(
                         blockPos,
                         Blocks.JIGSAW.defaultBlockState().setValue(JigsawBlock.ORIENTATION, FrontAndTop.fromFrontAndTop(Direction.DOWN, Direction.SOUTH)),

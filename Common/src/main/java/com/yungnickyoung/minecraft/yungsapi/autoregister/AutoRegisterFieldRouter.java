@@ -1,15 +1,16 @@
 package com.yungnickyoung.minecraft.yungsapi.autoregister;
 
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.*;
-import net.minecraft.advancements.CriterionTrigger;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.advancements.triggers.CriterionTrigger;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
+import net.minecraft.world.level.levelgen.placement.PlacementModifier;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
-import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
+import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementType;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
 
 public class AutoRegisterFieldRouter {
     public static void queueField(AutoRegisterField registerData) {
@@ -19,11 +20,11 @@ public class AutoRegisterFieldRouter {
             AutoRegistrationManager.STRUCTURE_POOL_ELEMENT_TYPES.add(registerData);
         } else if (registerData.object() instanceof StructurePieceType) {
             AutoRegistrationManager.STRUCTURE_PIECE_TYPES.add(registerData);
-        } else if (registerData.object() instanceof StructurePlacementType<?>) {
+        } else if (registerData.object() instanceof MapCodec<?> && StructurePlacement.class.isAssignableFrom(registerData.valueType())) {
             AutoRegistrationManager.STRUCTURE_PLACEMENT_TYPES.add(registerData);
-        } else if (registerData.object() instanceof Feature<?>) {
+        } else if (registerData.object() instanceof MapCodec<?> && Feature.class.isAssignableFrom(registerData.valueType())) {
             AutoRegistrationManager.FEATURES.add(registerData);
-        } else if (registerData.object() instanceof PlacementModifierType<?>) {
+        } else if (registerData.object() instanceof MapCodec<?> && PlacementModifier.class.isAssignableFrom(registerData.valueType())) {
             AutoRegistrationManager.PLACEMENT_MODIFIER_TYPES.add(registerData);
         } else if (registerData.object() instanceof CriterionTrigger) {
             AutoRegistrationManager.CRITERION_TRIGGERS.add(registerData);
@@ -31,7 +32,7 @@ public class AutoRegisterFieldRouter {
             AutoRegistrationManager.BLOCKS.add(registerData);
         } else if (registerData.object() instanceof AutoRegisterItem) {
             AutoRegistrationManager.ITEMS.add(registerData);
-        } else if (registerData.object() instanceof StructureProcessorType<?>) {
+        } else if (registerData.object() instanceof MapCodec<?> && StructureProcessor.class.isAssignableFrom(registerData.valueType())) {
             AutoRegistrationManager.STRUCTURE_PROCESSOR_TYPES.add(registerData);
         } else if (registerData.object() instanceof AutoRegisterBlockEntityType) {
             AutoRegistrationManager.BLOCK_ENTITY_TYPES.add(registerData);

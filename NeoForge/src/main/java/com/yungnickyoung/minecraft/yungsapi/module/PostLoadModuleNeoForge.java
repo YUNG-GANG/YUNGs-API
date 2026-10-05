@@ -37,9 +37,5 @@ public class PostLoadModuleNeoForge {
                 }
             });
         });
-
-        // Register compostables in case any were added during annotated method execution
-        // with AutoRegisterUtils#addCompostableItem
-        CompostModuleNeoForge.registerCompostables();
     }
 }

@@ -61,11 +61,10 @@ public class BiomeCondition extends StructureCondition {
 
         // Get the biome at the piece's position, including the offset
         BlockPos checkPos = pieceEntry.getPiece().getPosition().offset(this.offset);
-        Holder<Biome> biome = biomeSource.getNoiseBiome(
+        Holder<Biome> biome = biomeSource.createUncachedResolver(randomState).getNoiseBiome(
                 QuartPos.fromBlock(checkPos.getX()),
                 QuartPos.fromBlock(checkPos.getY()),
-                QuartPos.fromBlock(checkPos.getZ()),
-                randomState.sampler());
+                QuartPos.fromBlock(checkPos.getZ()));
         return biome.is(this.biomeTag);
     }
 }

@@ -43,8 +43,7 @@ public class EntityTypeModuleNeoForge {
         ENTITY_ATTRIBUTES.forEach((entityType, builderSupplier) -> {
             AttributeSupplier.Builder builder = builderSupplier.get();
             // Attach required Forge attributes and register
-            builder.add(NeoForgeMod.SWIM_SPEED.getDelegate())
-                    .add(NeoForgeMod.NAMETAG_DISTANCE.getDelegate());
+            builder.add(NeoForgeMod.SWIM_SPEED.getDelegate());
             event.put(entityType.get(), builder.build());
         });
     }

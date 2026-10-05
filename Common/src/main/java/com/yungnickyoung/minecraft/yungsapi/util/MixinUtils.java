@@ -79,7 +79,7 @@ public class MixinUtils {
 
             ChunkAccess structureStartChunkAccess = worldGenRegion.getChunk(structureStartSectionPos.x(), structureStartSectionPos.z(), ChunkStatus.STRUCTURE_STARTS);
 
-            StructureStart structureStart = structureManager.getStartForStructure(structureStartSectionPos, structure, structureStartChunkAccess);
+            StructureStart structureStart = structureManager.getStartForStructure(structure, structureStartChunkAccess);
             if (structureStart != null && structureStart.isValid() && filter.test(structureStart)) {
                 return true;
             }
