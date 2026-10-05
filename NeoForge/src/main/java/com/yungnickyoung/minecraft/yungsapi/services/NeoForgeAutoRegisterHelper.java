@@ -6,10 +6,7 @@ import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterField;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterFieldRouter;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegistrationManager;
 import com.yungnickyoung.minecraft.yungsapi.module.*;
-import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.alchemy.Potion;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforgespi.language.ModFileScanData;
 import org.objectweb.asm.Type;
@@ -18,7 +15,6 @@ import java.lang.annotation.ElementType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.function.Supplier;
 
 public class NeoForgeAutoRegisterHelper implements IAutoRegisterHelper {
     @Override
@@ -80,7 +76,7 @@ public class NeoForgeAutoRegisterHelper implements IAutoRegisterHelper {
 
                     // Queue for registration
                     String name = (String) data.annotationData().get("value");
-                    AutoRegisterField autoRegisterField = new AutoRegisterField(o, Identifier.fromNamespaceAndPath(modId, name));
+                    AutoRegisterField autoRegisterField = new AutoRegisterField(o, Identifier.fromNamespaceAndPath(modId, name), f.getGenericType());
                     AutoRegisterFieldRouter.queueField(autoRegisterField);
                 });
     }
@@ -149,14 +145,4 @@ public class NeoForgeAutoRegisterHelper implements IAutoRegisterHelper {
         CommandModuleNeoForge.processEntries();
     }
 
-    @Override
-    public void registerBrewingRecipe(Holder<Potion> inputPotion, Supplier<Item> ingredient, Holder<Potion> outputPotion) {
-        PotionModuleNeoForge.BrewingRecipe recipe = new PotionModuleNeoForge.BrewingRecipe(inputPotion, ingredient, outputPotion);
-        PotionModuleNeoForge.BREWING_RECIPES.add(recipe);
-    }
-
-    @Override
-    public void addCompostableItem(Supplier<Item> ingredient, float compostChance) {
-        CompostModuleNeoForge.COMPOSTABLES.put(ingredient.get(), compostChance);
-    }
 }

@@ -4,11 +4,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.core.registries.codec.RegistryCodecs;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
-import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement.ExclusionZone;
+import net.minecraft.world.level.levelgen.structure.placement.AbstractSpreadingStructurePlacement.ExclusionZone;
 
 /**
  * Enhanced version of vanilla's {@link ExclusionZone} that allows for specifying multiple structure sets to avoid.
@@ -16,7 +16,7 @@ import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement
 public class EnhancedExclusionZone {
     public static final Codec<EnhancedExclusionZone> CODEC = RecordCodecBuilder.create(builder -> builder
             .group(
-                    RegistryCodecs.homogeneousList(Registries.STRUCTURE_SET, StructureSet.DIRECT_CODEC)
+                    RegistryCodecs.holderSet(Registries.STRUCTURE_SET, StructureSet.DIRECT_CODEC)
                             .fieldOf("other_set")
                             .forGetter(zone -> zone.otherSet),
                     Codec.intRange(1, 16)

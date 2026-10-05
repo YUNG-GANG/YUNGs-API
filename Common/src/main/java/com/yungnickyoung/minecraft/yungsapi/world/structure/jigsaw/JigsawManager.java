@@ -266,7 +266,7 @@ public class JigsawManager {
             List<StructureTemplate.JigsawBlockInfo> shuffledJigsawBlocks = structurePoolElement.getShuffledJigsawBlocks(structureTemplateManager, startPos, rotation, rand);
             for (StructureTemplate.JigsawBlockInfo jigsawBlockInfo : shuffledJigsawBlocks) {
                 if (name.equals(jigsawBlockInfo.name())) {
-                    return Optional.of(jigsawBlockInfo.info().pos());
+                    return Optional.of(jigsawBlockInfo.pos());
                 }
             }
         } catch (ConcurrentModificationException e) {

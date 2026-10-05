@@ -6,6 +6,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.*;
+import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
@@ -21,12 +22,13 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /**
  * A runtime datapack which adds structures replaced with {@link com.yungnickyoung.minecraft.yungsapi.api.world.structure.locate.LocateReplacer}
  * to the {@code c:hidden_from_locator_selection} tag, so that they don't show up in menus for mods such as Explorer's Compass.
  */
-public class LocateReplacerDataPackResources extends AbstractPackResources {
+public class LocateReplacerDataPackResources implements PackResources {
     private static final Identifier TAG_LOCATION = Identifier.fromNamespaceAndPath("c", "tags/worldgen/structure/hidden_from_locator_selection.json");
     private static final String[] TAG_FULL_PATH = Util.make(new ArrayList<String>(), s -> {
         s.add("data");
@@ -42,7 +44,17 @@ public class LocateReplacerDataPackResources extends AbstractPackResources {
             Optional.empty());
 
     protected LocateReplacerDataPackResources() {
-        super(LOCATION_INFO);
+    }
+
+    @Override
+    public PackLocationInfo location() {
+        return LOCATION_INFO;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> @Nullable T getMetadataSection(MetadataSectionType<T> metadataSerializer) {
+        return metadataSerializer == PackMetadataSection.SERVER_TYPE ? (T) METADATA : null;
     }
 
     private TagFile makeTagFile() {
@@ -122,13 +134,13 @@ public class LocateReplacerDataPackResources extends AbstractPackResources {
             var packResources = new LocateReplacerDataPackResources();
             var pack = Pack.readMetaAndCreate(packResources.location(), new Pack.ResourcesSupplier() {
                 @Override
-                public PackResources openPrimary(PackLocationInfo packLocationInfo) {
+                public PackMetadataResources openMetadata(PackLocationInfo packLocationInfo) {
                     return packResources;
                 }
 
                 @Override
-                public PackResources openFull(PackLocationInfo packLocationInfo, Pack.Metadata metadata) {
-                    return packResources;
+                public Stream<PackResources> openResources(PackLocationInfo packLocationInfo, Pack.Metadata metadata) {
+                    return Stream.of(packResources);
                 }
             }, PackType.SERVER_DATA, new PackSelectionConfig(true, Pack.Position.TOP, true));
             if (pack != null) {

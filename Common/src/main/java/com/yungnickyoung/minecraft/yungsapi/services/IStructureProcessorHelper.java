@@ -1,16 +1,16 @@
 package com.yungnickyoung.minecraft.yungsapi.services;
 
+import com.mojang.serialization.MapCodec;
 import com.yungnickyoung.minecraft.yungsapi.api.world.structure.processor.StructureEntityProcessorBuilder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 import net.minecraft.world.level.storage.ValueInput;
 
 import java.util.Optional;
 import java.util.function.Function;
 
 public interface IStructureProcessorHelper {
-    StructureProcessorType<StructureProcessor> createStructureProcessorType(Function<ValueInput, Optional<StructureEntityProcessorBuilder.Processor>> function);
+    MapCodec<? extends StructureProcessor> createStructureProcessorType(Function<ValueInput, Optional<StructureEntityProcessorBuilder.Processor>> function);
 
     static CompoundTag merge(CompoundTag into, CompoundTag from) {
         for (var entry : from.entrySet()) {

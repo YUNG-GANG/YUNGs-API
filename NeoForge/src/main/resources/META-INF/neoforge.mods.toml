@@ -10,7 +10,7 @@ issueTrackerURL="https://github.com/yungnickyoung/YUNGs-Api/issues"
     credits="${mod_credits}"
     authors="YUNGNICKYOUNG"
     description="${mod_description}"
-    logoFile="logo.png"
+    bannerFile="logo.png"
     displayURL="https://www.curseforge.com/minecraft/mc-mods/yungs-api"
 
 [modproperties.${mod_id}]

@@ -7,7 +7,6 @@ import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
@@ -18,10 +17,9 @@ import java.util.function.Function;
 
 public class NeoForgeStructureProcessorHelper implements IStructureProcessorHelper {
     @Override
-    public StructureProcessorType<StructureProcessor> createStructureProcessorType(final Function<ValueInput, Optional<StructureEntityProcessorBuilder.Processor>> function) {
+    public MapCodec<? extends StructureProcessor> createStructureProcessorType(final Function<ValueInput, Optional<StructureEntityProcessorBuilder.Processor>> function) {
         var processor = new StructureProcessor() {
             private final MapCodec<StructureProcessor> codec = MapCodec.unit(this);
-            private final StructureProcessorType<StructureProcessor> type = () -> this.codec;
 
             @Override public StructureTemplate.StructureEntityInfo processEntity(
                     final LevelReader world,
@@ -42,10 +40,11 @@ public class NeoForgeStructureProcessorHelper implements IStructureProcessorHelp
                 }).orElse(entityInfo);
             }
 
-            @Override protected StructureProcessorType<?> getType() {
-                return this.type;
+            @Override
+            public MapCodec<? extends StructureProcessor> codec() {
+                return this.codec;
             }
         };
-        return processor.type;
+        return processor.codec();
     }
 }

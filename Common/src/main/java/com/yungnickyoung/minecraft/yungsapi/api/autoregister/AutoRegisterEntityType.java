@@ -1,10 +1,11 @@
 package com.yungnickyoung.minecraft.yungsapi.api.autoregister;
 
-import com.google.common.collect.ImmutableSet;
 import com.yungnickyoung.minecraft.yungsapi.autoregister.AutoRegisterEntry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.DependantName;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityAttachment;
@@ -71,7 +72,7 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
     public static class Builder<T extends Entity> {
         private final EntityType.EntityFactory<T> factory;
         private final MobCategory category;
-        private ImmutableSet<Block> immuneTo = ImmutableSet.of();
+        private TagKey<Block> immuneTo = BlockTags.DEFAULT_IMMUNE_TO;
         private boolean serialize = true;
         private boolean summon = true;
         private boolean fireImmune;
@@ -85,6 +86,7 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
         private DependantName<EntityType<?>, String> descriptionId;
         private DependantName<EntityType<?>, Optional<ResourceKey<LootTable>>> lootTable;
         private boolean allowedInPeaceful;
+        private boolean trackDeltas = true;
 
         private Builder(EntityType.EntityFactory<T> entityFactory, MobCategory mobCategory) {
             this.factory = entityFactory;
@@ -169,8 +171,8 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
             return this;
         }
 
-        public Builder<T> immuneTo(Block... blocks) {
-            this.immuneTo = ImmutableSet.copyOf(blocks);
+        public Builder<T> immuneTo(TagKey<Block> tag) {
+            this.immuneTo = tag;
             return this;
         }
 
@@ -204,6 +206,11 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
             return this;
         }
 
+        public Builder<T> dontTrackDeltas() {
+            this.trackDeltas = false;
+            return this;
+        }
+
         public EntityType<T> build(ResourceKey<EntityType<?>> resourceKey) {
             return new EntityType<>(
                     this.factory,
@@ -220,7 +227,8 @@ public class AutoRegisterEntityType<T extends Entity> extends AutoRegisterEntry<
                     this.descriptionId.get(resourceKey),
                     this.lootTable.get(resourceKey),
                     this.requiredFeatures,
-                    this.allowedInPeaceful
+                    this.allowedInPeaceful,
+                    this.trackDeltas
             );
         }
     }

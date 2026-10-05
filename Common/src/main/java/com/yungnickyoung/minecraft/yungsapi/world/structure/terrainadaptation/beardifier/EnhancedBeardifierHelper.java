@@ -2,7 +2,6 @@ package com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.b
 
 import com.yungnickyoung.minecraft.yungsapi.mixin.BeardifierMixin;
 import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.BeardifierAccessor;
-import com.yungnickyoung.minecraft.yungsapi.mixin.accessor.NoiseChunkAccessor;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.YungJigsawStructure;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.jigsaw.element.YungJigsawPoolElement;
 import com.yungnickyoung.minecraft.yungsapi.world.structure.terrainadaptation.adaptations.EnhancedTerrainAdaptation;
@@ -18,7 +17,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.Beardifier;
-import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.NoiseChunk;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
@@ -45,7 +43,7 @@ public class EnhancedBeardifierHelper {
         ObjectList<EnhancedJigsawJunction> enhancedJunctionList = new ObjectArrayList<>(10);
         int chunkMinBlockX = chunkPos.getMinBlockX();
         int chunkMinBlockZ = chunkPos.getMinBlockZ();
-        List<StructureStart> structureStarts = structureManager.startsForStructure(chunkPos, structure -> structure instanceof YungJigsawStructure);
+        List<StructureStart> structureStarts = structureManager.startsForStructure(chunkPos.x(), chunkPos.z(), structure -> structure instanceof YungJigsawStructure);
         for (StructureStart structureStart : structureStarts) {
             EnhancedTerrainAdaptation structureTerrainAdaptation = ((YungJigsawStructure) structureStart.getStructure()).enhancedTerrainAdaptation;
 
@@ -129,15 +127,14 @@ public class EnhancedBeardifierHelper {
 
     /**
      * Computes the updated density value at the given point, accounting for noise contributions from the EnhancedBeardifierData.
-     * @param ctx the density FunctionContext
+     * @param x The x-coordinate
+     * @param y The y-coordinate
+     * @param z The z-coordinate
      * @param density The originally computed vanilla density value at this position
      * @param data The {@link EnhancedBeardifierData} to be used in the computation of the new density value.
      * @return The new density value at the given location, accounting for additional noise contributions.
      */
-    public static double computeDensity(DensityFunction.FunctionContext ctx, double density, EnhancedBeardifierData data) {
-        int x = ctx.blockX();
-        int y = ctx.blockY();
-        int z = ctx.blockZ();
+    public static float computeDensity(int x, int y, int z, float density, EnhancedBeardifierData data) {
         AquiferOverride aquiferOverride = NoneAquiferOverride.INSTANCE;
 
         var pieceIterator = data.yungsapi_getEnhancedPieceIterator();
@@ -232,15 +229,10 @@ public class EnhancedBeardifierHelper {
 
     private static void updateAquiferOverrideMask(EnhancedBeardifierData data, AquiferOverride aquiferOverride, int x, int y, int z) {
         NoiseChunk noiseChunk = data.yungsapi_getNoiseChunk();
-        NoiseChunkAccessor noiseChunkAccessor = (NoiseChunkAccessor) noiseChunk;
         AquiferOverrideMaskSupplier aquiferOverrideMaskSupplier = (AquiferOverrideMaskSupplier) noiseChunk;
 
-        int cellHeight = noiseChunkAccessor.getCellHeight();
-        int cellCountY = noiseChunkAccessor.getCellCountY();
-        int cellNoiseMinY = noiseChunkAccessor.getCellNoiseMinY();
-
-        int chunkHeight = cellCountY * cellHeight;
-        int minY = cellNoiseMinY * cellHeight;
+        int chunkHeight = noiseChunk.volume().sizeY();
+        int minY = noiseChunk.volume().minBlockY();
 
         AquiferOverrideMask aquiferOverrideMask = aquiferOverrideMaskSupplier.getOrCreateAquiferOverrideMask(() -> new AquiferOverrideMask(chunkHeight, minY));
         aquiferOverrideMask.set(x, y, z);

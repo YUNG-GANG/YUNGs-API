@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityEquipment;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
@@ -20,7 +21,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -326,7 +326,7 @@ public final class StructureEntityProcessorBuilder<F> implements App<StructureEn
             Function<Item, Function<RandomSource, Item>> helmetMap) {
         return seq(
                 guard(
-                        onlyIf(is(EntityType.ARMOR_STAND)),
+                        onlyIf(is(EntityTypes.ARMOR_STAND)),
                         processor(instance -> instance.group(
                                 extract(EntityEquipment.CODEC.fieldOf("equipment"))
                                         .map(eq -> eq.get(EquipmentSlot.HEAD).getItem())
@@ -352,7 +352,7 @@ public final class StructureEntityProcessorBuilder<F> implements App<StructureEn
     public static StructureEntityProcessorBuilder<Processor> createItemFrameProcessor(Function<Item, Function<RandomSource, Item>> map) {
         return seq(
                 guard(
-                        onlyIf(is(EntityType.ITEM_FRAME)),
+                        onlyIf(is(EntityTypes.ITEM_FRAME)),
                         processor(instance -> instance.group(
                                 extract(ItemStackTemplate.CODEC.fieldOf("Item"))
                                         .map(ist -> map.apply(ist.item().value()))
@@ -398,7 +398,7 @@ public final class StructureEntityProcessorBuilder<F> implements App<StructureEn
      * @param builder   the builder
      * @return  the StructureProcessorType
      */
-    public static StructureProcessorType<StructureProcessor> build(final StructureEntityProcessorBuilder<Processor> builder) {
+    public static MapCodec<? extends StructureProcessor> build(final StructureEntityProcessorBuilder<Processor> builder) {
         return Services.STRUCTURE_PROCESSOR_HELPER.createStructureProcessorType(builder.function);
     }
 

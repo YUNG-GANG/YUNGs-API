@@ -11,7 +11,6 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
-import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
 
 import java.util.Optional;
 
@@ -24,9 +23,9 @@ public class EnhancedRandomSpread extends RandomSpreadStructurePlacement {
                             ExtraCodecs.NON_NEGATIVE_INT.fieldOf("salt").forGetter(placement -> placement.salt()),
                             ExclusionZone.CODEC.optionalFieldOf("exclusion_zone").forGetter(placement -> placement.exclusionZone()),
                             EnhancedExclusionZone.CODEC.optionalFieldOf("enhanced_exclusion_zone").forGetter(placement -> placement.enhancedExclusionZone),
-                            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("spacing").forGetter(RandomSpreadStructurePlacement::spacing),
-                            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("separation").forGetter(RandomSpreadStructurePlacement::separation),
-                            RandomSpreadType.CODEC.optionalFieldOf("spread_type", RandomSpreadType.LINEAR).forGetter(RandomSpreadStructurePlacement::spreadType))
+                            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("spacing").forGetter(EnhancedRandomSpread::spacing),
+                            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("separation").forGetter(EnhancedRandomSpread::separation),
+                            RandomSpreadType.CODEC.optionalFieldOf("spread_type", RandomSpreadType.LINEAR).forGetter(EnhancedRandomSpread::spreadType))
                     .apply(builder, builder.stable(EnhancedRandomSpread::new)))
             .validate(EnhancedRandomSpread::validateSpacing);
 
@@ -37,7 +36,6 @@ public class EnhancedRandomSpread extends RandomSpreadStructurePlacement {
     }
 
     private final Optional<EnhancedExclusionZone> enhancedExclusionZone;
-
     public EnhancedRandomSpread(Vec3i locateOffset,
                                 FrequencyReductionMethod frequencyReductionMethod,
                                 Float frequency,
@@ -52,8 +50,9 @@ public class EnhancedRandomSpread extends RandomSpreadStructurePlacement {
     }
 
     @Override
-    public StructurePlacementType<?> type() {
-        return StructurePlacementTypeModule.ENHANCED_RANDOM_SPREAD;
+    @SuppressWarnings("unchecked")
+    public MapCodec<RandomSpreadStructurePlacement> codec() {
+        return (MapCodec<RandomSpreadStructurePlacement>) (MapCodec<?>) StructurePlacementTypeModule.ENHANCED_RANDOM_SPREAD;
     }
 
     @Override
@@ -64,4 +63,5 @@ public class EnhancedRandomSpread extends RandomSpreadStructurePlacement {
         return this.enhancedExclusionZone.isEmpty()
                 || !this.enhancedExclusionZone.get().isPlacementForbidden(chunkGeneratorStructureState, x, z);
     }
+
 }

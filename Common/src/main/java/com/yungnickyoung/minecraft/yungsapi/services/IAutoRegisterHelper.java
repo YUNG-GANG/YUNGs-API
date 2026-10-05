@@ -1,12 +1,6 @@
 package com.yungnickyoung.minecraft.yungsapi.services;
 
 import com.yungnickyoung.minecraft.yungsapi.api.autoregister.AutoRegister;
-import net.minecraft.core.Holder;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.alchemy.Potion;
-
-import java.util.function.Supplier;
-
 public interface IAutoRegisterHelper {
     /**
      * Invokes all {@link AutoRegister} annotated methods within the specified package.
@@ -49,7 +43,4 @@ public interface IAutoRegisterHelper {
      */
     void processQueuedAutoRegEntries();
 
-    void registerBrewingRecipe(Holder<Potion> inputPotion, Supplier<Item> ingredient, Holder<Potion> outputPotion);
-
-    void addCompostableItem(Supplier<Item> ingredient, float compostChance);
 }

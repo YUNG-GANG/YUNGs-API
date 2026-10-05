@@ -13,9 +13,11 @@ import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.levelgen.Beardifier;
-import net.minecraft.world.level.levelgen.DensityFunction;
-import net.minecraft.world.level.levelgen.DensityFunctions;
 import net.minecraft.world.level.levelgen.NoiseChunk;
+import net.minecraft.world.level.levelgen.densityfunction.DensityBuffer;
+import net.minecraft.world.level.levelgen.densityfunction.DensitySampler;
+import net.minecraft.world.level.levelgen.densityfunction.DensityVolume;
+import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  */
 @Mixin(Beardifier.class)
 @NullMarked
-public abstract class BeardifierMixin implements EnhancedBeardifierData, DensityFunctions.BeardifierOrMarker {
+public abstract class BeardifierMixin implements EnhancedBeardifierData, DensitySampler {
     @Unique
     private @Nullable ObjectList<EnhancedJigsawJunction> enhancedJunctions;
 
@@ -45,19 +47,18 @@ public abstract class BeardifierMixin implements EnhancedBeardifierData, Density
         return EnhancedBeardifierHelper.forStructuresInChunk(structureManager, chunkPos, original.call(structureManager, chunkPos));
     }
 
-    @Inject(method = "fillArray", at = @At(value = "INVOKE", target = "Ljava/util/Arrays;fill([DD)V"), cancellable = true)
-    private void yungsapi_fillArray(final double[] output, final DensityFunction.ContextProvider contextProvider, final CallbackInfo ci) {
+    @Inject(method = "sampleVolume", at = @At("HEAD"), cancellable = true)
+    private void yungsapi_sampleVolume(SamplerContext context, DensityBuffer output, DensityVolume volume, CallbackInfo ci) {
         if (this.enhancedPieces != null && this.enhancedJunctions != null
             && (!this.enhancedPieces.isEmpty() || !this.enhancedJunctions.isEmpty())) {
-            DensityFunctions.BeardifierOrMarker.super.fillArray(output, contextProvider);
+            DensitySampler.sampleVolumeNaive(context, output, volume, (Beardifier) (Object) this);
             ci.cancel();
         }
     }
 
-    @Inject(method = "compute", at = @At("RETURN"), cancellable = true)
-    public void yungsapi_calculateDensity(DensityFunction.FunctionContext ctx, CallbackInfoReturnable<Double> cir) {
-        double density = cir.getReturnValue();
-        double newDensity = EnhancedBeardifierHelper.computeDensity(ctx, density, this);
+    @Inject(method = "sampleValue", at = @At("RETURN"), cancellable = true)
+    public void yungsapi_calculateDensity(SamplerContext context, int blockX, int blockY, int blockZ, CallbackInfoReturnable<Float> cir) {
+        float newDensity = EnhancedBeardifierHelper.computeDensity(blockX, blockY, blockZ, cir.getReturnValue(), this);
         cir.setReturnValue(newDensity);
     }
 
